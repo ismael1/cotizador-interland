@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkminton"]=self["webpackChunkminton"]||[]).push([[6415],{66415:function(n,l,u){u.r(l);var e,t,s=u(1001),a={},c=(0,s.Z)(a,e,t,!1,null,null,null);l["default"]=c.exports}}]);
+//# sourceMappingURL=6415.3119f523.js.map
