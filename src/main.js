@@ -26,10 +26,6 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 Vue.use(VueAxios, axios);
 
-// axios.defaults.baseURL = 'http://127.0.0.1:8000/usuarios/'
-// axios.defaults.baseURL = 'http://127.0.0.1:8000/'
-
-
 //instalar 00621
 //comentado
 // import Autocomplete from '@trevoreyre/autocomplete-vue'
@@ -56,9 +52,9 @@ Vue.use(Autocomplete)
 // Vue.use(HeyUI);
 
 
-axios.defaults.baseURL = 'http://127.0.0.1:8000/' //generado
+//axios.defaults.baseURL = 'http://127.0.0.1:8000/' //generado
 
-//axios.defaults.baseURL = 'http://cotiza.ifreight.business/' //generado
+axios.defaults.baseURL = 'http://164.92.74.212/' //generado
 
 
 Vue.config.productionTip = false
