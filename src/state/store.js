@@ -11,6 +11,10 @@ const store = new Vuex.Store({
   // when mutating state outside of a mutation.
   // https://vuex.vuejs.org/guide/strict.html
   strict: process.env.NODE_ENV !== 'production',
+  state: {
+    //myFiles: 'http://127.0.0.1:8000/'
+    myFiles: 'http://164.92.74.212/'
+  },
 })
 
 export default store

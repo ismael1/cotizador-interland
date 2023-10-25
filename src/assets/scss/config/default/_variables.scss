@@ -7,7 +7,7 @@
 //Background left-sidebar
 $bg-leftbar:                                      #ffffff;
 $bg-leftbar-dark:                                 #38414a;
-$bg-leftbar-brand:                                #3bafda;
+$bg-leftbar-brand:                                #2aab5c;
 $bg-leftbar-gradient:                             #242540;
 
 // Leftbar width
@@ -21,13 +21,13 @@ $leftbar-width-sm:                                  160px;
 $boxed-layout-width:                                1300px;
 
 // Logo
-$bg-logo:                                         #3bafda;
+$bg-logo:                                         #2aab5c;
 
 // Compact sidebar
 $twocolumn-sidebar-width:                           220px;
 $twocolumn-sidebar-iconview-width:                  70px;
 $twocolumn-sidebar-bg:                            #ffffff;
-$twocolumn-sidebar-iconview-bg:                   #3bafda;
+$twocolumn-sidebar-iconview-bg:                   #2aab5c;
 
 // Dark leftbar menu color
 $menu-item-color-dark:                            #9097a7;
@@ -36,9 +36,9 @@ $menu-item-active-color-dark:                     #ffffff;
 
 //Menu item
 $menu-item:                                       #6e768e;
-$menu-item-hover:                                 #3bafda;
+$menu-item-hover:                                 #2aab5c;
 $menu-item-active:                                #2aab5c;
-$menu-sub-item-active:                            #3bafda;
+$menu-sub-item-active:                            #2aab5c;
 $menu-item-size:                                    0.95rem;
 $menu-sub-item-size:                                0.9rem;
 
@@ -51,7 +51,7 @@ $rightbar-bg:                                     #ffffff;
 
 //Topbar Background
 $bg-topbar-light:                                 #ffffff;
-$bg-topbar-dark:                                  #3bafda;
+$bg-topbar-dark:                                  #2aab5c;
 
 // Leftbar item shadow (Condensed item)
 $box-shadow-condensed:                              0 1px 7px 0 rgba(154,161,171,.2); 
@@ -161,7 +161,7 @@ $grays: map-merge(
   $grays
 );
 
-$blue:       #3bafda;
+$blue:       #2aab5c;
 $indigo:     #675aa9;
 $purple:     #6559cc;
 $pink:       #f672a7;

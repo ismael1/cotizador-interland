@@ -1,5 +1,4 @@
 <script>
-
 import Swal from "sweetalert2";
 import Auth from "../../layouts/auth-2";
 import appConfig from "../../../../app.config";
@@ -15,6 +14,8 @@ import Vue from 'vue'
 import VueCryptojs from 'vue-cryptojs'
 import axios from "axios";
 Vue.use(VueCryptojs)
+
+import ItemTemplateAddres from "@/components/ItemTemplateAddress";
 
 /**
  * Login-2 component
@@ -60,96 +61,41 @@ export default {
       contacLada: 1,
 
       selectedtipoPersona: 0,
-      optionstipoPersona: [
-        { text: 'Física', value: 1 },
-        { text: 'Moral', value: 2 },
-      ],
+      optionstipoPersona: [],
 
       selectedtipoCliente: 0,
-      optionstipoCliente: [
-        { text: 'Nacional', value: 1 },
-        { text: 'Extranjero', value: 2 },
-      ],
+      optionstipoCliente: [],
 
       selectedtipoEmpresa: 0,
-      optionstipoEmpresa:[
-        {value:0, text:''},
-        {value:1, text:'S.A de C.V.'},
-        {value:2, text:'S de R.L. de C.V.'},
-        {value:3, text:'S. de R.L.'},
-        {value:4, text:'S. en C. por A.'},
-        {value:5, text:'S. en C. S.'},
-        {value:6, text:'S.A.'},
-        {value:7, text:'S.C.'},
-        {value:8, text:'SAS'},
-        {value:14, text:'SAPI DE CV'},
-        {value:15, text:'S.P.R DE R.L'},
-        {value:9, text:'LLC'},
-        {value:10, text:'INC'},
-        {value:11, text:'LTD'},
-        {value:12, text:'CO'},
-        {value:13, text:'LP'},
-        {value:16, text:'S.A.B. DE C.V.'},
-      ],
+      optionstipoEmpresa:[],
 
       selectedregimenFiscal: 0,
-      optionsregimenFiscal:[
-        { value: 601, text: '601 General de Ley Personas Morales'},
-        { value: 603, text: ' 603 Personas Morales con Fines no Lucrativos'},
-        { value: 605, text: ' 605 Sueldos y Salarios e Ingresos Asimilados a Salarios'},
-        { value: 606, text: ' 606 Arrendamiento'},
-        { value: 607, text: ' 607 Régimen de Enajenación o Adquisición de Bienes'},
-        { value: 608, text: ' 608 Demás ingresos'},
-        { value: 609, text: ' 609 Consolidación'},
-        { value: 610, text: ' 610 Residentes en el Extranjero sin Establecimiento Permanente en México'},
-        { value: 611, text: ' 611 Ingresos por Dividendos (socios y accionistas)'},
-        { value: 612, text: ' 612 Personas Físicas con Actividades Empresariales y Profesionales'},
-        { value: 614, text: ' 614 Ingresos por intereses'},
-        { value: 615, text: ' 615 Régimen de los ingresos por obtención de premios'},
-        { value: 616, text: ' 616 Sin obligaciones fiscales'},
-        { value: 620, text: ' 620 Sociedades Cooperativas de Producción que optan por diferir sus ingresos'},
-        { value: 621, text: ' 621 Incorporación Fiscal'},
-        { value: 622, text: ' 622 Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras'},
-        { value: 624, text: ' 624 Coordinados'},
-        { value: 625, text: ' 625 Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas'},
-        { value: 626, text: ' 626 Régimen Simplificado de Confianza'},
-        { value: 628, text: ' 628 Hidrocarburos'},
-        { value: 629, text: ' 629 De los Regímenes Fiscales Preferentes y de las Empresas Multinacionales'},
-        { value: 630, text: ' 630 Enajenación de acciones en bolsa de valores'}
-      ],
+      optionsregimenFiscal:[],
 
       selectedMetodoPago: 0,
-      optionsMetodoPago:[
-        { value: 1, text: 'PUE - Pago en una sola exhibición'},
-        { value: 2, text: 'PPD - Pago en parcialidades o diferido'},
-        
-      ],
+      optionsMetodoPago:[],
 
       selectedFormaPago: 0,
-      optionsFormaPago:[
-      
-        {values: 1, text: '01 - Efectivo'},
-        {values: 2, text: '02 - Cheque nominativo'},
-        {values: 3, text: '03 - Transferencia electrónica de fondos'},
-        {values: 4, text: '04 - Tarjeta de crédito'},
-        {values: 5, text: '05 - Monedero electrónico'},
-        {values: 6, text: '06 - Dinero electrónico'},
-        {values: 7, text: '08 - Vales de despensa'},
-        {values: 8, text: '12 - Dación en pago'},
-        {values: 9, text: '13 - Pago por subrogación'},
-        {values: 10, text: '14 - Pago por consignación'},
-        {values: 11, text: '15 - Condonación'},
-        {values: 12, text: '17 - Compensación'},
-        {values: 13, text: '23 - Novación'},
-        {values: 14, text: '24 - Confusión'},
-        {values: 15, text: '25 - Remisión de deuda'},
-        {values: 16, text: '26 - Prescripción o caducidad'},
-        {values: 17, text: '27 - A satisfacción del acreedor'},
-        {values: 18, text: '28 - Tarjeta de débito'},
-        {values: 19, text: '29 - Tarjeta de servicios'},
-        {values: 20, text: '30 - Aplicación de anticipos'},
-        {values: 21, text: '99 - Por definir'},
-      ],
+      optionsFormaPago:[],
+
+      nombre_empresa: '',
+      rfc: '',
+      dates_search_address: [],
+      direccion_fiscal: '',
+      templateAddress: ItemTemplateAddres,
+
+      pais_fiscal: '',
+      estado_fiscal: '',
+      ciudad_fiscal: '',
+      cp_fiscal: '',
+      calle_fiscal: '',
+      numero_exterior_fiscal: '',
+      numero_interior_fiscal: '',
+
+      comprobante_domicilio_fiscal: null,
+      comprobante_domicilio_fiscal_url: '',
+      estado_cuenta: null,
+      estado_cuenta_url: '',
 
     };
   },
@@ -172,9 +118,127 @@ export default {
   created() {
     this.local()
     this.getLada();
+    this.getTipoCliente();
+    this.getTipoPersona();
+    this.getTipoEmpresa();
+    this.getRegimenFiscal();
+    this.getMetodoPago();
+    this.getFormaPago();
   },
 
   methods: {
+
+
+    getTipoCliente(){
+      axios.get(`/api/v1/tipo-cliente/`)
+      .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_tipo_cliente, text:response.data[i].descripcion}
+            this.optionstipoCliente.push(dato)      
+          }
+          
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    getTipoPersona(){
+      axios.get(`/api/v1/tipo-persona/`)
+      .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_tipo_persona, text:response.data[i].descripcion}
+            this.optionstipoPersona.push(dato)      
+          }
+          
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+    
+    getTipoEmpresa(){
+      axios
+        .get(`/api/v1/tipo-empresa/`)
+        .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_tipo_empresa, text:response.data[i].descripcion}
+            this.optionstipoEmpresa.push(dato)      
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getRegimenFiscal(){
+      axios
+        .get(`/api/v1/regimen-fiscal/`)
+        .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_regimen_fiscal, text:response.data[i].descripcion_completa}
+            this.optionsregimenFiscal.push(dato)      
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getMetodoPago(){
+      axios
+        .get(`/api/v1/metodo-pago/`)
+        .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_metodo_pago, text:response.data[i].descripcion_completa}
+            this.optionsMetodoPago.push(dato)      
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getFormaPago(){
+      axios
+        .get(`/api/v1/forma-pago/`)
+        .then((response) => {
+          let dato = {}
+          for (let i = 0; i < response.data.length; i++) {
+            dato = {value:response.data[i].id_forma_pago, text:response.data[i].descripcion_completa}
+            this.optionsFormaPago.push(dato)      
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getLabelAddress(item) {
+      if (item != null && item != "") {
+        let idpais = parseInt(item.pais_id);
+        let pais = item.pais_name;
+        let idestado = parseInt(item.estado_id);
+        let estado = item.estado_name;
+        let ciudad = item.municipio;
+        let colonia = item.asentamiento;
+        let cp = item.codigo_postal;
+
+        if (pais != undefined && pais != null && pais != "") {
+          this.direccion_fiscal = "";
+
+          this.pais_fiscal = pais
+          this.estado_fiscal = estado
+          this.ciudad_fiscal = ciudad
+          this.cp_fiscal = cp
+          this.direccion_fiscal = pais + ", " + estado + ", " + ciudad + ", " + cp;
+
+        }
+      }
+    },
 
     local() {
       localStorage.removeItem('users')
@@ -433,6 +497,7 @@ export default {
       let EmailValido = expReg.test(email);
 
       if (EmailValido == true) {
+
       } else {
         Swal.fire({
           title: "Email no Valido",
@@ -478,6 +543,96 @@ export default {
         return false;
       }
 
+      if(this.selectedtipoCliente <= 0 ){
+        Swal.fire({
+          title: "Tipo de Cliente",
+          text: "Por favor selecciona que tipo de cliente eres.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.selectedtipoPersona <= 0 ){
+        Swal.fire({
+          title: "Tipo de Persona",
+          text: "Por favor selecciona que tipo de persona fiscal eres.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.nombre_empresa == '' ){
+        Swal.fire({
+          title: "Nombre de la Empresa",
+          text: "Por favor ingresa el nombre de la empresa.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.selectedtipoEmpresa <= 0 ){
+        Swal.fire({
+          title: "Tipo de Empresa",
+          text: "Por favor selecciona el tipo de empresa.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.rfc == '' ){
+        Swal.fire({
+          title: "RFC",
+          text: "El RFC no debe de ir vacío.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.selectedregimenFiscal <= 0 ){
+        Swal.fire({
+          title: "Regimen Fiscal",
+          text: "Por favor selecciona un Régimen Fiscal.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.selectedMetodoPago <= 0 ){
+        Swal.fire({
+          title: "Método de Pago",
+          text: "Por favor selecciona un Método de Pago.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.selectedFormaPago <= 0 ){
+        Swal.fire({
+          title: "Forma de Pago",
+          text: "Por favor selecciona una Forma de Pago.",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.estado_cuenta == null && this.comprobante_domicilio_fiscal == null){
+        Swal.fire({
+          title: 'Debes seleccionar al menos un documento PDF.',
+          text: '',
+          icon: 'error',
+          confirmButtonText: 'Cerrar',
+        })
+        return false;
+      }
+
       if (!this.terms) {
         Swal.fire({
           title: "Términos y Condiciones",
@@ -496,49 +651,94 @@ export default {
           Swal.showLoading();
         }
       });
-    
-      axios({
-        method: "post",
-        url: "/api/v1/registerUser/",
-        data: {
-          validUsername: this.validaUsername,
-          terms: this.terms,
-          username: this.username,
-          phone: this.telefono,
-          name: this.nombre,
-          lastname: this.apellidos,
-          email: this.email,
-          pass: this.password,
-        },
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-      }).then((response) => {
-        this.$refs['my-modal'].hide();
-        this.validaUsername = false
-        this.terms = false
-        this.username = ''
-        this.telefono = ''
-        this.nombre = ''
-        this.apellidos = ''
-        this.email = ''
-        this.password = ''
-        this.textAccept = ''
-        this.textDecline = ''
 
-        Swal.close();
+      const formData = new FormData();
 
-        Swal.fire({
-          title: "Usuario Registrado",
-          text: "Los datos de tu usuario fueron dados de alta con exito, ya puedes iniciar sesión,",
-          icon: "success",
-          allowOutsideClick: false,
-          confirmButtonText: "Cerrar",
+        formData.append('validUsername', this.validUsername);
+        formData.append('terms', this.terms);
+        formData.append('username', this.username);
+        formData.append('phone', this.telefono);
+        formData.append('name', this.nombre);
+        formData.append('lastname', this.apellidos);
+        formData.append('email', this.email);
+        formData.append('pass', this.password);
+
+
+        formData.append('tipo_cliente', this.selectedtipoCliente);
+        formData.append('tipo_persona', this.selectedtipoPersona);
+        formData.append('nombre_empresa', this.nombre_empresa);
+        formData.append('tipo_empresa', this.selectedtipoEmpresa);
+        formData.append('rfc', this.rfc);
+        formData.append('regimen_fiscal', this.selectedregimenFiscal);
+        formData.append('metodo_pago', this.selectedMetodoPago);
+        formData.append('forma_pago', this.selectedFormaPago);
+
+        formData.append('pais_fiscal', this.pais_fiscal);
+        formData.append('estado_fiscal', this.estado_fiscal);
+        formData.append('ciudad_fiscal', this.ciudad_fiscal);
+        formData.append('cp_fiscal', this.cp_fiscal);
+        formData.append('calle_fiscal', this.calle_fiscal);
+        formData.append('numero_exterior_fiscal', this.numero_exterior_fiscal);
+        formData.append('numero_interior_fiscal', this.numero_interior_fiscal);
+
+        formData.append('estado_cuenta', this.estado_cuenta);
+        formData.append('comprobante_domicilio_fiscal', this.comprobante_domicilio_fiscal);
+
+        axios({
+          method: "post",
+          url: `/api/v1/registerUser/`,
+          data: formData,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          auth: {
+            username: "admin",
+            password: "123",
+          },
+        }).then((response) => {
+          console.log(response.data)
+          var datos = response.data[0]; 
+          if(datos.validate){
+            this.$refs['my-modal'].hide();
+            this.validaUsername = false
+            this.terms = false
+            this.username = ''
+            this.telefono = ''
+            this.nombre = ''
+            this.apellidos = ''
+            this.email = ''
+            this.password = ''
+            this.textAccept = ''
+            this.textDecline = ''
+
+            Swal.close();
+
+            Swal.fire({
+              title: "Registro de Usuario",
+              text: datos.msg,
+              icon: "success",
+              allowOutsideClick: false,
+              confirmButtonText: "Cerrar",
+            });
+          }else{
+            Swal.close();
+
+            Swal.fire({
+              title: "Registro de Usuario",
+              text: datos.msg,
+              icon: "warning",
+              allowOutsideClick: false,
+              confirmButtonText: "Cerrar",
+            });
+          }
+        }).catch((error) => {
+          Swal.fire({
+            title: "Ocurrio un error al intentar guardar al Usuario. "+error,
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
         });
-            
-      });
-      
     },
 
     generatePassword() {
@@ -696,6 +896,32 @@ export default {
           console.log(error);
         });
     },
+
+    buscaDireccion(text) {
+      let input = text;
+
+      if (input.length >= 5) {
+        axios({
+          method: "post",
+          url: "/api/v1/search-address/",
+          data: {
+            data: input,
+          },
+        }).then((response) => {
+          this.dates_search_address = response.data;
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+    },
+    
+    estadoCuentaPDF(event) {
+      this.estado_cuenta = event.target.files[0];
+    },
+
+    comprobanteDomicilioPDF(event) {
+      this.comprobante_domicilio_fiscal = event.target.files[0];
+    }
   },
 };
 </script>
@@ -783,19 +1009,16 @@ export default {
                   <div class="form-group row mb-3">
                     <label class="col-md-3 col-form-label" for="userName">Nombre de Usuario</label>
                     <div class="col-md-9">
-                      <input id="username" type="text" class="form-control" name="username" placeholder="Usuario"
-                        v-model="username" @change="validaUsuario" />
+                      <input id="username" type="text" class="form-control" name="username" placeholder="Usuario" v-model="username" @change="validaUsuario" autocomplete="off" />
                       <sub v-if="textAccept != ''" style="color:#2aab5c">{{ textAccept }}<i class="fe-check"></i></sub>
-                      <sub v-else-if="textDecline != ''" style="color:firebrick">{{ textDecline }}<i
-                          class="fe-x"></i></sub>
+                      <sub v-else-if="textDecline != ''" style="color:firebrick">{{ textDecline }}<i class="fe-x"></i></sub>
                     </div>
                   </div>
                   <div class="form-group row mb-3">
                     <label class="col-md-3 col-form-label" for="password">Contraseña</label>
                     <div class="col-md-9">
                       <div class="input-group input-group-merge">
-                        <input v-model="password" :type="showPassword ? 'text' : 'password'" class="form-control"
-                          placeholder="c0ntr4$eña" />
+                        <input v-model="password" :type="showPassword ? 'text' : 'password'" class="form-control" placeholder="c0ntr4$eña" />
                         <div class="input-group-append" data-password="false">
                           <div class="input-group-text" @click="toggleShowPassword">
                             <span class="password-eye"></span>
@@ -830,21 +1053,20 @@ export default {
                   <div class="form-group row mb-3">
                     <label class="col-md-3 col-form-label" for="name">Nombre</label>
                     <div class="col-md-9">
-                      <input type="text" name="name" class="form-control" placeholder="Francisco" v-model="nombre" />
+                      <input type="text" name="name" class="form-control" placeholder="Francisco" v-model="nombre" autocomplete="off"/>
                     </div>
                   </div>
                   <div class="form-group row mb-3">
                     <label class="col-md-3 col-form-label" for="surname">Apellidos</label>
                     <div class="col-md-9">
-                      <input type="text" name="surname" class="form-control" placeholder="Perez" v-model="apellidos" />
+                      <input type="text" name="surname" class="form-control" placeholder="Perez" v-model="apellidos" autocomplete="off"/>
                     </div>
                   </div>
 
                   <div class="form-group row mb-3">
                     <label class="col-md-3 col-form-label" for="email">Correo</label>
                     <div class="col-md-9">
-                      <input type="email" name="email" class="form-control" placeholder="frankPerez@hotmail.com"
-                        v-model="email" />
+                      <input type="email" name="email" class="form-control" placeholder="frankPerez@hotmail.com" v-model="email" autocomplete="off"/>
                     </div>
                   </div>
                 </div>
@@ -852,7 +1074,7 @@ export default {
               </div>
               <!-- end row -->
             </tab-content>
-            <!--tab-content icon="mdi mdi-information-outline">
+            <tab-content icon="mdi mdi-information-outline">
               <h4 class="header-title mb-3">Informacion Fiscal</h4>
               <div class="row">
                 <div class="col-12">
@@ -880,7 +1102,7 @@ export default {
                     <b-col md="3">
                       <b-form-group>
                         <label><b>Nombre de la Empresa:</b></label>
-                        <input type="text" name="nombre_empresa" class="form-control" placeholder="Interland" v-model="nombre_empresa" />
+                        <input type="text" name="nombre_empresa" class="form-control" placeholder="Interland" v-model="nombre_empresa" autocomplete="off"/>
                       </b-form-group>
                     </b-col>
                     <b-col md="3">
@@ -896,7 +1118,7 @@ export default {
                     <b-col md="3">
                       <b-form-group>
                         <label><b>RFC:</b></label>
-                        <input type="text" name="rfc" class="form-control" placeholder="" v-model="rfc" />
+                        <input type="text" name="rfc" class="form-control" placeholder="" v-model="rfc" autocomplete="off"/>
                       </b-form-group>
                     </b-col>
                     <b-col md="3">
@@ -945,9 +1167,9 @@ export default {
                                         :input-attrs="{autocomplete: 'none', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
                                         input-class="_1igQJzeY95hxUNao_yIXrr"
                                         :items="dates_search_address"
-                                        :v-model="origen"
-                                        :value="origen"
-                                        @input="getLabelAddressO"
+                                        :v-model="direccion_fiscal"
+                                        :value="direccion_fiscal"
+                                        @input="getLabelAddress"
                                         :component-item="templateAddress"
                                         @update-items="buscaDireccion"
                                         :auto-select-one-item="false"
@@ -975,7 +1197,7 @@ export default {
                                   </div>
                                   <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
                                     <template>
-                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleOrigen" type="text" placeholder="Calle"/>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calle_fiscal" type="text" placeholder="Calle"/>
                                     </template>
                                   </div>
                                 </div>
@@ -995,7 +1217,7 @@ export default {
                                   </div>
                                   <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
                                     <template>
-                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtOrigen" type="text" placeholder="Número Exterior"/>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numero_exterior_fiscal" type="text" placeholder="Número Exterior"/>
                                     </template>
                                   </div>
                                 </div>
@@ -1014,7 +1236,7 @@ export default {
                                   </div>
                                   <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
                                     <template>
-                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntOrigen" type="text" placeholder="Número Interior"/>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numero_interior_fiscal" type="text" placeholder="Número Interior"/>
                                     </template>
                                   </div>
                                 </div>
@@ -1028,32 +1250,30 @@ export default {
             <tab-content icon="mdi mdi-file-document-outline">
               <h4 class="header-title mb-3">Informacion de Documentos Vigentes</h4>
               <div class="row">
-                <div class="col-12">
-                  <div class="form-group row mb-3">
-                    <label class="col-md-3 col-form-label" for="name">Nombre</label>
-                    <div class="col-md-9">
-                      <input type="text" name="name" class="form-control" placeholder="Francisco" v-model="nombre" />
-                    </div>
-                  </div>
-                  <div class="form-group row mb-3">
-                    <label class="col-md-3 col-form-label" for="surname">Apellidos</label>
-                    <div class="col-md-9">
-                      <input type="text" name="surname" class="form-control" placeholder="Perez" v-model="apellidos" />
-                    </div>
-                  </div>
-
-                  <div class="form-group row mb-3">
-                    <label class="col-md-3 col-form-label" for="email">Correo</label>
-                    <div class="col-md-9">
-                      <input type="email" name="email" class="form-control" placeholder="frankPerez@hotmail.com"
-                        v-model="email" />
-                    </div>
-                  </div>
+                <div class="col-6">
+                  <label class="col-md-12 col-form-label" for="surname">Estado de Cuenta</label>
+                  <b-form-file 
+                    v-model="estado_cuenta"
+                    placeholder="Selecciona un documento pdf o arrastralo aquí..."
+                    drop-placeholder="Arrastra el pdf aquí..."
+                    @change="estadoCuentaPDF($event)"
+                    accept=".pdf"
+                    browse-text="Buscar Archivo"
+                  ></b-form-file>
                 </div>
-                
+                <div class="col-6">
+                  <label class="col-md-12 col-form-label" for="surname">Comprobante de Domicilio</label>
+                  <b-form-file 
+                    placeholder="Selecciona un documento pdf o arrastralo aquí..."
+                    drop-placeholder="Arrastra el pdf aquí..."
+                    @change="comprobanteDomicilioPDF($event)"
+                    accept=".pdf"
+                    browse-text="Buscar Archivo"
+                  ></b-form-file>
+                </div>
               </div>
               
-            </tab-content-->
+            </tab-content>
             <tab-content icon="mdi mdi-checkbox-marked-circle-outline">
               
               <div class="row">

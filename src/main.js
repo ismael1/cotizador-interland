@@ -56,7 +56,6 @@ Vue.use(Autocomplete)
 
 axios.defaults.baseURL = 'http://164.92.74.212/' //generado
 
-
 Vue.config.productionTip = false
 
 Vue.use(vco)

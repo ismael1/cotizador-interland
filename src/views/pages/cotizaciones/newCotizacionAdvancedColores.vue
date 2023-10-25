@@ -351,6 +351,14 @@ export default {
       idTarifa: 0,
       idTarifasDestino: 0,
       idTarifasOrigen: 0,
+      paisTarifaOrigen: '',
+      estadoTarifaOrigen: '',
+      ciudadTarifaOrigen: '',
+      cpTarifaOrigen: '',
+      paisTarifaDestino: '',
+      estadoTarifaDestino: '',
+      ciudadTarifaDestino: '',
+      cpTarifaDestino: '',
       tarifaKilometro: 0,
 
       idRuta: 0,
@@ -943,13 +951,13 @@ export default {
           //this.clasificaText = "[" + item.clave_prodserv + "] - " + item.descripcion;
           this.clasificaText = descripcion;
 
-          if(this.termodalidad == "FTL"){
+          /*if(this.termodalidad == "FTL"){
             let self = this
 
             setTimeout(function () {
               self.selectTipoUnidad(tipoMercancia, materialPeligroso); //aqui
             }, 900);
-          }
+          }*/
 
         }
       }
@@ -1657,70 +1665,62 @@ export default {
 
       this.obtenerZona(vcpOrigen, vcpDestino);
 
-      axios({
-        method: "post",
-        url: "/api/v1/list-tarifas-coincidencia/",
-        data: {
-          paisOrigen: vpaisOrigen,
-          estadoOrigen: vestadoOrigen,
-          ciudadOrigen: vciudadOrigen,
-          cpOrigen: vcpOrigen,
-          coloniaOrigen: vcoloniaOrigen,
-          paisDestino: vpaisDestino,
-          estadoDestino: vestadoDestino,
-          ciudadDestino: vciudadDestino,
-          cpDestino: vcpDestino,
-          coloniaDestino: vcoloniaDestino,
-          dateFin: this.fechaCoincidencia,
-          unidaModality: this.tertipocarga,
-          tipoUnidad_id: this.tipoUnidad,
-          modalidad: this.termodalidad,
-        },
-      }).then((response) => {
-        let cadena = JSON.stringify(response.data[0]);
-        let termino = "idTarifa";
-        let posicion = cadena.indexOf(termino);
+      
+        axios({
+          method: "post",
+          url: "/api/v1/list-tarifas-coincidencia/",
+          data: {
+            paisOrigen: vpaisOrigen,
+            estadoOrigen: vestadoOrigen,
+            ciudadOrigen: vciudadOrigen,
+            cpOrigen: vcpOrigen,
+            coloniaOrigen: vcoloniaOrigen,
+            paisDestino: vpaisDestino,
+            estadoDestino: vestadoDestino,
+            ciudadDestino: vciudadDestino,
+            cpDestino: vcpDestino,
+            coloniaDestino: vcoloniaDestino,
+            dateFin: this.fechaCoincidencia,
+            unidaModality: this.tertipocarga,
+            tipoUnidad_id: this.tipoUnidad,
+            modalidad: this.termodalidad,
+          },
+        }).then((response) => {
+          let cadena = JSON.stringify(response.data[0]);
+          let termino = "idTarifa";
+          let posicion = cadena.indexOf(termino);
 
-        if (posicion > 0) {
-          this.estatus = parseInt(response.data[0].estatus);
-          this.idTarifa = parseInt(response.data[0].idTarifa);
-          this.idTarifasDestino = parseInt(response.data[0].idTarifasDestino);
-          this.idTarifasOrigen = parseInt(response.data[0].idTarifasOrigen);
-          this.tarifaKilometro = parseFloat(response.data[0].tarifaKilometro);
-        } else {
-          this.estatus = 0;
-          this.idTarifa = 0;
-          this.idTarifasDestino = 0;
-          this.idTarifasOrigen = 0;
-          this.tarifaKilometro = 0;
+          if (response.data.length > 0) {
+            this.estatus = parseInt(response.data[0].estatus);
+            this.idTarifa = parseInt(response.data[0].id_Tarifa);
+            this.paisTarifaOrigen = response.data[0].pais_origen;
+            this.estadoTarifaOrigen = response.data[0].estado_origen;
+            this.ciudadTarifaOrigen = response.data[0].ciudad_origen;
+            this.cpTarifaOrigen = response.data[0].cp_origen;
+            this.paisTarifaDestino = response.data[0].pais_destino;
+            this.estadoTarifaDestino = response.data[0].estado_destino;
+            this.ciudadTarifaDestino = response.data[0].ciudad_destino;
+            this.cpTarifaDestino = response.data[0].cp_destino;
+            this.tarifaKilometro = parseFloat(response.data[0].tarifa_kilometro);
+          } else {
+            this.estatus = 0;
+            this.idTarifa = 0;
+            this.estadoTarifaOrigen = '';
+            this.ciudadTarifaOrigen = '';
+            this.cpTarifaOrigen = '';
+            this.paisTarifaDestino = '';
+            this.estadoTarifaDestino = '';
+            this.ciudadTarifaDestino = '';
+            this.cpTarifaDestino = '';
+            this.tarifaKilometro = 0;
+          }
+        }).catch((error) => {
+          console.log(error);
+        });
 
-          /*if(this.termodalidad == 'LTL'){
-            if (response.data[0].existeOrigen == false) {
-              Swal.fire({
-                title: "El Origen no está habilitado para realizar envios ",
-                text: "",
-                icon: "error",
-                confirmButtonText: "Cerrar",
-              });
-              return false;
-            }
-
-            if (response.data[0].existeDestino == false) {
-              Swal.fire({
-                title: "El Destino no está habilitado para realizar envios ",
-                text: "",
-                icon: "error",
-                confirmButtonText: "Cerrar",
-              });
-              return false;
-            }
-          }*/
-        }
-
+      if(this.termodalidad == 'FTL'){
         this.getKilometraje();
-      }).catch((error) => {
-        console.log(error);
-      });
+      }
     },
 
     getKilometraje() {
@@ -1778,9 +1778,9 @@ export default {
         if (response.data.length > 0) {
           this.idRuta = response.data[0].idRuta;
           this.kilometraje = parseFloat(response.data[0].kilometraje);
-          this.porcZonaNoCom = parseFloat(response.data[0].porcZonaNoCom);
-          this.porcZonaPelig = parseFloat(response.data[0].porcZonaPelig);
-          this.tiempoEstimado = response.data[0].tiempoEstimado;
+          this.porcZonaNoCom = parseFloat(response.data[0].porc_zona_no_com);
+          this.porcZonaPelig = parseFloat(response.data[0].porc_zona_pelig);
+          this.tiempoEstimado = response.data[0].tiempo_estimado;
         } else {
           this.idRuta = 0;
           this.kilometraje = 0;
@@ -2004,7 +2004,7 @@ export default {
     },
 
     addServicios(idServicio, nombreServicio) {
-      console.log(idServicio, nombreServicio, 'addServicios', 'bandera 1')
+      
       /* INICIA PROCESO DE CALCULO */
       let indice;
       let comprobar = false;
@@ -2297,7 +2297,6 @@ export default {
           subtotal = parseFloat(this.totalPrecioVolumen.toFixed(2))
           porcIva = subtotal * (iva / 100);
         }else{
-          this.tarifaKilometro = 5
           valorMerc = parseFloat(this.totalPrecioVolumen.toFixed(2))
           subtotal = this.tarifaKilometro * this.kilometraje;
           porcIva = subtotal * (iva / 100);
@@ -3355,7 +3354,7 @@ export default {
     sumaBoton() {
       let aumentos = 0;
       this.priceSale = 0;
-      console.log(this.confirmarServices, 'sumaBoton', 'bandera1')
+     
       for (let i = 0; i < this.confirmarServices.length; i++) {
         if (this.confirmarServices[i].totalServicio > 0) {
           this.priceSale = this.priceSale + this.confirmarServices[i].totalServicio;
@@ -3366,13 +3365,10 @@ export default {
       }
 
       this.priceSale = this.priceSale + aumentos;
-      console.log(this.priceSale, 'sumaBoton', 'bandera2')
 
       if (this.divisa == 1) {
         this.priceSale = this.priceSale / this.valorDolar;
       }
-
-      console.log(this.priceSale, 'sumaBoton', 'bandera2')
       this.Total();
     },
 
@@ -5218,7 +5214,6 @@ export default {
           
           this.pesoVol = this.pesoVol.toFixed(2)
           this.pesoVolTot = this.pesoVolTot.toFixed(2)
-          console.log(this.pesoVolTot, 'getPesoVolumetrico', 'Si Estiba')
 
         }else if(this.terestibable == 'no'){
           this.pesoVol = ((this.largoMerc * this.anchoMerc) / 2.073732) * this.factorConversionNoEstiba 
@@ -5226,7 +5221,7 @@ export default {
 
           this.pesoVol = this.pesoVol.toFixed(2)
           this.pesoVolTot = this.pesoVolTot.toFixed(2)
-          console.log(this.pesoVolTot, 'getPesoVolumetrico', 'No Estiba')
+        
         }
         
       }
@@ -6151,9 +6146,6 @@ export default {
           this.$bvModal.show("inicio-comercio");
         }
       }
-
-      console.log(this.tipoEnvioDetalleSi, 'tipoEnvioDetalleSi')
-      console.log(this.tipoEnvioDetalleNo, 'tipoEnvioDetalleNo')
       
     },
 
@@ -7343,7 +7335,7 @@ export default {
                           </b-form-radio>
                         </b-form-group>
                       </div>
-                      <div v-if="tertipocarga != ''">
+                      <!--div v-if="tertipocarga != ''">
                         <b-popover v-for="unidad in units" custom-class="popover-add" :target="'unidad-'+unidad.id" :title="unidad.code_name" triggers="hover" placement="righttop">
                           <template #title class="bg-secondary">
                             <b-button @click="onClose" class="close" aria-label="Close">
@@ -7355,7 +7347,7 @@ export default {
                             <b-img center :src="unidad.imagen" alt="Center image"></b-img>
                           </div>
                         </b-popover>
-                      </div>
+                      </div-->
                     </div>
                   </b-card>
                   <b-card class="rounded">
@@ -7512,7 +7504,6 @@ export default {
                                       
                                   </div>
                                   <!-- Add class 'active' to progress -->
-                                  {{ tipoEnvioDetalleNo }} {{ progresbarEntrega }}
                                   <div class="row d-flex justify-content-center">
                                       <div class="col-12">
                                       <ul id="progressbar" class="text-center">

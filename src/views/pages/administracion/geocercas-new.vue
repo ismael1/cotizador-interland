@@ -99,7 +99,7 @@ export default {
   },
   created: function (){
     this.dataSess();
-    this.guardaGeocercaManual();
+    //this.guardaGeocercaManual();
     //this.getGeocercas();
     this.getEstados();
   },
@@ -311,6 +311,15 @@ export default {
     async Save(){
 
       if(this.all_geo.length > 3){
+
+        Swal.fire({
+          title: 'Procesando Geocercas...',
+          html: '<div class="loader"></div>',
+          showConfirmButton: false, // Oculta el botón de confirmación
+          showCancelButton: false,
+          allowOutsideClick: false, // Evita cerrar la modal al hacer clic fuera de ella
+        });
+
         let lat = 0.0 
         let lng = 0.0
         let direccion = ''
@@ -406,7 +415,7 @@ export default {
           console.log(dato)
         }
         
-
+        Swal.close();
       }else{
         Swal.fire({
           title: "Debe de haber almenos 3 marcadores en el mapa.",
@@ -460,7 +469,13 @@ export default {
 
             <template>
               <b-alert show variant="light">
-                <h3>Selecciona la Geocerca</h3>
+                <b-row>
+                  <b-col md="4"><h3>Selecciona la Geocerca</h3></b-col>
+                  <b-col md="4"> </b-col>
+                  <b-col md="4">
+                    <b-button href="/administracion/geocercas" class="btn btn-sm" style="background-color: #2aab5c;"><i class="fe-map-pin"></i> Regresar al Listado</b-button>
+                  </b-col>
+                </b-row>
                 <b-row>
                     En el mapa, selecciona un punto de partida y da clic sobre de ese punto para poder colocar un marcador, una vez agregados todos los marcadores para tu geocerca, da clic en el boton Guardar Geocerca. 
                     <!--b-col md="4" sm="12">

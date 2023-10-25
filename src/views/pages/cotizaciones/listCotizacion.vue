@@ -553,8 +553,7 @@ export default {
         fileLink.setAttribute('download', 'Cotizacion-' + item.folioConsecutivo + '.pdf');
         document.body.appendChild(fileLink);
         fileLink.click();
-      }
-      );
+      });
 
       Swal.fire({
         title: 'Descargando PDF',
