@@ -4903,6 +4903,11 @@ export default {
       this.$bvModal.hide("valorDeclaradoMercanciaInfo");
     },
 
+
+    cierraModalManiobras(){
+      this.$bvModal.hide("maniobrasInfo");
+    },
+
     validaValorMercancia(val) {
       if (val.target.value < 0) {
         this.valorMercancia = 0;
@@ -7434,7 +7439,7 @@ export default {
                                     <!-- Dias de Transito -->
                                     <div class="row mb-2">
                                       <div class="col-md-12 text-center">
-                                        <label for="" class="text-center">{{ kilometraje }} km</label>
+                                        <label for="" class="text-center" v-if="kilometraje > 0">{{ kilometraje }} km</label>
                                       </div>
                                     </div>
                                   </div>
@@ -7691,8 +7696,8 @@ export default {
                   <div class="form-group text-center">
                     <label for="gradosMerc" class="form-label">Este servicio requiere ser revisado por un agente, enseguida lo enlazamos.</label>
                     <br />
-                    <b-button class="width-md ml-1" variant="secondary" @click="cierraModal(2)"><b><i class="fe-x"></i>Cancelar</b></b-button>
-                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="ingresaSeguro"><b><i class="fe-check"></i> Aceptar</b></b-button>
+                    <b-button class="width-md ml-1" variant="secondary" @click="cierraModalManiobras()"><b><i class="fe-x"></i>Cancelar</b></b-button>
+                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="cierraModalManiobras()"><b><i class="fe-check"></i> Aceptar</b></b-button>
                   </div>
                 </b-modal>
 
