@@ -54,7 +54,7 @@ Vue.use(Autocomplete)
 
 //axios.defaults.baseURL = 'http://127.0.0.1:8000/' //generado
 
-axios.defaults.baseURL = 'http://164.92.74.212/' //generado
+axios.defaults.baseURL = 'http://sicolog.ifreight.business/' //generado
 
 Vue.config.productionTip = false
 
