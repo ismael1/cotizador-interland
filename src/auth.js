@@ -1,8 +1,8 @@
 import axios from "axios";
 
-//const ENDPOINT_PATH = "http://127.0.0.1:8000/";
+const ENDPOINT_PATH = "http://127.0.0.1:8000/";
 
-const ENDPOINT_PATH = "http://sicolog.ifreight.business/";
+//const ENDPOINT_PATH = "http://sicolog.ifreight.business/";
 
 export default {
 

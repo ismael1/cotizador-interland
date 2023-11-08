@@ -533,6 +533,8 @@ export default {
       progresbarFlete: false,
       progresbarEntrega: false,
       progresbarIngreso: false,
+
+      rfcClienteInterland: '',
     };
   },
   created() {
@@ -552,7 +554,6 @@ export default {
 
   },
   mounted() {
-    //this.loadGoogleMaps();
     this.inicio();
   },
   watch: {
@@ -1334,14 +1335,44 @@ export default {
       this.valorMercancia = 0;
       this.selectServices = [1];
       this.valorTotalLTL = 0;
-
-
       this.clasifica = '';
       this.idclasifica = 0;
       this.isSusceptibleRobo = false;
       this.porcentajeRobo = 0.0;
       this.clasificaText = '';
 
+      this.agregarMercancias = [];
+      /*this.origen = "";
+      this.destino = "";
+      this.calleOrigen = "";
+      this.numExtOrigen = "";
+      this.numIntOrigen = "";
+      this.calleDestino = "";
+      this.numExtDestino = "";
+      this.numIntDestino = "";
+      this.arrayOrigen = [];
+      this.arrayDestino = [];
+      this.arrayOrigenR = [];
+      this.arrayDestinoR = [];*/
+
+      this.totalGlobal = 0;
+      this.totalIvaGlobal = 0;
+      this.totalSubtotalGlobal = 0;
+      this.totalRetencionGlobal = 0;
+      this.totalZonaPeligrosa = 0;
+      this.totalZonaNoComercial = 0;
+      this.totalSobrepesoGlobal = 0;
+      this.totalRobosGlobal = 0;
+      this.totalGlobalServicio = 0;
+      this.totalVolMercancias = 0;
+
+      this.totalCantidad = 0;
+      this.totalVolumen = 0;
+      this.totalPesoReal = 0;
+      this.totalPesoFaturado = 0;
+
+      this.unidadMedidaMerc = "";
+      this.descripMerc = "";
 
       let index_modalidad = this.optionsItemModalidad.findIndex(
         (x) => x.value === option
@@ -2941,7 +2972,7 @@ export default {
           return false;
         }
 
-        if (vcalleOrigen == "" || vcalleOrigen == null) {
+        /*if (vcalleOrigen == "" || vcalleOrigen == null) {
           Swal.fire({
             title: "Ingresa la calle del Origen",
             text: "",
@@ -2949,7 +2980,7 @@ export default {
             confirmButtonText: "Cerrar",
           });
           return false;
-        }
+        }*/
 
         if (ocurreO && almacenO == '') {
           Swal.fire({
@@ -2961,7 +2992,7 @@ export default {
           return false;
         }
 
-        if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+        /*if (vnumExtOrigen == "" || vnumExtOrigen == null) {
           Swal.fire({
             title: "Ingresa el número exterior de Origen",
             text: "",
@@ -2979,7 +3010,7 @@ export default {
             confirmButtonText: "Cerrar",
           });
           return false;
-        }
+        }*/
 
         if (ocurreD && almacenD == '') {
           Swal.fire({
@@ -2991,7 +3022,7 @@ export default {
           return false;
         }
 
-        if (vnumExtDestino == "" || vnumExtDestino == null) {
+        /*if (vnumExtDestino == "" || vnumExtDestino == null) {
           Swal.fire({
             title: "Ingresa el número de exterior de Destino",
             text: "",
@@ -2999,7 +3030,7 @@ export default {
             confirmButtonText: "Cerrar",
           });
           return false;
-        }
+        }*/
 
         if (vfecha == "" || vfecha == null || vfecha == 0) {
           Swal.fire({
@@ -3164,6 +3195,8 @@ export default {
 
         this.validaServicios();
         this.validaServicios();
+
+        this.getTarifario();
 
         this.getCoincidencia();
         this.detallesMercancias();
@@ -3515,6 +3548,9 @@ export default {
     },
 
     Save2() {
+
+      this.$bvModal.hide("validaConfirmacionCliente");
+      
       let idPaisOrigen = "";
       let nombrePaisOrigen = "";
       let cpOrigen = "";
@@ -5703,6 +5739,14 @@ export default {
             //this.getLatLonDireccion('O');
             //this.getLatLonDireccion('D');
 
+            if(this.arrayOrigen[0].estadoo == "Colima" && this.arrayOrigen[0].ciudado == "MANZANILLO"){
+              ori = "MANZANILLO"
+            }
+
+            if(this.arrayDestino[0].estadod == 'Colima' && this.arrayDestino[0].ciudadd == "MANZANILLO"){
+              des = "MANZANILLO"
+            }
+
             axios({
               method: "post",
               url: "/api/v1/getTarifario/",
@@ -6256,7 +6300,7 @@ export default {
       let almacenO = this.almacenO;
       let vorigen = this.origen;
 
-      if (vorigen == "" || vorigen == null) {
+      /*if (vorigen == "" || vorigen == null) {
         Swal.fire({
           title: "Ingresa Origen",
           text: "",
@@ -6274,7 +6318,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      }
+      }*/
 
       if (ocurreO && almacenO == '') {
         Swal.fire({
@@ -6286,7 +6330,7 @@ export default {
         return false;
       }
 
-      if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+      /*if (vnumExtOrigen == "" || vnumExtOrigen == null) {
         Swal.fire({
           title: "Ingresa el número exterior de Origen",
           text: "",
@@ -6294,7 +6338,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      }
+      }*/
 
       if(this.termodalidad == 'LTL'){
         let direccionOrigen = ''
@@ -6329,7 +6373,6 @@ export default {
                   pais_id: 2,
                   pais_name: "Mexico",
                 }
-                this.getLabelAddressD(item)
 
                 this.calleDestino = "Aduana Aeropuerto Internacional de la Ciudad de México"
                 this.numExtDestino = "S/N"
@@ -6348,10 +6391,43 @@ export default {
                 pais_id: 2,
                 pais_name: "Mexico",
                 }
-                this.getLabelAddressD(item)
 
                 this.calleDestino = "Aduana AIFA"
                 this.numExtDestino = "S/N"
+              break;
+
+              case 'Aduana Aeropuerto Internacional de Toluca':
+                item = {
+                  asentamiento: "San Pedro Totoltepec",
+                  codigo_postal: "50226",
+                  estado_code: "MEX",
+                  estado_id: 15,
+                  estado_name: "Edo. Mexico",
+                  municipio: "TOLUCA",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                this.calleDestino = "Aeropuerto Internacional de Toluca"
+                this.numExtDestino = "S/N"
+              break;
+
+              case 'Aduana Aeropuerto Internacional de Querétaro':
+                item = {
+                  asentamiento: "Carretera Querétaro-Tequisquiapan",
+                  codigo_postal: "76270",
+                  estado_code: "MEX",
+                  estado_id: 22,
+                  estado_name: "Queretaro",
+                  municipio: "Santiago de Querétaro",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                this.calleDestino = "Aduana Aeropuerto Internacional de Querétaro"
+                this.numExtDestino = "22500"
               break;
               
               case 'Puerto de Veracruz':
@@ -6367,7 +6443,6 @@ export default {
                   pais_id: 2,
                   pais_name:"Mexico",
                 }
-                this.getLabelAddressD(item)
 
                 this.calleDestino = "Puerto de Veracruz"
                 this.numExtDestino = "S/N"
@@ -6387,12 +6462,31 @@ export default {
                 pais_name: "Mexico",
                 }
 
-                this.getLabelAddressD(item)
-
                 this.calleDestino = "Puerto de Manzanillo"
                 this.numExtDestino = "S/N"
               break;
+
+              case 'Puerto Lázaro Cárdenas':
+                item = {
+                  asentamiento: "Isla del Cayacal",
+                  codigo_postal: "60950",
+                  estado_code: "COL",
+                  estado_id: 9,
+                  estado_name: "Michoacan de Ocampo",
+                  municipio: "LAZARO CARDENAS",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                
+                this.calleDestino = "De Las Islas"
+                this.numExtDestino = "1"
+              break;
             }
+
+            this.getLabelAddressD(item)
+
             this.$bvModal.hide("inicio-origen");
             this.$bvModal.show("inicio-mercancias");
           }else{
@@ -6428,33 +6522,49 @@ export default {
                 pais_id: 2,
                 pais_name: "Mexico",
               }
-              this.getLabelAddressD(item)
-
+              
               this.calleDestino = "Aduana Aeropuerto Internacional de la Ciudad de México"
               this.numExtDestino = "S/N"
             break;
             
-            case 'Aduana Aeropuerto Internacional Felipe Angeles (AIFA)':
-            item = {
-              asentamiento: "Santa Lucia Base Aérea Militar",
-              codigo_postal: "55640",
-              estado_code: "MEX",
-              estado_id: 15,
-              estado_name: "Edo. Mexico",
-              municipio: "ZUMPANGO",
-              pais_code: "MEX",
-              pais_estatus: 1,
-              pais_id: 2,
-              pais_name: "Mexico",
+            case 'Aduana Aeropuerto Internacional de Toluca':
+              item = {
+                asentamiento: "San Pedro Totoltepec",
+                codigo_postal: "50226",
+                estado_code: "MEX",
+                estado_id: 15,
+                estado_name: "Edo. Mexico",
+                municipio: "TOLUCA",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
               }
-              this.getLabelAddressD(item)
-
-              this.calleDestino = "Aduana AIFA"
+              
+              this.calleDestino = "Aeropuerto Internacional de Toluca"
               this.numExtDestino = "S/N"
+            break;
+
+            case 'Aduana Aeropuerto Internacional de Querétaro':
+              item = {
+                asentamiento: "Carretera Querétaro-Tequisquiapan",
+                codigo_postal: "76270",
+                estado_code: "MEX",
+                estado_id: 22,
+                estado_name: "Queretaro",
+                municipio: "Santiago de Querétaro",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "Aduana Aeropuerto Internacional de Querétaro"
+              this.numExtDestino = "22500"
             break;
             
             case 'Puerto de Veracruz':
-            item = {
+              item = {
                 asentamiento: "Veracruz",
                 codigo_postal: "91709",
                 estado_code: "VER",
@@ -6466,32 +6576,48 @@ export default {
                 pais_id: 2,
                 pais_name:"Mexico",
               }
-              this.getLabelAddressD(item)
-
+              
               this.calleDestino = "Puerto de Veracruz"
               this.numExtDestino = "S/N"
             break;
             
             case 'Puerto de Manzanillo':
-            item = {
-              asentamiento: "Parque industrial FONDEPORT",
-              codigo_postal: "28219",
-              estado_code: "COL",
-              estado_id: 9,
-              estado_name: "Colima",
-              municipio: "MANZANILLO",
-              pais_code: "MEX",
-              pais_estatus: 1,
-              pais_id: 2,
-              pais_name: "Mexico",
+              item = {
+                asentamiento: "Parque industrial FONDEPORT",
+                codigo_postal: "28219",
+                estado_code: "COL",
+                estado_id: 9,
+                estado_name: "Colima",
+                municipio: "MANZANILLO",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
               }
-
-              this.getLabelAddressD(item)
-
+              
               this.calleDestino = "Puerto de Manzanillo"
               this.numExtDestino = "S/N"
             break;
+
+            case 'Puerto Lázaro Cárdenas':
+              item = {
+                asentamiento: "Isla del Cayacal",
+                codigo_postal: "60950",
+                estado_code: "COL",
+                estado_id: 9,
+                estado_name: "Michoacan de Ocampo",
+                municipio: "LAZARO CARDENAS",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "De Las Islas"
+              this.numExtDestino = "1"
+            break;
           }
+          this.getLabelAddressD(item)
           this.$bvModal.hide("inicio-origen");
           this.$bvModal.show("inicio-mercancias");
         }else{
@@ -6533,7 +6659,7 @@ export default {
       let almacenD = this.almacenD;
       let vdestino = this.destino;
 
-      if (vdestino == "" || vdestino == null) {
+      /*if (vdestino == "" || vdestino == null) {
           Swal.fire({
             title: "Ingresa Destino",
             text: "",
@@ -6551,7 +6677,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      }
+      }*/
 
       if (ocurreD && almacenD == '') {
         Swal.fire({
@@ -6563,7 +6689,7 @@ export default {
         return false;
       }
 
-      if (vnumExtDestino == "" || vnumExtDestino == null) {
+      /*if (vnumExtDestino == "" || vnumExtDestino == null) {
         Swal.fire({
           title: "Ingresa el número de exterior de Destino",
           text: "",
@@ -6571,7 +6697,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      }
+      }*/
 
       
       if(this.termodalidad == 'LTL'){
@@ -6601,11 +6727,6 @@ export default {
         this.$bvModal.hide("inicio-destino");
         this.$bvModal.show("inicio-mercancias");
       }
-      
-
-      
-      
-
     },
     
     regresarD(){
@@ -6683,10 +6804,7 @@ export default {
 
       await this.generateCotizacion(1)
       this.$bvModal.hide("inicio-mercancias");
-      
       //this.$bvModal.show("inicio-origen");
-      
-
     },
 
     regresarMercancias(){
@@ -6809,12 +6927,8 @@ export default {
             this.validaDestinoGeo = false,
             console.log("El punto destino NO está dentro del polígono.");
           }
-          
         }
-
-                
       }else{
-
         if(tipoDireccion == 'O'){
             this.validaOrigenGeo = false,
             console.log("El punto origen NO está dentro del polígono.");
@@ -6823,9 +6937,252 @@ export default {
             console.log("El punto destino NO está dentro del polígono.");
           }
       }
-      
-
     },
+
+    validaInfoConfirma(){
+      this.$bvModal.show("validaConfirmacionOrigen");
+      
+    },
+
+    cerrarConfirmacionOrigen(){
+      this.$bvModal.hide("validaConfirmacionOrigen");
+    },
+
+    validaConfirmacionOrigen(){
+
+      let vcalleOrigen = this.calleOrigen;
+      let vnumExtOrigen = this.numExtOrigen;
+      let vorigen = this.origen;
+
+      if (vorigen == "" || vorigen == null) {
+        Swal.fire({
+          title: "Ingresa Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vcalleOrigen == "" || vcalleOrigen == null) {
+        Swal.fire({
+          title: "Ingresa la calle del Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+        Swal.fire({
+          title: "Ingresa el número exterior de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if(this.tipoEnvioDetalleSi){
+        this.$bvModal.hide("validaConfirmacionOrigen");
+        this.$bvModal.show("datosContacto");
+      }else{
+        this.$bvModal.hide("validaConfirmacionOrigen");
+        this.$bvModal.show("validaConfirmacionDestino");
+      }
+    },
+
+    cerrarConfirmacionDestino(){
+      this.$bvModal.hide("validaConfirmacionDestino");
+    },
+
+    validaConfirmacionDestino(){
+
+      let vcalleDestino = this.calleDestino;
+      let vnumExtDestino = this.numExtDestino;
+      let vdestino = this.destino;
+
+      if (vdestino == "" || vdestino == null) {
+        Swal.fire({
+          title: "Ingresa Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vcalleDestino == "" || vcalleDestino == null) {
+        Swal.fire({
+          title: "Ingresa la calle del Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vnumExtDestino == "" || vnumExtDestino == null) {
+        Swal.fire({
+          title: "Ingresa el número exterior de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      this.$bvModal.hide("validaConfirmacionDestino");
+      this.$bvModal.show("datosContacto");
+    },
+
+    cerrarConfirmacionContacto(){
+      this.$bvModal.hide("datosContacto");
+
+      if(this.tipoEnvioDetalleSi){
+        this.$bvModal.show("validaConfirmacionOrigen");
+      }else{
+        this.$bvModal.show("validaConfirmacionDestino");
+      }
+    },
+
+    validaConfirmacionContacto(){
+      let nombre = this.contacName;
+
+      let email = this.contacEmail;
+      let expReg = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+      let EmailValido = expReg.test(email);
+
+      let lada = this.contacLada;
+      let telefono = this.contacTelefono;
+      let producto = this.contacProductName;
+      let descripcion = this.contacDescription;
+
+      if (nombre == "" || nombre == null) {
+        Swal.fire({
+          title: "Ingresa Nombre",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (email == "" || email == null) {
+        Swal.fire({
+          title: "Ingresa Email",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (EmailValido == true) {
+      } else {
+        Swal.fire({
+          title: "Email no Valido",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+      
+      if (lada == "" || lada == null) {
+        Swal.fire({
+          title: "Seleccione Lada",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono == "" || telefono == null) {
+        Swal.fire({
+          title: "Ingresa Telefono",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono.length < 10) {
+        Swal.fire({
+          title: "Ingrese 10 Digitos Minimos",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono.length > 16) {
+        Swal.fire({
+          title: "Ingrese 16 Digitos Maximo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (descripcion == "" || descripcion == null) {
+        Swal.fire({
+          title: "Ingresa Descripcion",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      this.$bvModal.hide("datosContacto");
+      this.$bvModal.show("validaConfirmacionCliente");
+    },
+
+    cerrarConfirmacionCliente(){
+      this.$bvModal.hide("validaConfirmacionCliente");
+      this.$bvModal.show("datosContacto");
+    },
+
+    async validaRFCUsuario(){
+
+      var rfc = this.rfcClienteInterland.trim().toUpperCase(),
+      resultado = document.getElementById("resultadoRFC"),
+      valido;
+        
+      var rfcCorrecto = this.rfcValido(rfc);   // ⬅️ Acá se comprueba
+    
+      if (rfcCorrecto) {
+          //valido = "Válido";
+          //resultado.classList.add("ok");
+          const datosCliente = await axios.get(`http://localhost/erpInterland_nac/wsCotizador/consultasCotizador.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
+      } else {
+        //valido = "No válido"
+        //resultado.classList.remove("ok");
+        
+        Swal.fire({
+          title: "El RFC ingresado es incorrecto, verifícalo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+          
+      //resultado.innerText = "RFC: " + rfc + "\nFormato: " + valido;
+
+    
+      //const datosCliente = await axios.get(`https://trafixu.mx-interland.com/trafico/terrestre/nterrestre/operaciontrafico2.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
+      //const datosCliente = await axios.get(`http://localhost/erpInterland_nac/trafico/terrestre/nterrestre/operaciontrafico2.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
+      //GME920101B39
+      //console.log(datosCliente);
+    },
+
+    rfcValido(rfc, aceptarGenerico = true) {
+      let _rfc_pattern_pm = "^(([A-ZÑ&]{3})([0-9]{2})([0][13578]|[1][02])(([0][1-9]|[12][\\d])|[3][01])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([0-9]{2})([0][13456789]|[1][012])(([0][1-9]|[12][\\d])|[3][0])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([02468][048]|[13579][26])[0][2]([0][1-9]|[12][\\d])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([0-9]{2})[0][2]([0][1-9]|[1][0-9]|[2][0-8])([A-Z0-9]{3}))$";
+      let _rfc_pattern_pf = "^(([A-ZÑ&]{4})([0-9]{2})([0][13578]|[1][02])(([0][1-9]|[12][\\d])|[3][01])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([0-9]{2})([0][13456789]|[1][012])(([0][1-9]|[12][\\d])|[3][0])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([02468][048]|[13579][26])[0][2]([0][1-9]|[12][\\d])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([0-9]{2})[0][2]([0][1-9]|[1][0-9]|[2][0-8])([A-Z0-9]{3}))$";
+      return rfc.match(_rfc_pattern_pm) || rfc.match(_rfc_pattern_pf);
+    }
+
   },
 
 };
@@ -6881,7 +7238,7 @@ export default {
                             <img v-if="termodalidadImg != ''" :src="termodalidadImg" width="25" height="25"/>
                           </span>
                         </div>
-                        <b-form-select id="cargas" class="fecha" @change="selectModalidad($event)" v-model="termodalidad">
+                        <b-form-select id="cargas" class="fecha" @change="selectModalidad($event)" v-model="termodalidad" disabled>
                           <option v-for="option in optionsItemModalidad" :key="option.value" v-bind:value="option.value">
                             {{ option.text }}
                           </option>
@@ -6908,7 +7265,7 @@ export default {
                       <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
                         <template>
                           <v-autocomplete
-                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
+                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional', disabled:true}"
                             input-class="_1igQJzeY95hxUNao_yIXrr"
                             :items="dates_search_address"
                             :v-model="origen"
@@ -6939,7 +7296,7 @@ export default {
                       <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
                         <template>
                           <v-autocomplete
-                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',}"
+                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',  disabled:true}"
                             input-class="_1igQJzeY95hxUNao_yIXrr"
                             :items="dates_search_address"
                             :v-model="destino"
@@ -6978,8 +7335,11 @@ export default {
                 
                 <div class="_3QlnruSL5VqOlp6mJEr4-Z">
                   <!--button class="zTDkSCFjS5VtNrkEzKtJ5" style="background-color: #2aab5c; box-shadow: rgba(4, 114, 235, 0.5) 0px 0px 3px;"></button-->
-                  <b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="generateCotizacion(1)" style="height: 100%">
+                  <!--b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="generateCotizacion(1)" style="height: 100%">
                     <i class="fe-search"></i>
+                  </b-button-->
+                  <b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="inicio()" style="height: 100%">
+                    <i class="fe-refresh-ccw"></i>
                   </b-button>
                 </div>
               </div>
@@ -7648,9 +8008,7 @@ export default {
                             <b-alert show variant="success">
                               <h4 class="alert-heading">Muy bien!</h4>
                               <p>
-                                La cotización quedó registrada correctamente y
-                                se envio a validación, espere respuesta por
-                                correo.
+                                La cotización quedó registrada correctamente y se envio a validación, espere respuesta por correo.
                               </p>
                               <hr />
                               <p class="mb-0 text-center">
@@ -7663,6 +8021,382 @@ export default {
                     </b-card>
                   </div>
                 </div>
+
+                <!--INICIA MODALS CONFIRMACION-->
+
+                <b-modal id="validaConfirmacionOrigen"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Origen</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Origen
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="origen"
+                                        :value="origen"
+                                        @input="getLabelAddressO"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <!--b style="color: red">*</b--> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleOrigen" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <!--b style="color: red">*</b--> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtOrigen" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntOrigen" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                          <br>
+                          <b-row>
+                            <b-col md="12">
+                              
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionOrigen()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionOrigen()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="validaConfirmacionDestino"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Destino</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Destino
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="destino"
+                                        :value="destino"
+                                        @input="getLabelAddressD"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                        <i class="fas fa-map-marker-alt" />
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleDestino" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtDestino" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntDestino" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionDestino()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionDestino"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="datosContacto"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Contacto</b>
+                  </template>
+
+                  <div class="form-group text-center">
+                    <div class="card-body" style="padding: 10px; ">
+                      <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Nombre Completo
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-user"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacName" @input="contacName = contacName.toUpperCase()" placeholder="ESPINOSA UGALDE PABLO"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> E-mail
+                                </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="far fa-envelope"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacEmail" placeholder="pablo@gmail.com"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                        <br>
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Teléfono
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <select class="_1igQJzeY95hxUNao_yIXrr col-md-4" id="lada" v-model="contacLada" style="padding: 0px;">
+                                    <option v-for="marcado in ladas" :key="marcado.id" v-bind:value="marcado.id">
+                                      {{ marcado.alias }} + {{ marcado.code }}
+                                    </option>
+                                  </select>
+                                  <input class="_1igQJzeY95hxUNao_yIXrr col-md-8" style="padding: 0px;" type="number" v-model="contacTelefono" />
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Notas
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-textarea class="_1igQJzeY95hxUNao_yIXrr" v-model="contacDescription" @input="contacDescription = contacDescription.toUpperCase()" placeholder="DESCRIPCION DEL PRODUCTO"></b-textarea>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                      </div>
+                    </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button-->
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="validaConfirmacionCliente"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Cliente</b>
+                  </template>
+
+                  <div class="form-group text-center">
+                    <div class="card-body" style="padding: 10px; ">
+                      <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                        <b-row>
+                          <b-col md="12">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> ¿Eres cliente registrado?
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-user-check"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="rfcClienteInterland" @input="rfcClienteInterland = rfcClienteInterland.toUpperCase()"></b-input>
+                                      <sub>*Si eres Cliente registrado Interland, ingresa tu RFC.</sub>
+                                      <div id="resultadoRFC"></div>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                          </b-col>
+                        </b-row>
+                        <br>
+                      </div>
+                    </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionCliente()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaRFCUsuario()"> <b>Cotizar</b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                  </div>
+                </b-modal>
+
+                <!--TERMINA MODALS CONFIRMACION-->
 
                 <b-modal id="valorDeclaradoMercancia" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close>
                   <template #modal-title>
@@ -7886,11 +8620,14 @@ export default {
                             <b-dropdown-group id="dropdown-group-1" header="Aduana Aerea" style="font-weight: bold;">
                               <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de la Ciudad de México (AICM)')">Aduana Aeropuerto Internacional de la Ciudad de México (AICM)</b-dropdown-item-button>
                               <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional Felipe Angeles (AIFA)')">Aduana Aeropuerto Internacional Felipe Angeles (AIFA)</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de Toluca')">Aduana Aeropuerto Internacional de Toluca</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de Querétaro')">Aduana Aeropuerto Internacional de Querétaro</b-dropdown-item-button>
                             </b-dropdown-group>
                             <b-dropdown-divider></b-dropdown-divider>
                             <b-dropdown-group id="dropdown-group-2" header="Puertos" style="font-weight: bold;">
                               <b-dropdown-item-button @click="validaDetalleEnvio('Puerto de Veracruz')">Puerto de Veracruz</b-dropdown-item-button>
                               <b-dropdown-item-button @click="validaDetalleEnvio('Puerto de Manzanillo')">Puerto de Manzanillo</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Puerto Lázaro Cárdenas')">Puerto Lázaro Cárdenas</b-dropdown-item-button>
                             </b-dropdown-group>
                           </b-dropdown>
                         </div>
@@ -8049,7 +8786,7 @@ export default {
                             <b-col md="4">
                               <div class="_1cwBgi06GP5eqlDlfhrE9A">
                                 <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
-                                  <b style="color: red">*</b> Calle
+                                  <!--b style="color: red">*</b--> Calle
                                 </div>
                               </div>
                               <div class="_12VTCAtCmgnF7JdGljsEapdo">
@@ -8069,7 +8806,7 @@ export default {
                             <b-col md="4">
                               <div class="_1cwBgi06GP5eqlDlfhrE9A">
                                 <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
-                                  <b style="color: red">*</b> Número Exterior
+                                  <!--b style="color: red">*</b--> Número Exterior
                                 </div>
                               </div>
                               <div class="_12VTCAtCmgnF7JdGljsEapdo">
@@ -9200,7 +9937,7 @@ export default {
                                 </div>
                                 <!-- Fin else -->
                               </b-container>
-                              <b-container>
+                              <!--b-container>
                                 <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
                                   <b-col class="text-left" style="font-size: 12px;">
                                     <label style="color: #ffffff">INFORMACIÓN DE CONTACTO</label>
@@ -9234,8 +9971,6 @@ export default {
                                   <b-col md="6">
                                     <label for="">NOTA</label>
                                     <b-textarea v-model="contacDescription" @input="contacDescription = contacDescription.toUpperCase()" placeholder="DESCRIPCION DEL PRODUCTO"></b-textarea>
-                                    <!--label for="" style="font-size: 12px; font-weight: bold;">NOMBRE DEL PRODUCTO</label>
-                                    <b-input v-model="contacProductName" @input="contacProductName = contacProductName.toUpperCase()" placeholder="TUBO DE ACERO"></b-input-->
                                   </b-col>
                                 </b-row>
                               </b-container>
@@ -9250,15 +9985,19 @@ export default {
                                     </p>
                                   </div>
                                 </b-row>
-                              </b-container>
+                              </b-container-->
                             </div>
                           </div>
                         </div>
 
-                        <div class="form-group text-right mt-3">
-                          <!--Parte Inferior Footer-->
+                        <!--div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
                           <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="Save2()">Confirmar</b-button>
+                        </div-->
+
+                        <div class="form-group text-right mt-3">
+                          <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
+                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
                         </div>
                       </b-modal>
                     </div>
@@ -10044,7 +10783,7 @@ body .zTDkSCFjS5VtNrkEzKtJ5 {
   border: none;
   background-color: #5a6268;
   box-shadow: none;
-  background-image: url('data:image/svg+xml,%3Csvg fill="none" height="17" viewBox="0 0 17 17" width="17" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="m16.445 14.499-3.1979-3.1977c-.1444-.1443-.34-.2245-.5453-.2245h-.5228c.8852-1.13216 1.4113-2.5562 1.4113-4.10533 0-3.68518-2.9862-6.671177-6.67168-6.671177-3.68546 0-6.671672 2.985997-6.671672 6.671177 0 3.68523 2.986212 6.67123 6.671672 6.67123 1.54924 0 2.97338-.526 4.10568-1.4113v.5228c0 .2053.0801.4009.2245.5453l3.1979 3.1976c.3015.3015.789.3015 1.0873 0l.9078-.9076c.3015-.3015.3015-.789.0032-1.0905zm-9.52638-3.4222c-2.26773 0-4.10565-1.83456-4.10565-4.10533 0-2.26756 1.83471-4.10534 4.10565-4.10534 2.26772 0 4.10568 1.83458 4.10568 4.10534 0 2.26756-1.83475 4.10533-4.10568 4.10533z" fill="%23fff"/%3E%3C/svg%3E');
+  
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
@@ -10770,4 +11509,14 @@ section img:hover{
   background-color: #056736;
   color: #ffffff;
 }
+
+#resultado {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+#resultado.ok {
+    background-color: green;
+}
+
 </style>
