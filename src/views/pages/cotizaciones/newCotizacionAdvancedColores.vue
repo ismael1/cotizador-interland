@@ -15,6 +15,7 @@ import Vue from "vue";
 
 import { BPopover } from "bootstrap-vue";
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { layoutMethods, layoutComputed } from '@/state/helpers';
 
 Vue.component("b-popover", BPopover);
 
@@ -114,7 +115,6 @@ export default {
       tertipocarga: "",
       carga: "",
       tercotizacion: 0,
-      nomeda: "123456",
 
       terembalaje: "",
       terDescEmbalaje: "",
@@ -535,6 +535,20 @@ export default {
       progresbarIngreso: false,
 
       rfcClienteInterland: '',
+      datosCliente: '',
+      contactaAgente: false,
+      motivoContacto: '',
+
+      nomCliente: '',
+      idCliente: 0,
+      nombreAgente: '', 
+      correoAgente: '',
+      creditoUSD: 0.0,
+      creditoMXN: 0.0,
+      creditoOcupadoUSD: 0.0, 
+      creditoOcupadoMXN: 0.0,
+
+      existeCotizacion: true,
     };
   },
   created() {
@@ -989,19 +1003,24 @@ export default {
             cpo: cp,
           };
 
-          let ori1 = {
-            idpais: idpais,
-            pais: pais,
-            idestado: idestado,
-            estado: estado,
-            ciudad: ciudad,
-            colonia: colonia,
-            cp: cp,
-          };
           this.terorigen = pais + ", " + cp + ", " + estado + ", " + ciudad + ", " + colonia;
           this.arrayOrigen.push(ori);
-          this.arrayOrigenR.push(ori1);
+          
           this.origen = pais + ", " + estado + ", " + ciudad + ", " + cp;
+
+          if(this.arrayOrigenR.length == 0){
+            let ori1 = {
+              idpaiso: idpais,
+              paiso: pais,
+              idestadoo: idestado,
+              estadoo: estado,
+              ciudado: ciudad,
+              colonia: colonia,
+              cpo: cp,
+            };
+            this.arrayOrigenR.push(ori1);
+          }
+          
 
         }
       }
@@ -1033,22 +1052,23 @@ export default {
             cpd: cp,
           };
 
-          let des1 = {
-            idpais: idpais,
-            pais: pais,
-            idestado: idestado,
-            estado: estado,
-            ciudad: ciudad,
-            colonia: colonia,
-            cp: cp,
-          };
-
           this.terdestino = pais + ", " + cp + ", " + estado + ", " + ciudad + ", " + colonia;
-
           this.arrayDestino.push(des);
-          this.arrayDestinoR.push(des1);
           this.destino = pais + ", " + estado + ", " + ciudad + ", " + cp;
 
+
+          if(this.arrayDestinoR.length == 0){
+            let des1 = {
+              idpaisd: idpais,
+              paisd: pais,
+              idestadod: idestado,
+              estadod: estado,
+              ciudadd: ciudad,
+              colonia: colonia,
+              cpd: cp,
+            };
+            this.arrayDestinoR.push(des1);
+          }
         }
       }
     },
@@ -1694,7 +1714,7 @@ export default {
         vcoloniaDestino = this.arrayDestino[d].colonia;
       }
 
-      this.obtenerZona(vcpOrigen, vcpDestino);
+      //this.obtenerZona(vcpOrigen, vcpDestino);
 
       
         axios({
@@ -1878,7 +1898,7 @@ export default {
       this.pricingData = []
       const noPlan = 2
       const icon = 'fe-truck'
-      const precioBase = this.totalSubtotalGlobal
+      const precioBase = parseFloat(this.totalSubtotalGlobal.toFixed(2));
       let divisaText = 'MXN'
 
       if (this.divisa == 1) {
@@ -2423,7 +2443,7 @@ export default {
     },
 
     obtenerZona(cpO, cpD) {
-      let v1 = cpO;
+      /*let v1 = cpO;
       let v2 = cpD;
 
       if (v1 != "" && v2 != "") {
@@ -2511,7 +2531,7 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-      }
+      }*/
     },
 
     showOpcion(valor) {
@@ -2924,7 +2944,7 @@ export default {
         vcoloniaDestino = this.arrayDestino[d].colonia;
       }
 
-      this.obtenerZona(vcpOrigen, vcpDestino);
+      //this.obtenerZona(vcpOrigen, vcpDestino);
 
       if (this.termodalidad == "FTL") {
         //this.buscaUnidad();
@@ -3213,7 +3233,7 @@ export default {
 
         if (this.clasificacionZonaO == "") {
           msg = "Origen";
-          msg2 = "Carga de Mercancias";
+          msg2 = "Cargar de Mercancias";
         }
         if (this.clasificacionZonaD == "") {
           msg = "Destino";
@@ -3660,15 +3680,15 @@ export default {
             confirmButtonText: "Cerrar",
           });
           return false;
-        } else if (descripcion == "" || descripcion == null) {
+        }/* else if (descripcion == "" || descripcion == null) {
           Swal.fire({
-            title: "Ingresa Descripcion",
+            title: "Ingresa Descripción",
             text: "",
             icon: "error",
             confirmButtonText: "Cerrar",
           });
           return false;
-        }
+        }*/
 
         let servicePrice = 0;
         let sumaInicial = 0;
@@ -3831,15 +3851,16 @@ export default {
                     this.addContact();
                     this.agregaPlanes();
 
+                    if(this.contactaAgente){
+                      this.notificaAgente();
+                    }
+
                     if (this.confirmarServices3.length > 0) {
-                      this.enviaCorreoPricing(
-                        this.idCotizacion,
-                        this.controlConse +
-                          this.fechaConsecutivo +
-                          String(this.numConsecutivo + 1).padStart(6, "0")
-                      );
+                      this.enviaCorreoPricing(this.idCotizacion, this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"));
                     }
                     
+                    this.existeCotizacion = false
+
                     Swal.fire({
                       title: "Cotizacion Generada correctamente",
                       text: "",
@@ -3940,14 +3961,15 @@ export default {
                     this.addContact();
                     this.agregaPlanes();
 
-                    if (this.confirmarServices3.length > 0) {
-                      this.enviaCorreoPricing(
-                        this.idCotizacion,
-                        this.controlConse +
-                          this.fechaConsecutivo +
-                          String(this.numConsecutivo + 1).padStart(6, "0")
-                      );
+                    if(this.contactaAgente){
+                      this.notificaAgente();
                     }
+
+                    if (this.confirmarServices3.length > 0) {
+                      this.enviaCorreoPricing(this.idCotizacion, this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"));
+                    }
+
+                    this.existeCotizacion = false
 
                     Swal.fire({
                       title: "Cotizacion Generada correctamente",
@@ -3964,7 +3986,7 @@ export default {
                     })
                   }).catch((error) => {
                     Swal.fire({
-                      title: "Cotizacion Generada correctamente",
+                      title: "Cotizacion",
                       text:
                         "Se detecto un error mientras se genraba la cotizacion: " +
                         error,
@@ -4145,7 +4167,7 @@ export default {
       }
     },
 
-    addContact() {
+    async addContact() {
       let idCotiza = this.idCotizacion;
 
       if (idCotiza == 0) {
@@ -4157,7 +4179,7 @@ export default {
         });
         return false;
       } else if (idCotiza > 0) {
-        axios({
+        await axios({
           method: "post",
           url: "contactoCotizaciones/",
           data: {
@@ -4606,10 +4628,10 @@ export default {
       }
     },
 
-    sendEmailCotiza() {
+    async sendEmailCotiza() {
       let idCotiza = this.idCotizacion;
 
-      axios({
+      await axios({
         method: "post",
         url: "api/v1/sendEmailCotiza/",
         data: {
@@ -4938,7 +4960,6 @@ export default {
     cierraModalSeguro() {
       this.$bvModal.hide("valorDeclaradoMercanciaInfo");
     },
-
 
     cierraModalManiobras(){
       this.$bvModal.hide("maniobrasInfo");
@@ -5415,6 +5436,143 @@ export default {
       //}
     },
 
+    recalculaAgregaPaquetes() {
+      let estibable = '';
+      let cant = 0;
+      let peso = 0;
+      let pesoT = 0;
+      let alto = 0;
+      let ancho = 0;
+      let largo = 0;
+      let volumen = 0;
+      let volumenTotal = 0;
+      let unidadM = '';
+      let embalaje = '';
+      let unidadP = '';
+      let pesoVol = 0;
+      let pesoVolTot = 0;
+      
+      let idPaq = 0;
+      let precioTotal = 0
+      let factor = this.factorConversionEstiba
+
+      let totalPrecioVolumen = 0;
+      
+      console.log(this.agregarMercancias)
+      return false;
+
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        
+        estibable = this.agregarMercancias[i].estibable;
+        cant = this.agregarMercancias[i].cantidad;
+        peso = this.agregarMercancias[i].peso;
+        pesoT = this.agregarMercancias[i].pesoTotal;
+        alto = this.agregarMercancias[i].alto;
+        ancho = this.agregarMercancias[i].ancho;
+        largo = this.agregarMercancias[i].largo;
+        volumen = this.agregarMercancias[i].volumen;
+        volumenTotal = this.agregarMercancias[i].volumenTotal;
+        unidadM = this.agregarMercancias[i].medida;
+        embalaje = this.agregarMercancias[i].embalaje;
+        unidadP = this.agregarMercancias[i].upeso;
+        pesoVol = this.agregarMercancias[i].pesoVolumetrico;
+        pesoVolTot = this.agregarMercancias[i].pesoVolumetricoTotal;
+        idPaq = this.agregarMercancias[i].idPaq;
+
+        if(estibable == 'si'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )
+            
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            
+            this.leyendaPeso = '(Peso Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+
+        }else if(estibable == 'no'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            this.leyendaPeso = '(Peso a Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+        }
+
+        this.agregarMercancias[i].alto = alto;
+        this.agregarMercancias[i].ancho = ancho;
+        this.agregarMercancias[i].cantidad = cant;
+        this.agregarMercancias[i].embalaje = embalaje;
+        this.agregarMercancias[i].estibable = estibable;
+        this.agregarMercancias[i].idPaq = idPaq;
+        this.agregarMercancias[i].largo = largo;
+        this.agregarMercancias[i].medida = unidadM;
+        this.agregarMercancias[i].peso = peso;
+        this.agregarMercancias[i].pesoTotal = pesoT;
+        this.agregarMercancias[i].pesoVolumetrico = pesoVol;
+        this.agregarMercancias[i].pesoVolumetricoTotal = pesoVolTot;
+        this.agregarMercancias[i].upeso = unidadP;
+        this.agregarMercancias[i].volumen = volumen;
+        this.agregarMercancias[i].volumenTotal = volumenTotal;
+
+        if (this.agregarMercancias.length > 0) {
+          this.validaDatosMercancias(idPaq);
+        }
+
+        this.cantMerc = 0;
+        this.pesTMerc = 0;
+        this.pesoTotal = 0;
+        this.altoMerc = 0;
+        this.anchoMerc = 0;
+        this.largoMerc = 0;
+        this.volMerc = 0;
+        this.volMercTot = 0;
+        this.unidaPesoMerc = "kg";
+        this.terestibable = "";
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+        }
+
+        this.totalPrecioVolumen = totalPrecioVolumen;
+
+        this.definePesoXVol = true;
+
+
+        let idServicio = 1;
+        let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+        this.confirmarServices.splice(indice, 1);
+
+        let nombreServicio = "FLETE NACIONAL";
+        this.addServicios(idServicio, nombreServicio);
+        
+      }
+    },
+
     agregaPaquetesLTL() {
       let estibable = this.terestibable;
       let cant = parseFloat(this.cantMerc);
@@ -5523,7 +5681,7 @@ export default {
 
       let idPaq = this.agregarMercancias.length + 1;
       let precioTotal = 0
-      let factor = 350
+      let factor = this.factorConversionEstiba
 
       if(estibable == 'si'){
 
@@ -5655,6 +5813,139 @@ export default {
       this.definePesoXVol = true;
       this.detallesMercancias();
       
+    },
+
+    recalculaAgregaPaquetesLTL() {
+
+      let estibable = '';
+      let cant = 0;
+      let peso = 0;
+      let pesoT = 0;
+      let alto = 0;
+      let ancho = 0;
+      let largo = 0;
+      let volumen = 0;
+      let volumenTotal = 0;
+      let pesoVol = 0;
+      let pesoVolTot = 0;
+      let unidadM = '';
+      let embalaje = '';
+      let unidadP = '';
+
+      let idPaq = 0;
+      let precioTotal = 0;
+      let factor = this.factorConversionEstiba;
+      let totalPrecioVolumen = 0;
+
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        alto = this.agregarMercancias[i].alto;
+        ancho = this.agregarMercancias[i].ancho;
+        cant = this.agregarMercancias[i].cantidad;
+        embalaje = this.agregarMercancias[i].embalaje;
+        estibable = this.agregarMercancias[i].estibable;
+        idPaq = this.agregarMercancias[i].idPaq;
+        largo = this.agregarMercancias[i].largo;
+        unidadM = this.agregarMercancias[i].medida;
+        peso = this.agregarMercancias[i].peso;
+        pesoT = this.agregarMercancias[i].pesoTotal;
+        pesoVol = this.agregarMercancias[i].pesoVolumetrico;
+        pesoVolTot = this.agregarMercancias[i].pesoVolumetricoTotal;
+        //this.agregarMercancias[i].precioVolumen;
+        unidadP = this.agregarMercancias[i].upeso;
+        volumen = this.agregarMercancias[i].volumen;
+        volumenTotal = this.agregarMercancias[i].volumenTotal;
+
+        if(estibable == 'si'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )
+            
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            
+            this.leyendaPeso = '(Peso Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+
+        }else if(estibable == 'no'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            this.leyendaPeso = '(Peso a Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+        }
+
+        this.agregarMercancias[i].alto = alto;
+        this.agregarMercancias[i].ancho = ancho;
+        this.agregarMercancias[i].cantidad = cant;
+        this.agregarMercancias[i].embalaje = embalaje;
+        this.agregarMercancias[i].estibable = estibable;
+        this.agregarMercancias[i].largo = largo;
+        this.agregarMercancias[i].medida = unidadM;
+        this.agregarMercancias[i].peso = peso;
+        this.agregarMercancias[i].pesoTotal = pesoT;
+        this.agregarMercancias[i].pesoVolumetrico = pesoVol;
+        this.agregarMercancias[i].pesoVolumetricoTotal = pesoVolTot;
+        this.agregarMercancias[i].precioVolumen = precioTotal;
+        this.agregarMercancias[i].upeso = unidadP;
+        this.agregarMercancias[i].volumen = volumen;
+        this.agregarMercancias[i].volumenTotal = volumenTotal;
+
+        this.buscaUnidadLTL();
+
+        estibable = '';
+        cant = 0;
+        peso = 0;
+        pesoT = 0;
+        alto = 0;
+        ancho = 0;
+        largo = 0;
+        volumen = 0;
+        volumenTotal = 0;
+        pesoVol = 0;
+        pesoVolTot = 0;
+        unidadM = '';
+        embalaje = '';
+        unidadP = '';
+
+        idPaq = 0;
+        precioTotal = 0;
+        factor = 0;
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+        }
+        this.totalPrecioVolumen = totalPrecioVolumen;
+        this.totalPrecioVolumen = totalPrecioVolumen;
+        //this.totalKilo = totalKilos;
+        this.definePesoXVol = true;
+        this.detallesMercancias();
+
+      }
     },
 
     redondearCifra() {
@@ -6851,10 +7142,10 @@ export default {
           const location = results[0].geometry.location;
           this.latitudBusca = location.lat();
           this.longitudBusca = location.lng();
-          console.log(location, 'location');
+          //console.log(location, 'location');
 
           const resultado = await this.buscaLatLngCordenadas(this.latitudBusca, this.longitudBusca, tipoDireccion);
-          console.log(resultado);
+          //console.log(resultado);
         }
       } catch (error) {
         console.error(error);
@@ -6913,28 +7204,28 @@ export default {
 
         if (estaDentro) {
           if(tipoDireccion == 'O'){
-            this.validaOrigenGeo = true,
-            console.log("El punto origen está dentro del polígono.");
+            this.validaOrigenGeo = true
+            //console.log("El punto origen está dentro del polígono.");
           }else if(tipoDireccion == 'D'){
-            this.validaDestinoGeo = true,
-            console.log("El punto destino está dentro del polígono.");
+            this.validaDestinoGeo = true
+            //console.log("El punto destino está dentro del polígono.");
           }
         } else {
           if(tipoDireccion == 'O'){
-            this.validaOrigenGeo = false,
-            console.log("El punto origen NO está dentro del polígono.");
+            this.validaOrigenGeo = false
+            //console.log("El punto origen NO está dentro del polígono.");
           }else if(tipoDireccion == 'D'){
-            this.validaDestinoGeo = false,
-            console.log("El punto destino NO está dentro del polígono.");
+            this.validaDestinoGeo = false
+            //console.log("El punto destino NO está dentro del polígono.");
           }
         }
       }else{
         if(tipoDireccion == 'O'){
-            this.validaOrigenGeo = false,
-            console.log("El punto origen NO está dentro del polígono.");
+            this.validaOrigenGeo = false
+            //console.log("El punto origen NO está dentro del polígono.");
           }else if(tipoDireccion == 'D'){
-            this.validaDestinoGeo = false,
-            console.log("El punto destino NO está dentro del polígono.");
+            this.validaDestinoGeo = false
+            //console.log("El punto destino NO está dentro del polígono.");
           }
       }
     },
@@ -6948,7 +7239,7 @@ export default {
       this.$bvModal.hide("validaConfirmacionOrigen");
     },
 
-    validaConfirmacionOrigen(){
+    async validaConfirmacionOrigen(){
 
       let vcalleOrigen = this.calleOrigen;
       let vnumExtOrigen = this.numExtOrigen;
@@ -6983,6 +7274,8 @@ export default {
         });
         return false;
       }
+
+      await this.recalculaCotizacion();
 
       if(this.tipoEnvioDetalleSi){
         this.$bvModal.hide("validaConfirmacionOrigen");
@@ -7118,7 +7411,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      } else if (descripcion == "" || descripcion == null) {
+      }/* else if (descripcion == "" || descripcion == null) {
         Swal.fire({
           title: "Ingresa Descripcion",
           text: "",
@@ -7126,7 +7419,7 @@ export default {
           confirmButtonText: "Cerrar",
         });
         return false;
-      }
+      }*/
 
       this.$bvModal.hide("datosContacto");
       this.$bvModal.show("validaConfirmacionCliente");
@@ -7139,36 +7432,181 @@ export default {
 
     async validaRFCUsuario(){
 
-      var rfc = this.rfcClienteInterland.trim().toUpperCase(),
-      resultado = document.getElementById("resultadoRFC"),
-      valido;
-        
-      var rfcCorrecto = this.rfcValido(rfc);   // ⬅️ Acá se comprueba
-    
-      if (rfcCorrecto) {
-          //valido = "Válido";
-          //resultado.classList.add("ok");
-          const datosCliente = await axios.get(`http://localhost/erpInterland_nac/wsCotizador/consultasCotizador.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
-      } else {
-        //valido = "No válido"
-        //resultado.classList.remove("ok");
-        
+      if(this.rfcClienteInterland != ''){
         Swal.fire({
-          title: "El RFC ingresado es incorrecto, verifícalo",
-          text: "",
-          icon: "error",
-          confirmButtonText: "Cerrar",
+          title: "Validando RFC...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
         });
-        return false;
-      }
-          
-      //resultado.innerText = "RFC: " + rfc + "\nFormato: " + valido;
 
-    
-      //const datosCliente = await axios.get(`https://trafixu.mx-interland.com/trafico/terrestre/nterrestre/operaciontrafico2.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
-      //const datosCliente = await axios.get(`http://localhost/erpInterland_nac/trafico/terrestre/nterrestre/operaciontrafico2.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
-      //GME920101B39
-      //console.log(datosCliente);
+        var rfc = this.rfcClienteInterland.trim().toUpperCase(),
+        resultado = document.getElementById("resultadoRFC"),
+        valido;
+          
+        var rfcCorrecto = this.rfcValido(rfc);   //Acá se comprueba
+      
+        if (rfcCorrecto) {
+
+          rfc = btoa(rfc)
+          const response = await axios.get(`https://trafixu.mx-interland.com/wsCotizador/consultasCotizador.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
+
+          this.datosCliente = response.data[0];
+          
+          if(this.datosCliente.clientCheck){
+
+            this.nomCliente = this.datosCliente.nomCliente
+            this.idCliente = this.datosCliente.idCliente
+            this.nombreAgente = this.datosCliente.usuarioFirstname
+            this.correoAgente = this.datosCliente.usuarioEmail
+            this.creditoUSD = parseFloat(this.datosCliente.saldoOriginalUSD)
+            this.creditoMXN = parseFloat(this.datosCliente.saldoOriginalMXN)
+            this.creditoOcupadoUSD = parseFloat(this.datosCliente.saldoOcupadoUSD)
+            this.creditoOcupadoMXN = parseFloat(this.datosCliente.saldoOcupadoMXN)
+
+            let saldoRealUSD = 0
+            let saldoRealMXN = 0
+            let priceSale = parseFloat(this.totalGlobal)
+
+            if(this.creditoUSD > 0 || this.creditoMXN > 0){
+              //PARA CREDITO EN USD
+              if(this.creditoUSD > 0){
+
+                if(this.divisa == '1' || this.divisa == 1){
+                  
+                  saldoRealUSD = this.creditoUSD - this.creditoOcupadoUSD
+
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > saldoRealUSD){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                }else if(this.divisa == '2' || this.divisa == 2){
+                  let conversion = 0;
+
+                  saldoRealUSD = this.creditoUSD - this.creditoOcupadoUSD
+
+                  conversion = saldoRealUSD * this.valorDolar
+
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > conversion){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                  
+                }
+              }
+
+              //PARA CREDITO EN MXN
+              if(this.creditoMXN > 0){
+
+                if(this.divisa == '2' || this.divisa == 2){
+
+                  saldoRealMXN = this.creditoMXN - this.creditoOcupadoMXN
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > saldoRealMXN){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+
+                }else if(this.divisa == '1' || this.divisa == 1){
+                  let conversion = 0;
+
+                  saldoRealMXN = this.creditoMXN - this.creditoOcupadoMXN
+
+                  conversion = saldoRealMXN / this.valorDolar
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > conversion){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                }
+              }
+            }else{
+              Swal.close();
+              Swal.fire({
+                title: "Tu solicitud no se puede procesar, en breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                text: "",
+                icon: "info",
+                confirmButtonText: "Cerrar",
+              });
+
+              this.motivoContacto = 'el cliente es cliente Interland pero no tiene una linea de crédito'
+              this.contactaAgente = true;
+              this.Save2();
+            }
+
+          }else{
+            Swal.close();
+            Swal.fire({
+              title: "No estas registrado como cliente en Interland, en breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+              text: "",
+              icon: "info",
+              confirmButtonText: "Cerrar",
+            });
+            this.motivoContacto = 'el cliente no esta registrado como cliente Interland'
+            this.contactaAgente = true;
+            this.Save2();
+            //return false;
+          }
+        } else {
+          //valido = "No válido"
+          //resultado.classList.remove("ok");
+          
+          Swal.fire({
+            title: "El RFC ingresado es incorrecto, verifícalo",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }else{
+        this.Save2();
+      }
+        
     },
 
     rfcValido(rfc, aceptarGenerico = true) {
@@ -7181,7 +7619,73 @@ export default {
                 "(([A-ZÑ&]{4})([02468][048]|[13579][26])[0][2]([0][1-9]|[12][\\d])([A-Z0-9]{3}))|" +
                 "(([A-ZÑ&]{4})([0-9]{2})[0][2]([0][1-9]|[1][0-9]|[2][0-8])([A-Z0-9]{3}))$";
       return rfc.match(_rfc_pattern_pm) || rfc.match(_rfc_pattern_pf);
-    }
+    },
+
+    async recalculaCotizacion(){
+      let validaCambioOrigen = false
+      let validaCambioDestino = false
+
+      /* SE VALIDA SI HAY CAMBIOS EN LOS ARAYS DE ORIGEN Y DESTINO */
+      for (let i = 0; i < this.arrayOrigen.length; i++) {
+        if (this.arrayOrigen[i] !== this.arrayOrigenR[i]) {
+          validaCambioOrigen = true;
+        }
+      }
+
+      for (let i = 0; i < this.arrayDestino.length; i++) {
+        if (this.arrayDestino[i] !== this.arrayDestinoR[i]) {
+          validaCambioDestino = true;
+        }
+      }
+
+      if(validaCambioOrigen || validaCambioDestino){
+        if(this.termodalidad == 'LTL'){
+          await this.recalculaAgregaPaquetesLTL();
+
+        }else if(this.termodalidad == 'FTL'){
+          await this.recalculaAgregaPaquetes();
+        }
+      }
+
+      this.validaMercancias();
+    },
+
+    notificaAgente(){
+
+      let telefono = ''
+      let idCotiza = this.idCotizacion;
+
+      for (let i = 0; i < this.ladas.length; i++) {
+        this.ladas[i].code;
+        if(parseInt(this.contacLada) == parseInt(this.ladas[i].id)){
+          telefono = '+'+this.ladas[i].code+this.contacTelefono
+        }
+      }
+
+      axios({
+        method: "post",
+        url: "/api/v1/agente-aviso/",
+        data: {
+          id: idCotiza,
+          motivoAgente: this.motivoContacto,
+          nombreCliente: this.contacName,
+          emailCliente: this.contacEmail,
+          telefonoCliente: telefono,
+          nombreAgente: this.nombreAgente,
+          correoAgente: this.correoAgente,
+
+        },
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+        console.log(response.data)
+      }).catch((error) => {
+                   
+      });
+      
+    },
 
   },
 
@@ -7764,10 +8268,16 @@ export default {
                             <div class="col-md-4 text-right mt-2 mb-2">
                               <b-button pill style="background-color: #2aab5c" :disabled="isActive" v-b-modal.resumen-modal title="Resumen General de Cotizacion" v-b-tooltip.hover="{ variant: 'success' }" data-toggle="modal" data-target="#resumen-modal">
                                 <b v-show="divisa == '1'">
-                                  ${{ formatMoney(priceSale) }}
+                                  <u>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    ${{ formatMoney(parseFloat(totalGlobal)) }} USD
+                                  </u>
                                 </b>
                                 <b v-show="divisa == '2'">
-                                  ${{ formatMoney(priceSale) }}
+                                  <u>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    ${{ formatMoney(parseFloat(totalGlobal)) }} MXN
+                                  </u>
                                 </b>
                               </b-button>
                             </div>
@@ -8071,7 +8581,7 @@ export default {
                             <b-col md="4">
                               <div class="_1cwBgi06GP5eqlDlfhrE9A">
                                 <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
-                                  <!--b style="color: red">*</b--> Calle
+                                  <b style="color: red">*</b> Calle
                                 </div>
                               </div>
                               <div class="_12VTCAtCmgnF7JdGljsEapdo">
@@ -8091,7 +8601,7 @@ export default {
                             <b-col md="4">
                               <div class="_1cwBgi06GP5eqlDlfhrE9A">
                                 <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
-                                  <!--b style="color: red">*</b--> Número Exterior
+                                  <b style="color: red">*</b> Número Exterior
                                 </div>
                               </div>
                               <div class="_12VTCAtCmgnF7JdGljsEapdo">
@@ -8329,7 +8839,7 @@ export default {
                           <b-col md="6">
                             <div class="_1cwBgi06GP5eqlDlfhrE9A">
                               <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
-                                <b style="color: red">*</b> Notas
+                                <!--b style="color: red">*</b--> Notas
                               </div>
                             </div>
                             <div class="_12VTCAtCmgnF7JdGljsEapdo">
@@ -8350,8 +8860,8 @@ export default {
                     </div>
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
-                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button-->
-                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
                   </div>
                 </b-modal>
 
@@ -8391,7 +8901,7 @@ export default {
                     </div>
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionCliente()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
-                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaRFCUsuario()"> <b>Cotizar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaRFCUsuario()"> <b>Cotizar Ahora!</b></b-button>
                     <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
                   </div>
                 </b-modal>
@@ -9997,7 +10507,7 @@ export default {
 
                         <div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
                         </div>
                       </b-modal>
                     </div>
@@ -10247,9 +10757,7 @@ input[type="range"]:focus {
   outline: none;
 }
 
-input[type="range"],
-input[type="range"]::-webkit-slider-runnable-track,
-input[type="range"]::-webkit-slider-thumb {
+input[type="range"], input[type="range"]::-webkit-slider-runnable-track, input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
 }
 
@@ -10808,9 +11316,7 @@ body .zTDkSCFjS5VtNrkEzKtJ5:active {
   transition: all 0.2s ease;
 }
 
-@media (hover: hover),
-  all and (-ms-high-contrast: none),
-  (-ms-high-contrast: active) {
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
   body .zTDkSCFjS5VtNrkEzKtJ5:hover {
     opacity: 0.9;
     transition: all 0.2s ease;
@@ -10859,26 +11365,20 @@ body .XnAvZ8kiGXiCA_sHNJc-d {
   }
 }
 
-@media (hover: hover),
-  all and (-ms-high-contrast: none),
-  (-ms-high-contrast: active) {
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
   body .XnAvZ8kiGXiCA_sHNJc-d:hover {
     transform: translate3d(-50%, -50%, 0) scale(1.1);
     transition: all 0.2s ease;
   }
 }
 
-@media only screen and (hover: hover) and (max-width: 991px),
-  only screen and (-ms-high-contrast: none) and (max-width: 991px),
-  only screen and (-ms-high-contrast: active) and (max-width: 991px) {
+@media only screen and (hover: hover) and (max-width: 991px), only screen and (-ms-high-contrast: none) and (max-width: 991px), only screen and (-ms-high-contrast: active) and (max-width: 991px) {
   body .XnAvZ8kiGXiCA_sHNJc-d:hover {
     transform: translate3d(0%, -60%, 0) scale(1.6);
   }
 }
 
-@media (hover: hover),
-  all and (-ms-high-contrast: none),
-  (-ms-high-contrast: active) {
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
   body .XnAvZ8kiGXiCA_sHNJc-d:hover ._19dtdOQCfyXKmKkLtvaUkM {
     transition: all 0.2s ease;
   }
@@ -10959,6 +11459,7 @@ body .zcj_unEFDHcra9DrUB7t7 {
   width: 100%;
   height: 100%;
 }
+
 .carousel-inner{
   height: 300px;
 }
@@ -11113,6 +11614,7 @@ section img:hover{
   border-bottom: 3px solid #5a6268;
   color: #5a6268;
 }
+
 .mountain {
   position: absolute;
   right: -900px;
@@ -11120,16 +11622,17 @@ section img:hover{
   width: 2px;
   height: 2px;
   box-shadow: 
-    0 0 0 50px #4DB6AC,
-    60px 50px 0 70px #4DB6AC,
-    90px 90px 0 50px #4DB6AC,
-    250px 250px 0 50px #4DB6AC,
-    290px 320px 0 50px #4DB6AC,
-    320px 400px 0 50px #4DB6AC
+    0 0 0 50px #2aab5c,
+    60px 50px 0 70px #2aab5c,
+    90px 90px 0 50px #2aab5c,
+    250px 250px 0 50px #2aab5c,
+    290px 320px 0 50px #2aab5c,
+    320px 400px 0 50px #2aab5c
     ;
   transform: rotate(130deg);
   animation: mtn 20s linear infinite;
 }
+
 .hill {
   position: absolute;
   right: -900px;
@@ -11138,14 +11641,15 @@ section img:hover{
   border-radius: 50%;
   height: 20px;
   box-shadow: 
-    0 0 0 50px #4DB6AC,
-    -20px 0 0 20px #4DB6AC,
-    -90px 0 0 50px #4DB6AC,
-    250px 0 0 50px #4DB6AC,
-    290px 0 0 50px #4DB6AC,
-    620px 0 0 50px #4DB6AC;
+    0 0 0 50px #2aab5c,
+    -20px 0 0 20px #2aab5c,
+    -90px 0 0 50px #2aab5c,
+    250px 0 0 50px #2aab5c,
+    290px 0 0 50px #2aab5c,
+    620px 0 0 50px #2aab5c;
   animation: hill 4s 2s linear infinite;
 }
+
 .tree, .tree:nth-child(2), .tree:nth-child(3) {
   position: absolute;
   height: 90px; 
@@ -11153,6 +11657,7 @@ section img:hover{
   bottom: 0;
   background: url(../../../assets/images/tree.svg) no-repeat;
 }
+
 .rock {
   margin-top: -17%;
   height: 2%; 
@@ -11162,6 +11667,7 @@ section img:hover{
   position: absolute;
   background: #ddd;
 }
+
 .truck, .wheels {
   transition: all ease;
   width: 85px;
@@ -11171,11 +11677,13 @@ section img:hover{
   position: absolute;
   background: #eee;
 }
+
 .truck {
   background: url(../../../assets/images/truck.svg) no-repeat;
   background-size: contain;
   height: 60px;
 }
+
 .truck:before {
   content: " ";
   position: absolute;
@@ -11184,6 +11692,7 @@ section img:hover{
     -30px 28px 0 1.5px #fff,
      -35px 18px 0 1.5px #fff;
 }
+
 .wheels {
   background: url(../../../assets/images/wheels.svg) no-repeat;
   height: 15px;
@@ -11204,11 +11713,13 @@ section img:hover{
   50% {}
   100% { transform: translate(-50px); }
 }
+
 @keyframes tree2 {
   0%   { transform: translate(650px); }
   50% {}
   100% { transform: translate(-50px); }
 }
+
 @keyframes tree3 {
   0%   { transform: translate(2750px); }
   50% {}
@@ -11219,6 +11730,7 @@ section img:hover{
   0%   { right: -200px; }
   100% { right: 2000px; }
 }
+
 @keyframes truck {
   0%   { }
   6%   { transform: translateY(0px); }
@@ -11228,16 +11740,19 @@ section img:hover{
   11%   { transform: translateY(0px); }
   100%   { }
 }
+
 @keyframes wind {
   0%   {  }
   50%   { transform: translateY(3px) }
   100%   { }
 }
+
 @keyframes mtn {
   100% {
     transform: translateX(-2000px) rotate(130deg);
   }
 }
+
 @keyframes hill {
   100% {
     transform: translateX(-2000px);
@@ -11515,6 +12030,7 @@ section img:hover{
     color: white;
     font-weight: bold;
 }
+
 #resultado.ok {
     background-color: green;
 }
