@@ -1,4 +1,6 @@
-# minton
+# Interland Cotizador
+
+### Cotizaciones LTL, FTL, FCL
 
 ## Project setup
 ```

@@ -1,0 +1,14426 @@
+<script>
+import Layout from "../../layouts/main";
+import PageHeader from "@/components/Page-header";
+import appConfig from "../../../../app.config";
+
+import axios from "axios";
+import Swal from "sweetalert2";
+import moment from "moment";
+
+import ItemTemplate from "@/components/ItemTemplateSearch";
+import ItemTemplateProvServ from "@/components/ItemTemplateProvServ";
+import ItemTemplateAddres from "@/components/ItemTemplateAddress";
+
+import Vue from "vue";
+import $ from 'jquery';
+import { BPopover } from "bootstrap-vue";
+import Multiselect from "vue-multiselect";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { layoutMethods, layoutComputed } from '@/state/helpers';
+
+Vue.component("b-popover", BPopover);
+
+export default {
+  page: {
+    title: "Nueva Cotizacion",
+    meta: [{ name: "newCotizacion", content: appConfig.description }],
+  },
+  components: {
+    Multiselect,
+    Layout,
+    PageHeader,
+  },
+  data() {
+    return {
+      input1: "",
+      input1state: null,
+      input2: "",
+      input2state: null,
+      options: [{ text: "- Choose 1 -", value: "" }, "Red", "Green", "Blue"],
+      input1Return: "",
+      input2Return: "",
+      popoverShow: false,
+
+      dates_search: [],
+      dates_search_proser: [],
+      dates_search_address: [],
+      numConsecutivo: 0,
+      idConsecutivo: 0,
+      controlConse: "",
+      fechaConsecutivo: "",
+      fConse: "",
+      estadoCotiza: false,
+      template: ItemTemplate,
+      templateProvServ: ItemTemplateProvServ,
+      templateAddress: ItemTemplateAddres,
+      isActive: false,
+      title: "Nueva Cotizacion",
+      items: [
+        {
+          text: "Inicio",
+          href: "/",
+        },
+        {
+          text: "Cotizaciones",
+          href: "/cotizaciones/listCotizacion",
+        },
+        {
+          text: "Nueva Cotizacion",
+          href: "/newCotizacion",
+          active: true,
+        },
+      ],
+      //Inicio Terrestre
+
+      modoOperacion: "",
+      tiposOperacion: "",
+
+      opcion: 0,
+      idCotizacion: 0, // id de la cotizacion al guardar registros base
+      tipoOpcion: "", // Maritimo, Terrestre, Aereo
+      tipoEnvio: "", // Nacional, Expo, Impo
+      tipoEnvioCheckNac: false,
+      tipoEnvioCheckInt: false,
+      tipoEnvioDetalleSi: false,
+      tipoEnvioDetalleNo: false,
+      tipoEnvioDetalle: '',
+      modoEnvio: "", // Directo, Multiparada, TrasBordo
+      comercio: "", // Impo, Expo, FNE
+      comercioUbicacion: "", //USA CENAM
+
+      terOperation: 0,
+      terMostrar: 0,
+      statusnac: "false",
+      statusimp: "false",
+      statusexp: "false",
+
+      action: 0,
+      terstatusdir1: "false",
+      terstatusmul: "false",
+
+      terstatusdir2: "false",
+      terstatustras1: "false",
+
+      terstatusdir3: "false",
+      terstatustras2: "false",
+
+      origen_destino: "",
+      mercancia: "",
+      mercancias: "",
+
+      terorigen: "",
+      terdestino: "",
+      terfecha: "",
+      termodalidad: "",
+      termodalidadText: "",
+      termodalidadImg: "",
+      tertipocarga: "",
+      carga: "",
+      tercotizacion: 0,
+
+      terembalaje: "",
+      terDescEmbalaje: "",
+      terestibable: "",
+      idclasifica: 0,
+      clasifica: "",
+      clasificaText: "",
+      descripMerc: "",
+      numcols: 12,
+      cantMerc: "",
+      volMerc: 0,
+      volMercTot: 0,
+      pesTMerc: 0,
+      unidaMedidaMerc: "",
+      unMerc: "",
+      classMerc: "",
+      gradosMerc: "",
+      tUnidadMerc: "",
+      altoMerc: 0,
+      anchoMerc: 0,
+      largoMerc: 0,
+      unidaPesoMerc: "kg",
+      pesoTotal: 0,
+      pesoVol: 0,
+      pesoVolTot: 0,
+      upeso: '',
+      altoMercReal: 0,
+      aplicaAumentoLargo: false,
+      aplicaAumentoAncho: false,
+      aplicaAumentoAlto: false,
+      aplicaAumentoPeso: false,
+
+      aplicaPosicionLargo: false,
+      aplicaPosicionAncho: false,
+      aplicaPosicionAlto: false,
+      aplicaPosicionPeso: false,
+
+      fechaFormato: "",
+      tipoEnvio: "Optimo",
+
+      claPro: "",
+      desPro: "",
+      clasificacionZonaO: "",
+      clasificacionZonaD: "",
+      resClasificaZona: "",
+      notColorZona: "",
+      notTextoZona: "",
+      zonaValidaCo: 0,
+      //Fin Terrestre
+
+      //Inicio General
+      fondoEtiquetas: "white",
+      fondoBusqueda: "white",
+      fondoEtiquetas1: "",
+      fondoBusqueda1: "",
+
+      ribbonsData: [
+        {
+          title: "Nacional",
+          color: "primary",
+          icon: "mdi mdi-access-point",
+          textalign: "left",
+          titlealign: "right",
+        },
+        {
+          title: "Expo",
+          color: "success",
+          icon: "mdi mdi-access-point",
+          textalign: "left",
+          titlealign: "right",
+        },
+        {
+          title: "Impo",
+          color: "info",
+          icon: "mdi mdi-access-point",
+          textalign: "left",
+          titlealign: "right",
+        },
+      ],
+
+      pais: "",
+      cp: "",
+      estado: "",
+      ciudad: "",
+
+      ciudadori: "",
+      ciudaddes: "",
+
+      dateNow: "",
+
+      countrys: [],
+      estates: [],
+      units: [],
+      embalajes: [],
+      selectServices: [1],
+      services: [],
+      folio: 0,
+
+      tipoUnidad: 0,
+      nombreTipoUnidad: "",
+      estibable: "",
+
+      arrayOrigen: [],
+      arrayDestino: [],
+      arrayOrigenR: [],
+      arrayDestinoR: [],
+      listVentas: [],
+
+      //DATOS GOOGLE
+      mapsOrigen: '',
+      mapsDestino: '',
+      direccionGeo: '',
+      latitudOrigen: '',
+      longitudOrigen: '',
+      latitudDestino: '',
+      longitudDestino: '',
+      googleMapsLoaded: false,
+
+      cambioTerrestre: 0,
+      priceSale: 0,
+      confirmarServices: [],
+      confirmarServices2: [],
+      confirmarServices3: [],
+      confirmarServices4: [],
+      confirmarServices5: [], // SE USA CUANDO HAY AJUSTES DE PRECIOS EN EL DESGLOSE DE LA COTIZACION
+
+      details: 0,
+      ladas: [],
+
+      contacName: "",
+      contacEmail: "",
+      contacLada: 1,
+      contacTelefono: "",
+      contacProductName: "",
+      contacDescription: "",
+
+      idBTN: 0,
+      valorBTN: 0,
+      nomBTN: "",
+
+      cpRutaO: "",
+
+      options: [
+        { id: 0, value: 0 },
+        { id: 1, value: 1 },
+        { id: 2, value: 2 },
+        { id: 3, value: 3 },
+        { id: 4, value: 4 },
+        { id: 5, value: 5 },
+        { id: 6, value: 6 },
+        { id: 7, value: 7 },
+        { id: 8, value: 8 },
+        { id: 9, value: 9 },
+        { id: 10, value: 10 },
+        { id: 11, value: 11 },
+        { id: 12, value: 12 },
+        { id: 13, value: 13 },
+        { id: 14, value: 14 },
+        { id: 15, value: 15 },
+        { id: 16, value: 16 },
+        { id: 17, value: 17 },
+        { id: 18, value: 18 },
+        { id: 19, value: 19 },
+        { id: 20, value: 20 },
+        { id: 21, value: 21 },
+        { id: 22, value: 22 },
+        { id: 23, value: 23 },
+        { id: 24, value: 24 },
+        { id: 25, value: 25 },
+        { id: 26, value: 26 },
+        { id: 27, value: 27 },
+        { id: 28, value: 28 },
+        { id: 29, value: 29 },
+        { id: 30, value: 30 },
+      ],
+
+      impuestos: 0,
+      arrayOcultar: 0, //Verifiar
+      serviciosResumen: [],
+      addResumen: [],
+      addFinal: [],
+      totalSugerido: 0,
+
+      divisa: 2,
+      valorDolar: 19.8532,
+      vigencia: "",
+      fechaCoincidencia: "",
+
+      aumentoPorcentaje: 1, // 1 -> Optimo, 2 -> Express
+      velocidadEnvio: "Optimo",
+      idFail: 0,
+      diasTransito: 0,
+      idContador: 0,
+
+      precioVentas: 0,
+      precioExpres: 0,
+      ivaExpress: 0,
+      ivaOptimo: 0,
+      totalRetOpt: 0,
+      totalRetExp: 0,
+      totalIvaOpt: 0,
+      totalIvaExp: 0,
+      totalPrecioOpt: 0,
+      totalPrecioExp: 0,
+      totalTotalOpt: 0,
+      totalTotalExp: 0,
+      idFleteNacional: 0,
+
+      idServicioVenta: 0,
+
+      estiba: [
+        { id: 0, value: "NO" },
+        { id: 1, value: "SI" },
+      ],
+      
+      tipoModalidad: 0,
+
+      arrayResp: [],
+      idNuevoServ: 0,
+
+      idU: 0,
+      emailU: "",
+      nombreU: "",
+      username: "",
+      tokenU: "",
+      puestoU: "",
+      admin: false,
+      permisos: [],
+      menuItems: [],
+
+      /*NIEVA SECCION TARIFAS AUTOMATICAS*/
+
+      estatus: 0,
+      idTarifa: 0,
+      idTarifasDestino: 0,
+      idTarifasOrigen: 0,
+      paisTarifaOrigen: '',
+      estadoTarifaOrigen: '',
+      ciudadTarifaOrigen: '',
+      cpTarifaOrigen: '',
+      paisTarifaDestino: '',
+      estadoTarifaDestino: '',
+      ciudadTarifaDestino: '',
+      cpTarifaDestino: '',
+      tarifaKilometro: 0,
+
+      idRuta: 0,
+      kilometraje: 0,
+      porcZonaNoCom: 0,
+      porcZonaPelig: 0,
+      tiempoEstimado: "",
+
+      unidadId: 0,
+      unidadNombre: "",
+      unidadPesoBruto: 0.0,
+      unidadCapacidad: 0.0,
+      unidadHigh: 0.0,
+      unidadLong: 0.0,
+      unidadWidth: 0.0,
+      unidadCapacidadMaxima: 0,
+      unidadImagen: '',
+
+      embalajeId: 0,
+      embalajeNombre: "",
+      embalajeAlto: 0.0,
+      embalajeAncho: 0.0,
+      embalajeLargo: 0.0,
+      embalajeCapacidadMaxima: 0,
+      
+
+      volumenMax: 0,
+
+      sobrePeso: false,
+      porcSobrePeso: 0,
+
+      definePesoXVol: false,
+      pesoDef: 0,
+      volDef: 0,
+
+      isSusceptibleRobo: false,
+      porcentajeRobo: 0,
+
+      totalGlobal: 0,
+      totalIvaGlobal: 0,
+      totalSubtotalGlobal: 0,
+      totalRetencionGlobal: 0,
+      totalZonaPeligrosa: 0,
+      totalZonaNoComercial: 0,
+      totalSobrepesoGlobal: 0,
+      totalRobosGlobal: 0,
+      totalGlobalServicio: 0,
+      totalVolMercancias: 0,
+
+      totalCantidad: 0,
+      totalVolumen: 0,
+      totalPesoReal: 0,
+      totalPesoFaturado: 0,
+
+      estatusCotiza: 0,
+      getServicioExiste: [],
+
+      maxRange: 0,
+      minRange: 0,
+      nomUnidadModalidad: "",
+
+      valorMercancia: 0,
+      valorMercanciaMoneda: 0,
+      requiereRecoleccion: false,
+      requiereEntrega: false,
+      requiereCruce: false,
+
+      precioM3LTL: 960,
+      valorTotalLTL: 0,
+
+      selected: "",
+
+      optionsItemModalidad: [
+        {
+          value: "LTL",
+          text: "LTL - Carga Consolidada",
+          src: "/img/ltl.png",
+        },
+        {
+          value: "FTL",
+          text: "FTL - Camión Completo",
+          src: "/img/ftl.png",
+        },
+        {
+          value: "FCL",
+          text: "FCL - Contenedor Completo",
+          src: "/img/fcl.png",
+        },
+      ],
+
+      agregarMercancias: [],
+      pesoTotal: 0,
+      origen: "",
+      destino: "",
+      calleOrigen: "",
+      numExtOrigen: "",
+      numIntOrigen: "",
+      calleDestino: "",
+      numExtDestino: "",
+      numIntDestino: "",
+
+      detectaCambiosUbicaciones: 0,
+      jsonObject: {},
+
+      precioXMetCub: 333,
+      totalPesoVolTot: 0,
+
+      precioXKiloCub: 850,
+      totalKilo: 0,
+
+      totalPrecioVolumen: 0,
+
+      arrayContenedorMercancias: [],
+
+      factorConversionEstiba: 0,
+      factorConversionNoEstiba: 1800,
+      cifraOriginal: 0,
+      cifraRedondeada: null,
+
+      arrayDatosTarifario: [],
+      recoleccion_tres_y_media: 0.0,
+      recoleccion_rabon: 0.0,
+      recoleccion_torton: 0.0,
+      entrega_puerto_nissan: 0.0,
+      entrega_puerto_tres_y_media: 0.0,
+      entrega_rabon: 0.0,
+      entrega_torton: 0.0,
+      flete_nacional: 0.0,
+
+      leyendaPeso: '',
+      leyendaVolumen: '',
+
+      slide: 0,
+      sliding: null,
+
+      ofertasDia : [],
+      ofertas: [],
+
+      all_ofertas: [],
+
+      pricingData: [],
+
+      ocurreO: false,
+      almacenO: '',
+      ocurreD: false,
+      almacenD: '',
+
+      /* DATOS GOOGLE */
+      ubicacionDetallesOri: null,
+      aduanasCercanasOri: [],
+      aeropuertosCercanosOri: [],
+      puertosCercanosOri: [],
+
+      ubicacionDetallesDes: null,
+      aduanasCercanasDes: [],
+      aeropuertosCercanosDes: [],
+      puertosCercanosDes: [],
+
+      latitudBusca: '',
+      longitudBusca: '',
+      resultadoValidacion: '',
+      geocercaValidacion: [],
+      geocerca: [],
+
+      apiCargada: false,
+      validaOrigenGeo: false,
+      validaDestinoGeo: false,
+
+      leyendaServicios: '',
+
+      progresbarRecoleccion: false,
+      progresbarFlete: false,
+      progresbarEntrega: false,
+      progresbarIngreso: false,
+
+      rfcClienteInterland: '',
+      datosCliente: '',
+      contactaAgente: false,
+      motivoContacto: '',
+
+      nomCliente: '',
+      idCliente: 0,
+      nombreAgente: '', 
+      correoAgente: '',
+      creditoUSD: 0.0,
+      creditoMXN: 0.0,
+      creditoOcupadoUSD: 0.0, 
+      creditoOcupadoMXN: 0.0,
+
+      existeCotizacion: true,
+
+      unidadesLTL: [],
+      options_origen_ftl: [],
+      options_destinos_ftl: [],
+      c_options_origen_ftl: [],
+      c_options_destinos_ftl: [],
+      origenes_ftl: [],
+      destinos_ftl: [],
+      origenes_ltl: [],
+      destinos_ltl: [],
+      mostrarMapaLTL: false,
+
+
+      itemsTarifarioFTL: [],
+      datosOrigenesFTLOcupar: [],
+      datosDestinosFTLOcupar: [],
+      datosUnidaddesFtlOcupar: [],
+      listOD: [],
+      listTipoZona: [],
+      listPorcentajes: [],
+      rangos: [],
+      options_unit:[],
+      colspan:0,
+
+      adicionalesFTL:[],
+    };
+  },
+  created() {
+
+    this.fechaHoy();
+    this.getContry();
+    this.getServicios();
+    this.getLada();
+    this.getFechaActual();
+    this.getFolioCon();
+    this.dataSess();
+    this.getUnidadBox("g");
+    this.getEmbalaje();
+    this.getOfertas();
+    //this.selectModalidad('LTL');
+
+  },
+  mounted() {
+    this.inicio();
+  },
+  watch: {
+    arrayOrigen(newValue) {
+      if (newValue.length > 0) {
+        if(this.termodalidad == 'LTL'){
+          this.getTarifario();
+        }
+        //this.obtenerDetallesUbicacion('O');
+      }
+    },
+    arrayDestino(newValue) {
+      if (newValue.length > 0) {
+        if(this.termodalidad == 'LTL'){
+          this.getTarifario();
+        }
+        //this.obtenerDetallesUbicacion('D');
+      }
+    }
+  },
+
+  methods: {
+    dataSess() {
+      let data = JSON.parse(localStorage.getItem("users"));
+      for (let i = 0; i < data.length; i++) {
+        this.idU = data[i].id;
+        this.emailU = data[i].email;
+        this.nombreU = data[i].nombre;
+        this.username = data[i].username;
+        this.tokenU = data[i].token;
+        this.puestoU = data[i].puesto;
+        this.permisos = data[i].permisos;
+        this.admin = data[i].admin;
+      }
+      this.modulosUsuario();
+    },
+
+    modulosUsuario() {
+      let agregar = {};
+
+      agregar = {
+        id: 0,
+        label: "Módulos",
+        isTitle: true,
+      };
+
+      this.menuItems.push(agregar);
+      for (let i = 0; i < this.permisos.length; i++) {
+        if (
+          this.permisos[i].modulos_isSubmenu == false &&
+          this.permisos[i].modulos_idMenu == 0
+        ) {
+          agregar = {
+            id: this.permisos[i].modulos_id,
+            label: this.permisos[i].modulos_nombre,
+            icon: this.permisos[i].modulos_icon,
+            link: this.permisos[i].modulos_link,
+          };
+          this.menuItems.push(agregar);
+        } else if (this.permisos[i].modulos_isSubmenu == true) {
+          let idItem = this.permisos[i].modulos_id;
+          let subItem = [];
+          let agreg = {};
+
+          for (let e = 0; e < this.permisos.length; e++) {
+            if (this.permisos[e].modulos_idMenu == idItem) {
+              agreg = {
+                id: this.permisos[e].modulos_id,
+                label: this.permisos[e].modulos_nombre,
+                link: this.permisos[e].modulos_link,
+              };
+              subItem.push(agreg);
+            }
+          }
+
+          agregar = {
+            id: this.permisos[i].modulos_id,
+            label: this.permisos[i].modulos_nombre,
+            icon: this.permisos[i].modulos_icon,
+            isMenuCollapsed: false,
+            subItems: subItem,
+          };
+          this.menuItems.push(agregar);
+        }
+      }
+    },
+
+    //INICIA SECCION DE POPOVER
+    onClose() {
+      this.popoverShow = false;
+    },
+
+    onOk() {
+      this.validaDatosMercancias();
+      this.onClose();
+    },
+    //TERMINA SECCION DE POPOVER
+
+    validaDatosMercancias() {
+      let tipocarga = this.tipoCarga;
+      let embalaje = this.terembalaje;
+      let estibable = this.terestibable;
+      let clasifica = this.clasifica;
+      let descripMerc = this.descripMerc;
+      let cantMerc = this.cantMerc;
+      let volMerc = this.volMerc;
+      let pesTMerc = this.pesTMerc;
+      let unidaMedidaMerc = this.unidaMedidaMerc;
+      let unMerc = this.unMerc;
+      let classMerc = this.classMerc;
+      let gradosMerc = this.gradosMerc;
+      let tUnidadMerc = this.tUnidadMerc;
+
+      if (embalaje == "" || embalaje == null) {
+        Swal.fire({
+          title: "Selecciona un Embalaje",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (estibable == "" || estibable == null) {
+        Swal.fire({
+          title: "Campo Estibable no Seleccionado",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (clasifica == "" || clasifica == null) {
+        Swal.fire({
+          title: "Ingresa una clasifiacación",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (descripMerc == "" || descripMerc == null) {
+        Swal.fire({
+          title: "El campo descripción esta vacío",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (cantMerc == "" || cantMerc == null) {
+        Swal.fire({
+          title: "Ingresa la Cantidad",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (volMerc == 0 || volMerc == null) {
+        Swal.fire({
+          title: "Ingresa el Volúmen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (pesTMerc == 0 || pesTMerc == null) {
+        Swal.fire({
+          title: "Ingresa el Peso",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (unidaMedidaMerc == "" || unidaMedidaMerc == null) {
+        Swal.fire({
+          title: "Selecciona la Inidad de Medida",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (tipocarga == "h") {
+        if (unMerc == "" || unMerc == null) {
+          Swal.fire({
+            title: "Campo UN esta vacío",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        if (classMerc == "" || classMerc == null) {
+          Swal.fire({
+            title: "Campo CLASS vacío",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }
+
+      if (tipocarga == "r") {
+        if (gradosMerc == "" || gradosMerc == null) {
+          Swal.fire({
+            title: "Ingreda los Grados",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        if (tUnidadMerc == "" || tUnidadMerc == null) {
+          Swal.fire({
+            title: "Ingresa el tipo de unidad",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }
+    },
+
+    reloadPage() {
+      window.location.reload();
+    },
+
+    getFolioCon() {
+      axios({
+        method: "post",
+        url: "/api/v1/consecutivo/",
+        data: {
+          id: 1,
+        },
+      })
+        .then((response) => {
+          this.idConsecutivo = response.data[0].id;
+          this.numConsecutivo = response.data[0].numero;
+          this.controlConse = response.data[0].control;
+          this.fechaConsecutivo = response.data[0].fecha;
+
+          var date = new Date(this.fechaConsecutivo);
+          var date2 = moment(String(this.fechaConsecutivo)).format(
+            "YYYY/MM/DD"
+          );
+
+          this.fechaConsecutivo = date.getUTCFullYear().toString().substr(-2);
+          this.fConse = date2;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    async insertConsecutivo() {
+      const fecConse = this.fConse;
+      let fechaHoy = Date.now();
+      fechaHoy = moment(new Date(fechaHoy)).format("YYYY/MM/DD");
+      //let anioComp = date.getUTCFullYear();
+      axios({
+        method: "post",
+        url: `/api/v1/iconsecutivo/`,
+        data: {
+          idAnt: this.idConsecutivo,
+          fecConse: fecConse,
+          fechaHoy: fechaHoy,
+        },
+      })
+        .then((response) => {})
+        .catch((error) => {
+          console.log(error);
+        });
+
+      await this.getFolioCon();
+    },
+
+    updateConsecutivo() {
+      let date = new Date();
+      let anioComp = date.getUTCFullYear();
+      axios({
+        method: "put",
+        url: `/api/v1/consecutivo/${this.idConsecutivo}/`,
+        data: {
+          id: this.idConsecutivo,
+          numero: this.numConsecutivo + 1,
+          anio: anioComp,
+        },
+      })
+        .then((response) => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    //para el autocomplit del cp
+    getFechaActual() {
+      let hoy = new Date();
+      let dd = hoy.getDate();
+      let mm = hoy.getMonth() + 1;
+      let yy = hoy.getFullYear();
+      let mes = "";
+      switch (mm) {
+        case 1:
+          mes = "Enero";
+          break;
+        case 2:
+          mes = "Febrero";
+          break;
+        case 3:
+          mes = "Marzo";
+          break;
+        case 4:
+          mes = "Abril";
+          break;
+        case 5:
+          mes = "Mayo";
+          break;
+        case 6:
+          mes = "Junio";
+          break;
+        case 7:
+          mes = "Julio";
+          break;
+        case 8:
+          mes = "Agosto";
+          break;
+        case 9:
+          mes = "Septiembre";
+          break;
+        case 10:
+          mes = "Octubre";
+          break;
+        case 11:
+          mes = "Noviembre";
+          break;
+        case 12:
+          mes = "Diciembre";
+          break;
+
+        default:
+          break;
+      }
+
+      return (this.fechaFormato = dd + " de " + mes + " de " + yy);
+    },
+
+    getLabel(item) {
+      if (item) {
+        this.estado = item.estado_id;
+        this.ciudad = item.municipio;
+        return item.codigo_postal;
+      } else {
+        this.estado = "";
+        this.ciudad = "";
+      }
+    },
+
+    getLabelProd(item) {
+      if (item != "" && item != null) {
+        let clave_prodserv = item.clave_prodserv;
+        let complementoIncluir = item.complementoIncluir;
+        let dateCreate = item.dateCreate;
+        let descripcion = item.descripcion;
+        let estatus = item.estatus;
+        let fechaFinVigencia = item.fechaFinVigencia;
+        let fechaInicioVigencia = item.fechaInicioVigencia;
+        let id = item.id;
+        let iepsTraslado = item.iepsTraslado;
+        let ivaTraslado = item.ivaTraslado;
+        let porcentajeRobo = item.porcentajeRobo;
+        let susceptibleRobo = item.susceptibleRobo;
+        let tipoMercancia = item.tipoMercancia;
+        let materialPeligroso = item.materialPeligroso;
+        let sectorIndustrial = item.sectorIndustrial
+        let palabrasSimilares = item.palabrasSimilares
+        let tertipocarga = item.tipoMercancia
+
+        if (id != undefined && id != null && id != "") {
+          this.clasifica = descripcion;
+          this.idclasifica = clave_prodserv;
+          this.isSusceptibleRobo = susceptibleRobo;
+          this.porcentajeRobo = parseFloat(porcentajeRobo);
+          //this.clasificaText = "[" + item.clave_prodserv + "] - " + item.descripcion;
+          this.clasificaText = descripcion;
+          this.tertipocarga = tertipocarga
+
+          if(this.tertipocarga === 'Mercancía General'){
+            this.tertipocarga = 'g'
+          }
+
+          if(this.tertipocarga === 'HAZMAT'){
+            this.tertipocarga = 'h'
+          }
+
+          if(this.tertipocarga === 'REFRIGERADA'){
+            this.tertipocarga = 'r'
+          }
+
+          /*if(this.termodalidad == "FTL"){
+            let self = this
+
+            setTimeout(function () {
+              self.selectTipoUnidad(tipoMercancia, materialPeligroso); //aqui
+            }, 900);
+          }*/
+
+        }
+      }
+    },
+
+    getLabelAddressO(item) {
+      if (item != null && item != "") {
+        let idpais = parseInt(item.pais_id);
+        let pais = item.pais_name;
+        let idestado = parseInt(item.estado_id);
+        let estado = item.estado_name;
+        let ciudad = item.municipio;
+        let colonia = item.asentamiento;
+        let cp = item.codigo_postal;
+
+        if (pais != undefined && pais != null && pais != "") {
+          this.arrayOrigen = [];
+          this.arrayOrigenR = [];
+          this.origen = "";
+
+          let ori = {
+            idpaiso: idpais,
+            paiso: pais,
+            idestadoo: idestado,
+            estadoo: estado,
+            ciudado: ciudad,
+            colonia: colonia,
+            cpo: cp,
+          };
+
+          this.terorigen = pais + ", " + cp + ", " + estado + ", " + ciudad + ", " + colonia;
+          this.arrayOrigen.push(ori);
+          
+          this.origen = pais + ", " + estado + ", " + ciudad + ", " + cp;
+
+          if(this.arrayOrigenR.length == 0){
+            let ori1 = {
+              idpaiso: idpais,
+              paiso: pais,
+              idestadoo: idestado,
+              estadoo: estado,
+              ciudado: ciudad,
+              colonia: colonia,
+              cpo: cp,
+            };
+            this.arrayOrigenR.push(ori1);
+          }
+          
+
+        }
+      }
+    },
+
+    getLabelAddressD(item) {
+      //console.log(item, 'destino')
+      if (item != null && item != "") {
+        let idpais = parseInt(item.pais_id);
+        let pais = item.pais_name;
+        let idestado = parseInt(item.estado_id);
+        let estado = item.estado_name;
+        let ciudad = item.municipio;
+        let colonia = item.asentamiento;
+        let cp = item.codigo_postal;
+
+        if (pais != undefined && pais != null && pais != "") {
+          this.arrayDestino = [];
+          this.arrayDestinoR = [];
+          this.destino = "";
+
+          let des = {
+            idpaisd: idpais,
+            paisd: pais,
+            idestadod: idestado,
+            estadod: estado,
+            ciudadd: ciudad,
+            colonia: colonia,
+            cpd: cp,
+          };
+
+          this.terdestino = pais + ", " + cp + ", " + estado + ", " + ciudad + ", " + colonia;
+          this.arrayDestino.push(des);
+          this.destino = pais + ", " + estado + ", " + ciudad + ", " + cp;
+
+
+          if(this.arrayDestinoR.length == 0){
+            let des1 = {
+              idpaisd: idpais,
+              paisd: pais,
+              idestadod: idestado,
+              estadod: estado,
+              ciudadd: ciudad,
+              colonia: colonia,
+              cpd: cp,
+            };
+            this.arrayDestinoR.push(des1);
+          }
+        }
+      }
+    },
+
+    cambioDirecciones() {
+      let idpaisd = this.arrayDestinoR[0].idpais;
+      let paisd = this.arrayDestinoR[0].pais;
+      let idestadod = this.arrayDestinoR[0].idestado;
+      let estadod = this.arrayDestinoR[0].estado;
+      let ciudadd = this.arrayDestinoR[0].ciudad;
+      let coloniad = this.arrayDestinoR[0].colonia;
+      let cpd = this.arrayDestinoR[0].cp;
+
+      let idpaiso = this.arrayOrigenR[0].idpais;
+      let paiso = this.arrayOrigenR[0].pais;
+      let idestadoo = this.arrayOrigenR[0].idestado;
+      let estadoo = this.arrayOrigenR[0].estado;
+      let ciudado = this.arrayOrigenR[0].ciudad;
+      let coloniao = this.arrayOrigenR[0].colonia;
+      let cpo = this.arrayOrigenR[0].cp;
+
+      let ori = {};
+      let des = {};
+
+      this.arrayOrigen = [];
+      this.arrayDestino = [];
+
+      let datOri = this.origen;
+      let datDes = this.destino;
+
+      if (this.detectaCambiosUbicaciones == 0) {
+        ori = {
+          idpaisd: idpaiso,
+          paisd: paiso,
+          idestadod: idestadoo,
+          estadod: estadoo,
+          ciudadd: ciudado,
+          colonia: coloniao,
+          cpd: cpo,
+        };
+
+        des = {
+          idpaiso: idpaisd,
+          paiso: paisd,
+          idestadoo: idestadod,
+          estadoo: estadod,
+          ciudado: ciudadd,
+          colonia: coloniad,
+          cpo: cpd,
+        };
+
+        this.arrayOrigen.push(des);
+        this.arrayDestino.push(ori);
+
+        this.origen = datDes;
+        this.destino = datOri;
+        this.detectaCambiosUbicaciones = 1;
+      } else {
+        ori = {
+          idpaiso: idpaisd,
+          paiso: paisd,
+          idestadoo: idestadod,
+          estadoo: estadod,
+          ciudado: ciudadd,
+          colonia: coloniad,
+          cpo: cpd,
+        };
+
+        des = {
+          idpaisd: idpaiso,
+          paisd: paiso,
+          idestadod: idestadoo,
+          estadod: estadoo,
+          ciudadd: ciudado,
+          colonia: coloniao,
+          cpd: cpo,
+        };
+
+        this.arrayOrigen.push(ori);
+        this.arrayDestino.push(des);
+
+        this.origen = datOri;
+        this.destino = datDes;
+        this.detectaCambiosUbicaciones = 0;
+      }
+
+      console.log("------------------------");
+      console.log(this.arrayOrigen);
+      console.log(this.arrayDestino);
+    },
+
+    updateItems(text) {
+      let paisOD = this.pais;
+      let input = text;
+
+      if (paisOD > 0) {
+        axios({
+          method: "post",
+          url: "/api/v1/search-zipcode/",
+          data: {
+            data: input,
+            pais: paisOD,
+          },
+        })
+          .then((response) => {
+            this.dates_search = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    },
+
+    clasificaciones(text) {
+      let input = text;
+      axios({
+        method: "post",
+        url: "/api/v1/search-proser/",
+        data: {
+          data: input,
+        },
+      })
+        .then((response) => {
+          this.dates_search_proser = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getLada() {
+      axios
+        .get(`/api/v1/list-ladas/`)
+        .then((response) => {
+          this.ladas = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    fechaHoy() {
+      let hoy = new Date();
+      let dd = hoy.getDate();
+      let mm = hoy.getMonth() + 1;
+      let yyyy = hoy.getFullYear();
+
+      if (dd < 10) {
+        dd = "0" + dd;
+      }
+
+      if (mm < 10) {
+        mm = "0" + mm;
+      }
+      hoy = yyyy + "-" + mm + "-" + dd;
+      this.dateNow = hoy;
+      this.terfecha = hoy;
+      this.fechaCoincidencia = hoy;
+    },
+
+    getContry() {
+      axios
+        .get(`/api/v1/list-country/`)
+        .then((response) => {
+          this.countrys = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    getEstado(event) {
+      let pkPais = event;
+      axios
+        .get(`/api/v1/list-estates/${pkPais}/`)
+        .then((response) => {
+          this.estates = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    selectTipoUnidad(tipCarga, peligroso) {
+
+    let self = this
+
+      if(peligroso.search('1') > 0 || tipCarga.trim() == 'HAZMAT'){
+        setTimeout(function () {
+          self.getUnidadBox("h");
+        }, 900);
+        this.activoUN = true;
+        this.activoClass = true;
+        this.tipoUnidad = 5;
+        this.carga = "Peligrosa";
+        this.mercancia = "h";
+        this.numcols = 4;
+        this.tertipocarga = 'h'
+      }else if(tipCarga.trim() == 'Mercancía General'){
+
+        setTimeout(function () {
+          self.getUnidadBox("g");
+        }, 900);
+        
+        this.tipoUnidad = 5;
+        this.carga = "General";
+        this.mercancia = "g";
+        this.numcols = 12;
+        this.tertipocarga = 'g'
+      }
+
+
+
+      /*this.tertipocarga = val;
+      let tipoCajaS = this.tertipocarga;
+
+      if (tipoCajaS == "h") {
+        this.getUnidadBox("h");
+        this.activoUN = true;
+        this.activoClass = true;
+        this.tipoUnidad = 5;
+        this.carga = "Peligrosa";
+        this.mercancia = "h";
+        this.numcols = 4;
+      } 
+      if (tipoCajaS == "r") {
+        this.getUnidadBox("r");
+        this.tipoUnidad = 8;
+        this.carga = "Refrigerada";
+        this.mercancia = "r";
+        this.numcols = 4;
+      }
+      if (tipoCajaS == "g") {
+        this.getUnidadBox("g");
+        this.tipoUnidad = 5;
+        this.carga = "General";
+        this.mercancia = "g";
+        this.numcols = 12;
+      }*/
+      this.showMercancias();
+      this.getCoincidencia();
+    },
+
+    selectEmbalaje(evento) {
+      let tipoEmbalaje = evento;
+
+      if (this.embalajes.findIndex((x) => x.idEmbalaje === tipoEmbalaje) >= 0) {
+        let index_embalaje = this.embalajes.findIndex(
+          (x) => x.idEmbalaje === tipoEmbalaje
+        );
+        this.embalajeId = parseInt(this.embalajes[index_embalaje].idEmbalaje);
+        this.embalajeNombre = this.embalajes[index_embalaje].nombre;
+        this.terDescEmbalaje = this.embalajeNombre.toUpperCase();
+        this.embalajeAlto = parseFloat(this.embalajes[index_embalaje].alto);
+        this.embalajeAncho = parseFloat(this.embalajes[index_embalaje].ancho);
+        this.embalajeLargo = parseFloat(this.embalajes[index_embalaje].largo);
+        this.embalajeCapacidadMaxima = parseInt(this.embalajes[index_embalaje].cantidadMaxima
+        );
+      }
+    },
+
+    selectEstibable() {
+      if (this.terestibable == "no") {
+        this.altoMerc = parseFloat(this.embalajeAlto);
+      }
+
+      if (this.terestibable == "si") {
+        this.altoMerc = 0;
+      }
+      //Se deja en caso de aplicar datos con envento change
+    },
+
+    selectModalidad(option) {
+      
+      this.selected = option;
+
+      var self = this;
+      self.tertipocarga = "";
+      self.tercotizacion = 0;
+      self.nomUnidadModalidad = "";
+      self.volumenMax = 0;
+      this.confirmarServices = [];
+      this.confirmarServices3 = [];
+      this.valorMercancia = 0;
+      this.selectServices = [1];
+      this.valorTotalLTL = 0;
+      this.clasifica = '';
+      this.idclasifica = 0;
+      this.isSusceptibleRobo = false;
+      this.porcentajeRobo = 0.0;
+      this.clasificaText = '';
+
+      this.agregarMercancias = [];
+      /*this.origen = "";
+      this.destino = "";
+      this.calleOrigen = "";
+      this.numExtOrigen = "";
+      this.numIntOrigen = "";
+      this.calleDestino = "";
+      this.numExtDestino = "";
+      this.numIntDestino = "";
+      this.arrayOrigen = [];
+      this.arrayDestino = [];
+      this.arrayOrigenR = [];
+      this.arrayDestinoR = [];*/
+
+      this.totalGlobal = 0;
+      this.totalIvaGlobal = 0;
+      this.totalSubtotalGlobal = 0;
+      this.totalRetencionGlobal = 0;
+      this.totalZonaPeligrosa = 0;
+      this.totalZonaNoComercial = 0;
+      this.totalSobrepesoGlobal = 0;
+      this.totalRobosGlobal = 0;
+      this.totalGlobalServicio = 0;
+      this.totalVolMercancias = 0;
+
+      this.totalCantidad = 0;
+      this.totalVolumen = 0;
+      this.totalPesoReal = 0;
+      this.totalPesoFaturado = 0;
+
+      this.unidadMedidaMerc = "";
+      this.descripMerc = "";
+
+      let index_modalidad = this.optionsItemModalidad.findIndex(
+        (x) => x.value === option
+      );
+      this.termodalidad = this.optionsItemModalidad[index_modalidad].value;
+      this.termodalidadText = this.optionsItemModalidad[index_modalidad].text;
+      this.termodalidadImg = this.optionsItemModalidad[index_modalidad].src;
+      this.mercancias = "";
+
+      if (this.termodalidad == "LTL" || this.termodalidad == "FTL") {
+        self.getUnidadBox("g");
+      }
+      if (this.termodalidad == "FCL") {
+        self.getUnidadBox("e");
+      }
+
+      if (this.termodalidad == "LTL" || this.termodalidad == "FCL") {
+        setTimeout(function () {
+          self.getMinMax();
+        }, 900);
+      }
+
+      if (this.termodalidad == "FTL") {
+        this.mercancias = "Mercancía General";
+      }
+
+      if(this.termodalidad == "FTL" || this.termodalidad == "FCL"){
+        this.ocurreO = false
+        this.ocurreD = false
+        this.almacenO = ''
+        this.almacenD = ''
+
+      }
+    },
+
+    selectUniMedMerc() {
+      let unidadMedida = this.unidaMedidaMerc;
+
+      //Se deja en caso de aplicar datos con envento change
+    },
+
+    selectUniPesMerc() {
+      let unidadPeso = this.unidaPesoMerc;
+
+      //Se deja en caso de aplicar datos con envento change
+    },
+
+    validaAlto() {
+      this.altoMerc = parseFloat(this.altoMerc)
+      if(this.altoMerc > 1.48){
+        this.altoMerc = this.altoMerc
+        Swal.fire({
+          title: "Aviso",
+          text: "La medida ingresada en la altura sobrepasa el limite para considerarse Estibable.",
+          icon: "info",
+          confirmButtonText: "Cerrar",
+        });
+
+        this.aplicaAumento = false;
+        this.terestibable = "no"
+        this.selectEstibable();
+      }
+
+      if(this.altoMerc < 0) {
+        this.altoMerc = 0;
+      } else {
+        this.calculaVolumen();
+
+        if(this.altoMerc > 2){
+          this.altoMerc = this.altoMerc
+          this.aplicaAumentoAlto = false;
+        }else if(this.altoMerc > 1.21 && this.altoMerc < 1.48){
+            this.aplicaAumentoAlto = true;
+        }else if(this.altoMerc > 1.48){
+          this.altoMercReal = 2.4
+          this.aplicaAumentoAlto = false;
+        }else if(this.altoMerc > 2.4){
+          this.altoMercReal = 2.4
+          this.aplicaAumentoAlto = false;
+        }
+      }
+      
+      this.getPesoVolumetrico();
+      /*if(this.altoMerc > parseFloat(this.embalajeAlto)){
+        Swal.fire({
+          title: "El alto ingresado supera el limite de la unidad, verifícalo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        this.altoMerc = 0
+      }else{
+        this.calculaVolumen();
+      }*/
+    },
+
+    validaAncho() {
+
+      this.anchoMerc = parseFloat(this.anchoMerc)
+
+      if(this.anchoMerc > 2.48){
+        Swal.fire({
+          title: "El ancho ingresado supera el limite de la unidad, verifícalo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        this.anchoMerc = 0
+      }else{
+        this.calculaVolumen();
+      }
+
+      if (this.anchoMerc < 0) {
+        this.anchoMerc = 0;
+      } else {
+        this.calculaVolumen();
+        
+        if(this.anchoMerc >= 1.21 && this.anchoMerc < 1.28){
+            this.aplicaAumentoAncho = true;
+        }else if(this.anchoMerc > 1.28 && this.anchoMerc < 1.48){
+          this.anchoMerc = 2.4
+        }else if(this.anchoMerc > 1.48 && this.anchoMerc <= 2.48){
+          /* 1 posicion  */
+          //this.anchoMerc = 2
+          this.aplicaAumentoAncho = false;
+          this.aplicaPosicionAncho = true;
+        }
+      } /* PREGUNTAR  */
+
+      this.getPesoVolumetrico();
+    },
+
+    validaLargo() {
+
+      this.largoMerc = parseFloat(this.largoMerc)
+      if(this.largoMerc > 13){
+        Swal.fire({
+          title: "El largo ingresado supera el limite de la unidad, verifícalo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        this.largoMerc = 0
+      }else{
+        this.calculaVolumen();
+      }
+
+      if (this.largoMerc < 0) {
+        this.largoMerc = 0;
+      } else {
+        this.calculaVolumen();
+      }
+
+      if(this.largoMerc >= 1.21 && this.largoMerc < 1.48){
+        this.aplicaAumentoLargo = true;
+      }else if(this.largoMerc > 1.48 && this.largoMerc <= 2.4){
+        this.largoMerc = 2.4
+      }else if(this.largoMerc > 2.4 && this.largoMerc <= 2.68){
+        this.aplicaAumentoLargo = true;
+      }else if(this.largoMerc > 2.68 && this.largoMerc <= 3.6){
+        this.largoMerc = 3.6
+      }else if(this.largoMerc > 3.6 && this.largoMerc <=  4.8){
+        this.largoMerc = 4.8
+      }else if(this.largoMerc > 4.8 && this.largoMerc <=  6.0){
+        this.largoMerc = 6.0
+      }else if(this.largoMerc > 6.0 && this.largoMerc <= 7.2){
+        this.largoMerc = 7.2
+      }else if(this.largoMerc > 7.2 && this.largoMerc <= 8.4){
+        this.largoMerc = 8.4
+      }else if(this.largoMerc > 8.4 && this.largoMerc <= 9.6){
+        this.largoMerc = 9.6
+      }else if(this.largoMerc > 9.6 && this.largoMerc <= 10.8){
+        this.largoMerc = 10.8
+      }else if(this.largoMerc > 12.0 && this.largoMerc <= 13.2){
+        this.largoMerc = 13.2
+      }
+    },
+
+    validaCantidad() {
+      let cant = parseInt(this.cantMerc);
+
+      if (cant < 0 ) {
+        this.cantMerc = 0;
+      }
+
+      if(this.termodalidad == 'LTL'){
+        if (cant > 8 ) {
+          this.cantMerc = 8;
+        }
+      }
+      
+      if(this.termodalidad == 'FTL'){
+        if (cant > 12 ) {
+          this.cantMerc = 12;
+        }
+      }
+
+      if(this.termodalidad == 'FCL'){
+        if (cant > 24 ) {
+          this.cantMerc = 24;
+        }
+      }
+      
+      this.getPesoVolumetrico();
+      /*if(parseInt(this.cantMerc) <= parseInt(this.embalajeCapacidadMaxima) && parseInt(this.cantMerc) > 0){
+        
+        let total = 0
+        this.calculaVolumen();
+        total = this.cantMerc * this.volMerc;
+
+        this.volMerc = total.toFixed(2);
+
+        //SE CALCULA EL PRECIO POR METRO CUBICO
+
+        this.valorTotalLTL = this.precioM3LTL * this.volMerc;
+
+      }else{
+        Swal.fire({
+          title: "La cantidad supera el limite de carga",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        this.volMerc = 0
+      }*/
+
+      /*let total = 0
+      this.calculaVolumen();
+      total = this.cantMerc * this.volMerc
+
+      this.volMerc = total.toFixed(2) 
+
+      if(this.volMerc > parseFloat(this.unidadCapacidad)){
+        Swal.fire({
+          title: "El volúmen calculado supera el limite de la unidad, verifícalo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        this.volMerc = 0
+      }*/
+    },
+
+    cambioUnidad(nombreUnidad, idunidad) {
+      this.nombreTipoUnidad = nombreUnidad;
+      this.tipoUnidad = idunidad;
+
+      this.getDataUnidad();
+      this.getCoincidencia();
+    },
+
+    calculaVolumen() {
+      let total = 0;
+      let totalTotal = 0;
+      let alto = this.altoMerc;
+      let ancho = this.anchoMerc;
+      let largo = this.largoMerc;
+      let cantidad = this.cantMerc
+
+      total = alto * ancho * largo;
+      totalTotal = alto * ancho * largo * cantidad
+      this.volMerc = total.toFixed(2);
+      this.volMercTot = totalTotal.toFixed(2);
+    },
+
+    getDataUnidad() {
+      if (this.units.findIndex((x) => x.id === this.tipoUnidad) >= 0) {
+        let index_unidad = this.units.findIndex(
+          (x) => x.id === this.tipoUnidad
+        );
+        this.unidadId = parseInt(this.units[index_unidad].id);
+        this.unidadNombre = this.units[index_unidad].name;
+        this.nombreTipoUnidad = this.unidadNombre;
+        this.unidadPesoBruto = parseFloat(this.units[index_unidad].peso_bruto_total);
+        this.unidadCapacidad = parseFloat(this.units[index_unidad].capacidad_vol);
+        this.unidadHigh = parseFloat(this.units[index_unidad].high);
+        this.unidadLong = parseFloat(this.units[index_unidad].long);
+        this.unidadWidth = parseFloat(this.units[index_unidad].width);
+        this.unidadCapacidadMaxima = parseInt(this.units[index_unidad].capacidadMaxima)
+        this.unidadImagen = this.units[index_unidad].imagen
+      }
+    },
+
+    getUnidadBox(tipo) {
+      this.units = [];
+      this.options_unit = [];
+      axios({
+        method: "post",
+        url: "/api/v1/list-box/",
+        data: {
+          data: tipo,
+        },
+      }).then((response) => {
+        this.units = response.data;
+        for (let i = 0; i < response.data.length; i++) {
+          const data = {nombreUnidad:response.data[i].name,idUnidad:response.data[i].id}
+          
+          this.options_unit.push(data);
+        }
+        let self = this;
+        if (this.termodalidad == "LTL") {
+          self.getDataUnidad();
+        }
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    /* METODO PARA OBTENER CONICIDENCIAS DE LA TABLA TARIFAS */
+    getCoincidencia() {
+      let o;
+      let d;
+
+      let vpaisOrigen;
+      let vcpOrigen;
+      let vestadoOrigen;
+      let vciudadOrigen;
+      let vcoloniaOrigen;
+
+      let vpaisDestino;
+      let vcpDestino;
+      let vestadoDestino;
+      let vciudadDestino;
+      let vcoloniaDestino;
+
+      for (o = 0; o < this.arrayOrigen.length; o++) {
+        vpaisOrigen = this.arrayOrigen[o].paiso;
+        vcpOrigen = this.arrayOrigen[o].cpo;
+        vestadoOrigen = this.arrayOrigen[o].estadoo;
+        vciudadOrigen = this.arrayOrigen[o].ciudado;
+        vcoloniaOrigen = this.arrayOrigen[o].colonia;
+      }
+
+      for (d = 0; d < this.arrayDestino.length; d++) {
+        vpaisDestino = this.arrayDestino[d].paisd;
+        vcpDestino = this.arrayDestino[d].cpd;
+        vestadoDestino = this.arrayDestino[d].estadod;
+        vciudadDestino = this.arrayDestino[d].ciudadd;
+        vcoloniaDestino = this.arrayDestino[d].colonia;
+      }
+
+      this.obtenerZona(vcpOrigen, vcpDestino);
+
+      axios({
+        method: "post",
+        url: "/api/v1/list-tarifas-coincidencia/",
+        data: {
+          paisOrigen: vpaisOrigen,
+          estadoOrigen: vestadoOrigen,
+          ciudadOrigen: vciudadOrigen,
+          cpOrigen: vcpOrigen,
+          coloniaOrigen: vcoloniaOrigen,
+          paisDestino: vpaisDestino,
+          estadoDestino: vestadoDestino,
+          ciudadDestino: vciudadDestino,
+          cpDestino: vcpDestino,
+          coloniaDestino: vcoloniaDestino,
+          dateFin: this.fechaCoincidencia,
+          unidaModality: this.tertipocarga,
+          tipoUnidad_id: this.tipoUnidad,
+          modalidad: this.termodalidad,
+        },
+      }).then((response) => {
+        let cadena = JSON.stringify(response.data[0]);
+        let termino = "idTarifa";
+        let posicion = cadena.indexOf(termino);
+
+        if (response.data.length > 0) {
+
+          this.estatus = 0;
+          this.idTarifa = 0;
+          this.paisTarifaOrigen = '';
+          this.estadoTarifaOrigen = '';
+          this.ciudadTarifaOrigen = '';
+          this.cpTarifaOrigen = '';
+          this.paisTarifaDestino = '';
+          this.estadoTarifaDestino = '';
+          this.ciudadTarifaDestino = '';
+          this.cpTarifaDestino = '';
+          this.tarifaKilometro = 0;
+
+          this.estatus = parseInt(response.data[0].estatus);
+          this.idTarifa = parseInt(response.data[0].id_Tarifa);
+          this.paisTarifaOrigen = response.data[0].pais_origen;
+          this.estadoTarifaOrigen = response.data[0].estado_origen;
+          this.ciudadTarifaOrigen = response.data[0].ciudad_origen;
+          this.cpTarifaOrigen = response.data[0].cp_origen;
+          this.paisTarifaDestino = response.data[0].pais_destino;
+          this.estadoTarifaDestino = response.data[0].estado_destino;
+          this.ciudadTarifaDestino = response.data[0].ciudad_destino;
+          this.cpTarifaDestino = response.data[0].cp_destino;
+          this.tarifaKilometro = parseFloat(response.data[0].tarifa_kilometro);
+        } else {
+          this.estatus = 0;
+          this.idTarifa = 0;
+          this.paisTarifaOrigen = '';
+          this.estadoTarifaOrigen = '';
+          this.ciudadTarifaOrigen = '';
+          this.cpTarifaOrigen = '';
+          this.paisTarifaDestino = '';
+          this.estadoTarifaDestino = '';
+          this.ciudadTarifaDestino = '';
+          this.cpTarifaDestino = '';
+          this.tarifaKilometro = 0;
+        }
+      }).catch((error) => {
+        console.log(error);
+      });
+
+      if(this.termodalidad == 'FTL' || this.termodalidad == 'FCL'){
+        this.getKilometraje();
+      }
+    },
+
+    getKilometraje() {
+      let o;
+      let d;
+
+      let vpaisOrigen;
+      let vcpOrigen;
+      let vestadoOrigen;
+      let vciudadOrigen;
+      let vcoloniaOrigen;
+
+      let vpaisDestino;
+      let vcpDestino;
+      let vestadoDestino;
+      let vciudadDestino;
+      let vcoloniaDestino;
+
+      for (o = 0; o < this.arrayOrigen.length; o++) {
+        vpaisOrigen = this.arrayOrigen[o].paiso;
+        vcpOrigen = this.arrayOrigen[o].cpo;
+        vestadoOrigen = this.arrayOrigen[o].estadoo;
+        vciudadOrigen = this.arrayOrigen[o].ciudado;
+        vcoloniaOrigen = this.arrayOrigen[o].colonia;
+      }
+
+      for (d = 0; d < this.arrayDestino.length; d++) {
+        vpaisDestino = this.arrayDestino[d].paisd;
+        vcpDestino = this.arrayDestino[d].cpd;
+        vestadoDestino = this.arrayDestino[d].estadod;
+        vciudadDestino = this.arrayDestino[d].ciudadd;
+        vcoloniaDestino = this.arrayDestino[d].colonia;
+      }
+
+      axios({
+        method: "post",
+        url: "/api/v1/list-kilometraje-coincidencia/",
+        data: {
+          paisOrigen: vpaisOrigen,
+          estadoOrigen: vestadoOrigen,
+          ciudadOrigen: vciudadOrigen,
+          cpOrigen: vcpOrigen,
+          coloniaOrigen: vcoloniaOrigen,
+          paisDestino: vpaisDestino,
+          estadoDestino: vestadoDestino,
+          ciudadDestino: vciudadDestino,
+          cpDestino: vcpDestino,
+          coloniaDestino: vcoloniaDestino,
+          dateFin: this.fechaCoincidencia,
+          unidaModality: this.tertipocarga,
+          tipoUnidad_id: this.tipoUnidad,
+          termodalidad: this.termodalidad,
+        },
+      }).then((response) => {
+        if (response.data.length > 0) {
+          this.idRuta = response.data[0].idRuta;
+          this.kilometraje = parseFloat(response.data[0].kilometraje);
+          this.porcZonaNoCom = parseFloat(response.data[0].porc_zona_no_com);
+          this.porcZonaPelig = parseFloat(response.data[0].porc_zona_pelig);
+          this.tiempoEstimado = response.data[0].tiempo_estimado;
+        } else {
+          this.idRuta = 0;
+          this.kilometraje = 0;
+          this.porcZonaNoCom = 0;
+          this.porcZonaPelig = 0;
+        }
+
+        if (this.termodalidad == "FTL") {
+          this.getGramaje();
+        } else {
+          let idServicio = 1;
+          let nombreServicio = "FLETE NACIONAL";
+          this.addServicios(idServicio, nombreServicio);
+        }
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    getGramaje() {
+      if (this.unidadPesoBruto > 0) {
+        /* CONVERSION DE GRAMAJE */
+
+        if (this.unidaMedidaMerc == "kg") {
+          let kgConvert = this.unidadPesoBruto * 1000;
+          if (this.pesTMerc > kgConvert) {
+            this.sobrePeso = true;
+            this.porcSobrePeso = 15.0;
+          } else {
+            this.sobrePeso = false;
+            this.porcSobrePeso = 0.0;
+          }
+        } else if (this.unidaMedidaMerc == "lb") {
+          if (this.pesTMerc > this.unidadPesoBruto) {
+            this.sobrePeso = false;
+            this.porcSobrePeso = 15.0;
+          } else {
+            this.sobrePeso = false;
+            this.porcSobrePeso = 0.0;
+          }
+        }
+        let idServicio = 1;
+        let nombreServicio = "FLETE NACIONAL";
+        this.addServicios(idServicio, nombreServicio);
+      }
+    },
+
+    elegirPaquete(idPlan){
+      let id = parseInt(idPlan)
+
+      for (let i = 0; i < this.pricingData.length; i++) {
+        if(parseInt(this.pricingData[i].idPlan) == id){
+          this.pricingData[i].seleccionado = 1
+        }else{
+          this.pricingData[i].seleccionado = 0
+        }
+        
+      }
+      
+
+    },
+
+    planes(){
+      this.pricingData = []
+      const noPlan = 2
+      const icon = 'fe-truck'
+      const precioBase = parseFloat(this.totalSubtotalGlobal.toFixed(2));
+      let divisaText = 'MXN'
+
+      if (this.divisa == 1) {
+        divisaText = 'USD'
+        this.priceSale = this.priceSale / this.valorDolar
+        
+      }
+      
+      let listServicios = ''
+      let datos = null
+      let aumento = 0
+
+      for (let i = 0; i < this.confirmarServices.length; i++) {
+        listServicios = listServicios + ', ' + this.confirmarServices[i].nombreSer
+      }
+      listServicios = listServicios.substring(2)
+      
+      for (let j = 0; j <= noPlan ; j++) {
+        
+        switch (j) {
+          case 0:
+
+            datos = {
+              idPlan: 1,
+              title: "Servicio Óptimo",
+              icon: icon,
+              price: precioBase,
+              services: listServicios,
+              bandwidth: "",
+              domain: "",
+              user: "",
+              seleccionado: 1,
+              ribbon: "",
+              divisa: divisaText,
+            }
+
+            this.pricingData.push(datos)
+          break;
+          /*case 1:
+            aumento = precioBase * 1.12
+            aumento = aumento.toFixed(2)
+            datos = {
+              idPlan: 2,
+              title: "Servicio Express",
+              icon: icon,
+              price: aumento,
+              services: listServicios,
+              bandwidth: "4 Horas Adicionales en Carga y Entrega",
+              domain: "",
+              user: "",
+              ribbon: "Más Vendido",
+              seleccionado: 0,
+            }
+            this.pricingData.push(datos)
+          break;
+          case 2:
+            
+            aumento = precioBase * 1.24
+            aumento = aumento.toFixed(2)
+            datos = {
+              idPlan: 3,
+              title: "Servicio Premium",
+              icon: icon,
+              price: aumento,
+              services: listServicios,
+              bandwidth: "4 Horas Adicionales en Carga y Entrega",
+              domain: "",
+              user: "",
+              seleccionado: 0,
+              ribbon: "",
+            }
+            this.pricingData.push(datos)
+          break;*/
+        
+        }
+        
+      }
+
+    },
+
+    agregaPlanes(){
+      
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+        Swal.fire({
+          title: "Genere Cotizacion",
+          text: "",
+          icon: "success",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (idCotiza > 0) {
+        
+        let idPlan = 0
+        let title = ''
+        let icon = ''
+        let price = 0.0
+        let services = ''
+        let bandwidth = ''
+        let domain = ''
+        let user = ''
+        let ribbon = ''
+        let seleccionado = 0
+        
+        for (let i = 0; i < this.pricingData.length; i++) {
+          idPlan = this.pricingData[i].idPlan
+          title = this.pricingData[i].title
+          icon = this.pricingData[i].icon
+          price = this.pricingData[i].price
+          services = this.pricingData[i].services
+          bandwidth = this.pricingData[i].bandwidth
+          domain = this.pricingData[i].domain
+          user = this.pricingData[i].user
+          seleccionado = this.pricingData[i].seleccionado
+          ribbon = this.pricingData[i].ribbon
+
+          axios({
+            method: "post",
+            url: "planesCotizaciones/",
+            data: {
+              idCotizacion: idCotiza,
+              orden: idPlan,
+              title: title,
+              icon: icon,
+              price: price,
+              services: services,
+              bandwidth: bandwidth,
+              domain: domain,
+              user: user,
+              seleccionado: seleccionado,
+              ribbon: ribbon,
+            },
+            auth: {
+              username: "admin",
+              password: "123",
+            },
+          }).then((response) => {
+            console.log(response.data)
+          }).catch((error) => {
+            Swal.fire({
+              title: "Mercancias agregadas error",
+              text:
+              "Se detecto un error mientras se cargaban las mercancias: " +
+              error,
+              icon: "success",
+              confirmButtonText: "Cerrar",
+            });
+          });
+          
+        }
+      }
+    
+    },
+
+    async addServicios(idServicio, nombreServicio) {
+      
+      /* INICIA PROCESO DE CALCULO */
+      let indice;
+      let comprobar = false;
+      let subtotal = 0;
+      let iva = 16;
+      let porcIva = 0;
+      let porcZPeligrosa = 0;
+      let porcNComercial = 0;
+      let porcSobrepeso = 0;
+      let porcSusceptible = 0;
+      let totalServicio = 0;
+      let porcVolMerc = 0;
+      let ajusteVenta = false;
+      let precioVolumenTot = 0;
+      let valorMerc = 0
+      this.getServicioExiste = [];
+
+      let descuento = 0;
+      let extraeDescuento = 0;
+
+      let porcAdicional = 0;
+
+      if (nombreServicio == "SEGURO") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+
+          if(this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio) > 0){
+            let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+            this.confirmarServices.splice(indice, 1);
+
+            let indice1 = this.selectServices.indexOf(idServicio);
+            if (indice1 !== -1) {
+              this.selectServices.splice(indice1, 1);
+            }
+          }
+          
+
+          if (this.valorMercancia == 0) {
+            //this.$bvModal.show("valorDeclaradoMercancia");
+            this.$bvModal.show("valorDeclaradoMercanciaInfo");
+            this.$bvModal.show("valorDeclaradoMercancia");
+            
+          }else{
+            this.$bvModal.show("valorDeclaradoMercancia");
+          } 
+
+          this.valorMercancia = parseFloat(this.valorMercancia)
+
+          subtotal = this.valorMercancia * 0.085 //(85 / 100);
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+
+          if (this.valorMercancia > 0) {
+            this.$bvModal.hide("valorDeclaradoMercancia");
+          }
+
+          this.selectServices.push(idServicio)
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+        }
+      }else if (nombreServicio == "INGRESO ADUANAL") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+          subtotal = 1500
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          
+          this.progresbarIngreso = true
+          
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+          this.progresbarIngreso = false
+        }
+        
+        
+      }else if (nombreServicio == "RECOLECCION") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+          subtotal = this.recoleccion_tres_y_media
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          this.progresbarRecoleccion = true
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+          this.progresbarRecoleccion = false
+        }
+        
+        
+      }else if (nombreServicio == "ENTREGA") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+
+        if (comprobar) {
+          subtotal = this.entrega_puerto_tres_y_media
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          this.progresbarEntrega = true
+
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+          this.progresbarEntrega = false
+        }
+
+        
+
+      }else if (nombreServicio == "MANIOBRAS DE CARGA" || nombreServicio == "MANIOBRAS") {
+        
+        this.$bvModal.show("maniobrasInfo");
+
+      }else if (nombreServicio != "FLETE NACIONAL") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+
+        if (comprobar) {
+          axios({
+            method: "post",
+            url: "/api/v1/service-filtro/",
+            data: {
+              servicio: nombreServicio,
+            },
+          })
+            .then((response) => {
+              if (response.data.length > 0) {
+                subtotal = parseFloat(response.data[0].subtotal);
+
+                porcIva = subtotal * (iva / 100);
+
+                let agrega = {
+                  ajusteVenta: ajusteVenta,
+                  idService: idServicio,
+                  nombreSer: nombreServicio,
+                  kilometraje: 0,
+                  tarifaK: 0,
+                  subtotal: parseFloat(response.data[0].subtotal),
+                  iva: 16,
+                  porcIva: porcIva,
+                  porcZPeligrosa: 0,
+                  porcNComercial: 0,
+                  porcSobrepeso: 0,
+                  porcSusceptible: 0,
+                  aumento: 0,
+                  porcAumento: 0,
+                  porcVolMerc: 0,
+                  totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+                };
+                this.confirmarServices.push(agrega);
+              } else {
+                let agrega = {
+                  ajusteVenta: ajusteVenta,
+                  idService: idServicio,
+                  nombreSer: nombreServicio,
+                  kilometraje: 0,
+                  tarifaK: 0,
+                  subtotal: 0,
+                  iva: 16,
+                  porcIva: 0,
+                  porcZPeligrosa: 0,
+                  porcNComercial: 0,
+                  porcSobrepeso: 0,
+                  porcSusceptible: 0,
+                  aumento: 0,
+                  porcAumento: 0,
+                  porcVolMerc: 0,
+                  totalServicio: 0,
+                };
+                if (
+                  this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+                  this.confirmarServices.push(agrega);
+                  this.confirmarServices3.push(agrega);
+                }
+              }
+              this.sumaBoton();
+            }).catch((error) => {
+              console.log(error);
+            });
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          let indice2 = this.confirmarServices3.map((busqueda) => busqueda.idService).indexOf(idServicio);
+
+          this.confirmarServices.splice(indice, 1);
+          this.confirmarServices3.splice(indice2, 1);
+        }
+      } else {
+        comprobar = true;
+        if(this.termodalidad == 'LTL'){
+          subtotal = parseFloat(this.totalPrecioVolumen.toFixed(2))
+          porcIva = subtotal * (iva / 100);
+        }else{
+          valorMerc = parseFloat(this.totalPrecioVolumen.toFixed(2))
+          subtotal = this.tarifaKilometro * this.kilometraje;
+
+          //Estos valores son para cotizar a mas de 150 KM, excediendo los 500KM se resta el 30%
+          //Excediendo los 800 km se resta el 45%
+
+          if(this.kilometraje > 500 && this.kilometraje < 800){
+            descuento = 0.30;
+          }else if(this.kilometraje > 800 ){
+            descuento = 0.45;
+          }
+
+          if(descuento > 0){
+            extraeDescuento = subtotal * descuento
+            subtotal = subtotal - extraeDescuento
+          }
+          porcIva = subtotal * (iva / 100);
+        }
+
+        if (this.resClasificaZona == "PELIGROSA") {
+          //porcZPeligrosa = subtotal * (this.porcZonaPelig / 100);
+          porcAdicional = 35
+        }
+
+        if (this.resClasificaZona == "NO COMERCIAL") {
+          //porcNComercial = subtotal * (this.porcZonaNoCom / 100);
+          porcAdicional = 50
+        }
+
+        if (this.resClasificaZona == "RESTRINGIDA") {
+          //porcNComercial = subtotal * (this.porcZonaNoCom / 100);
+          porcAdicional = 15
+        }
+
+        if (this.isSusceptibleRobo) {
+          //porcSusceptible = subtotal * (this.porcentajeRobo / 100);
+        }
+
+        if (this.valorTotalLTL > 0) {
+          porcVolMerc = this.valorTotalLTL;
+        }
+
+        if (this.sobrePeso) {
+          //porcSobrepeso = subtotal * (this.porcSobrePeso / 100);
+        }
+
+        if (this.definePesoXVol) {
+
+          //precioVolumenTot = parseFloat(this.totalPrecioVolumen)
+
+          /*let resVolCub = this.totalMetcub * 3.333;
+          console.log(this.totalMetcub, 'this.totalMetcub')
+          console.log(resVolCub, 'resVolCub')
+
+          if (resVolCub > this.totalKilo) {
+            console.log(this.totalKilo, 'this.totalKilo')
+            this.volDef = resVolCub * this.precioXMetCub;
+            console.log(this.precioXMetCub, 'this.precioXMetCub')
+            console.log(resVolCub, 'this.volDef')
+            console.log(this.volDef, 'this.volDef')
+          } else {
+            this.pesoDef = this.totalKilo * this.precioXKiloCub;
+            console.log(this.precioXKiloCub, 'this.precioXKiloCub')
+            console.log(this.totalKilo, 'this.totalKilo')
+            console.log(this.pesoDef, 'this.pesoDef')
+          }*/
+          
+        }
+
+        let agrega = {
+          ajusteVenta: false,
+          idService: idServicio,
+          nombreSer: nombreServicio,
+          kilometraje: this.kilometraje,
+          tarifaK: this.tarifaKilometro,
+          subtotal: subtotal,
+          iva: iva,
+          porcIva: porcIva,
+          porcZPeligrosa: porcZPeligrosa,
+          porcNComercial: porcNComercial,
+          porcSobrepeso: porcSobrepeso,
+          porcSusceptible: porcSusceptible,
+          porcVolMerc: porcVolMerc,
+          aumento: 0,
+          porcAumento: 0,
+          totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible + porcVolMerc + precioVolumenTot,
+        };
+        let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+        this.confirmarServices.splice(indice, 1);
+
+        if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+          this.confirmarServices.push(agrega);
+        }
+        this.progresbarFlete = true
+      }
+      await this.sumaBoton();
+      await this.planes();
+    },
+
+    async addServiciosFTL(idServicio, nombreServicio) {
+
+      let comprobar =  document.getElementById(idServicio + "cheServiciosFTL").checked;
+
+      if(nombreServicio == 'SEGURO' && comprobar){
+        this.$bvModal.show("valorDeclaradoMercancia");
+      }else{
+        this.$bvModal.hide("valorDeclaradoMercancia");
+      }
+
+      let data = {idServicio: idServicio, nombreServicio: nombreServicio}
+
+      if(this.adicionalesFTL.length > 0){
+        for (let u = 0; u < this.adicionalesFTL.length; u++) {
+          const index = this.adicionalesFTL.findIndex(objeto => objeto.idServicio === idServicio && objeto.nombreServicio === nombreServicio);
+          if (index !== -1) {
+            this.adicionalesFTL.splice(index, 1);
+            await this.generateCotizacionFTL(1)
+            //console.log(this.adicionalesFTL, 'Quita Servicio');
+            break;
+          }else{
+            this.adicionalesFTL.push(data);
+            await this.generateCotizacionFTL(1)
+            //console.log(this.adicionalesFTL, 'Agrega Servicio 1')
+            break;
+          }
+          
+        }
+      }else{
+        this.adicionalesFTL.push(data);
+        await this.generateCotizacionFTL(1)
+        //console.log(this.adicionalesFTL, 'Agrega Servicio 2')
+      }
+
+      
+      /*let indice;
+      let comprobar = false;
+      let subtotal = 0;
+      let iva = 16;
+      let porcIva = 0;
+      let porcZPeligrosa = 0;
+      let porcNComercial = 0;
+      let porcSobrepeso = 0;
+      let porcSusceptible = 0;
+      let totalServicio = 0;
+      let porcVolMerc = 0;
+      let ajusteVenta = false;
+      let precioVolumenTot = 0;
+      let valorMerc = 0
+      this.getServicioExiste = [];
+
+      let descuento = 0;
+      let extraeDescuento = 0;
+
+      let porcAdicional = 0;
+
+      if (nombreServicio == "SEGURO") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+
+          if(this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio) > 0){
+            let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+            this.confirmarServices.splice(indice, 1);
+
+            let indice1 = this.selectServices.indexOf(idServicio);
+            if (indice1 !== -1) {
+              this.selectServices.splice(indice1, 1);
+            }
+          }
+          
+
+          if (this.valorMercancia == 0) {
+            this.$bvModal.show("valorDeclaradoMercanciaInfo");
+            this.$bvModal.show("valorDeclaradoMercancia");
+            
+          }else{
+            this.$bvModal.show("valorDeclaradoMercancia");
+          } 
+
+          this.valorMercancia = parseFloat(this.valorMercancia)
+
+          subtotal = this.valorMercancia * 0.085 
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+
+          if (this.valorMercancia > 0) {
+            this.$bvModal.hide("valorDeclaradoMercancia");
+          }
+
+          this.selectServices.push(idServicio)
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+        }
+      }else if (nombreServicio == "INGRESO ADUANAL") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+          subtotal = 1500
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          
+          this.progresbarIngreso = true
+          
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+          this.progresbarIngreso = false
+        }
+        
+        
+      }else if (nombreServicio == "RECOLECCION") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+        if (comprobar) {
+          subtotal = this.recoleccion_tres_y_media
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          this.progresbarRecoleccion = true
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+
+          let indice1 = this.selectServices.indexOf(idServicio);
+          if (indice1 !== -1) {
+            this.selectServices.splice(indice1, 1);
+          }
+          this.progresbarRecoleccion = false
+        }
+        
+        
+      }else if (nombreServicio == "ENTREGA") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+
+        if (comprobar) {
+          subtotal = this.entrega_puerto_tres_y_media
+          subtotal = parseFloat(subtotal.toFixed(2));
+          porcIva = subtotal * (iva / 100);
+
+          let agrega = {
+            ajusteVenta: ajusteVenta,
+            idService: idServicio,
+            nombreSer: nombreServicio,
+            kilometraje: 0,
+            tarifaK: 0,
+            subtotal: subtotal,
+            iva: iva,
+            porcIva: porcIva,
+            porcZPeligrosa: 0,
+            porcNComercial: 0,
+            porcSobrepeso: 0,
+            porcSusceptible: 0,
+            aumento: 0,
+            porcAumento: 0,
+            porcVolMerc: 0,
+            totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+          };
+
+          if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+            this.confirmarServices.push(agrega);
+          }
+          this.progresbarEntrega = true
+
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          this.confirmarServices.splice(indice, 1);
+          this.progresbarEntrega = false
+        }
+
+        
+
+      }else if (nombreServicio == "MANIOBRAS DE CARGA" || nombreServicio == "MANIOBRAS") {
+        
+        this.$bvModal.show("maniobrasInfo");
+
+      }else if (nombreServicio != "FLETE NACIONAL") {
+        comprobar = document.getElementById(idServicio + "cheServicios").checked;
+
+        if (comprobar) {
+          axios({
+            method: "post",
+            url: "/api/v1/service-filtro/",
+            data: {
+              servicio: nombreServicio,
+            },
+          })
+            .then((response) => {
+              if (response.data.length > 0) {
+                subtotal = parseFloat(response.data[0].subtotal);
+
+                porcIva = subtotal * (iva / 100);
+
+                let agrega = {
+                  ajusteVenta: ajusteVenta,
+                  idService: idServicio,
+                  nombreSer: nombreServicio,
+                  kilometraje: 0,
+                  tarifaK: 0,
+                  subtotal: parseFloat(response.data[0].subtotal),
+                  iva: 16,
+                  porcIva: porcIva,
+                  porcZPeligrosa: 0,
+                  porcNComercial: 0,
+                  porcSobrepeso: 0,
+                  porcSusceptible: 0,
+                  aumento: 0,
+                  porcAumento: 0,
+                  porcVolMerc: 0,
+                  totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible,
+                };
+                this.confirmarServices.push(agrega);
+              } else {
+                let agrega = {
+                  ajusteVenta: ajusteVenta,
+                  idService: idServicio,
+                  nombreSer: nombreServicio,
+                  kilometraje: 0,
+                  tarifaK: 0,
+                  subtotal: 0,
+                  iva: 16,
+                  porcIva: 0,
+                  porcZPeligrosa: 0,
+                  porcNComercial: 0,
+                  porcSobrepeso: 0,
+                  porcSusceptible: 0,
+                  aumento: 0,
+                  porcAumento: 0,
+                  porcVolMerc: 0,
+                  totalServicio: 0,
+                };
+                if (
+                  this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+                  this.confirmarServices.push(agrega);
+                  this.confirmarServices3.push(agrega);
+                }
+              }
+              this.sumaBoton();
+            }).catch((error) => {
+              console.log(error);
+            });
+        } else {
+          let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+          let indice2 = this.confirmarServices3.map((busqueda) => busqueda.idService).indexOf(idServicio);
+
+          this.confirmarServices.splice(indice, 1);
+          this.confirmarServices3.splice(indice2, 1);
+        }
+      } else {
+        comprobar = true;
+        if(this.termodalidad == 'LTL'){
+          subtotal = parseFloat(this.totalPrecioVolumen.toFixed(2))
+          porcIva = subtotal * (iva / 100);
+        }else{
+          valorMerc = parseFloat(this.totalPrecioVolumen.toFixed(2))
+          subtotal = this.tarifaKilometro * this.kilometraje;
+
+          if(this.kilometraje > 500 && this.kilometraje < 800){
+            descuento = 0.30;
+          }else if(this.kilometraje > 800 ){
+            descuento = 0.45;
+          }
+
+          if(descuento > 0){
+            extraeDescuento = subtotal * descuento
+            subtotal = subtotal - extraeDescuento
+          }
+          porcIva = subtotal * (iva / 100);
+        }
+
+        if (this.resClasificaZona == "PELIGROSA") {
+          porcAdicional = 35
+        }
+
+        if (this.resClasificaZona == "NO COMERCIAL") {
+          porcAdicional = 50
+        }
+
+        if (this.resClasificaZona == "RESTRINGIDA") {
+          porcAdicional = 15
+        }
+
+        if (this.isSusceptibleRobo) {
+        }
+
+        if (this.valorTotalLTL > 0) {
+          porcVolMerc = this.valorTotalLTL;
+        }
+
+        if (this.sobrePeso) {
+        }
+
+        if (this.definePesoXVol) {
+          
+        }
+
+        let agrega = {
+          ajusteVenta: false,
+          idService: idServicio,
+          nombreSer: nombreServicio,
+          kilometraje: this.kilometraje,
+          tarifaK: this.tarifaKilometro,
+          subtotal: subtotal,
+          iva: iva,
+          porcIva: porcIva,
+          porcZPeligrosa: porcZPeligrosa,
+          porcNComercial: porcNComercial,
+          porcSobrepeso: porcSobrepeso,
+          porcSusceptible: porcSusceptible,
+          porcVolMerc: porcVolMerc,
+          aumento: 0,
+          porcAumento: 0,
+          totalServicio: subtotal + porcIva + porcZPeligrosa + porcNComercial + porcSobrepeso + porcSusceptible + porcVolMerc + precioVolumenTot,
+        };
+        let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+        this.confirmarServices.splice(indice, 1);
+
+        if (this.confirmarServices.findIndex((x) => x.idService === idServicio) < 0) {
+          this.confirmarServices.push(agrega);
+        }
+        this.progresbarFlete = true
+      }
+      await this.sumaBoton();
+      await this.planes();*/
+    },
+
+    getServicios() {
+      axios.get(`services/`).then((response) => {
+        this.services = response.data;
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    getEmbalaje() {
+      axios.get(`embalajes/`).then((response) => {
+        this.embalajes = response.data;
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    obtenerZona(cpO, cpD) {
+
+      let v1 = cpO;
+      let v2 = cpD;
+
+      if (v1 != "" && v2 != "") {
+        axios({
+          method: "post",
+          url: "/api/v1/valida-cp-geocerca/",
+          data: {
+            codPosO: v1,
+            codPosD: v2,
+          },
+          auth: {
+            username: "admin",
+            password: "123",
+          },
+        }).then((response) => {
+
+          if (response.data.origen.length > 0) {
+            this.clasificacionZonaO = response.data.origen[0].estatus;
+          } else {
+            this.clasificacionZonaO = "";
+          }
+
+          if (response.data.destino.length > 0) {
+            this.clasificacionZonaD = response.data.destino[0].estatus;
+          } else {
+            this.clasificacionZonaD = "";
+          }
+
+          if (this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "COMERCIAL") {
+            this.resClasificaZona = "COMERCIAL";
+            this.notColorZona = "success";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Comercial</b>.";
+          } else if (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") {
+            this.resClasificaZona = "NO COMERCIAL";
+            this.notColorZona = "warning";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "PELIGROSA") {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if (this.clasificacionZonaO == "RESTRINGIDA" && this.clasificacionZonaD == "RESTRINGIDA") {
+            this.resClasificaZona = "RESTRINGIDA";
+            this.notColorZona = "secondary";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Restringida</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") || (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "NO COMERCIAL";
+            this.notColorZona = "warning";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "RESTRINGIDA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "RESTRINGIDA";
+            this.notColorZona = "secondary";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Restringida</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "NO COMERCIAL")) {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "NO COMERCIAL")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "PELIGROSA")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          }
+
+        }).catch((error) => {
+          console.log(error);
+        });
+
+      }
+
+      /*let v1 = cpO;
+      let v2 = cpD;
+
+      if (v1 != "" && v2 != "") {
+        axios({
+          method: "post",
+          url: "/api/v1/buscaZonaCP/",
+          data: {
+            codPosO: v1,
+            codPosD: v2,
+          },
+          auth: {
+            username: "admin",
+            password: "123",
+          },
+        }).then((response) => {
+            if (response.data.origen.length > 0) {
+              this.clasificacionZonaO = response.data.origen[0].clasificacion;
+            } else {
+              this.clasificacionZonaO = "";
+            }
+
+            if (response.data.destino.length > 0) {
+              this.clasificacionZonaD = response.data.destino[0].clasificacion;
+            } else {
+              this.clasificacionZonaD = "";
+            }
+
+            if(this.termodalidad == 'LTL'){
+              if (this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "COMERCIAL") {
+                this.resClasificaZona = "COMERCIAL";
+                this.notColorZona = "success";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>Comercial</b>.";
+              } else if (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") {
+                this.resClasificaZona = "NO COMERCIAL";
+                this.notColorZona = "warning";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+              } else if (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "PELIGROSA") {
+                this.resClasificaZona = "PELIGROSA";
+                this.notColorZona = "danger";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+              } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") || (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "COMERCIAL")) {
+                this.resClasificaZona = "NO COMERCIAL";
+                this.notColorZona = "warning";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+              } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "COMERCIAL")) {
+                this.resClasificaZona = "PELIGROSA";
+                this.notColorZona = "danger";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+              } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "NO COMERCIAL")) {
+                this.resClasificaZona = "PELIGROSA";
+                this.notColorZona = "danger";
+                this.notTextoZona =
+                  "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta cambios en las tarifas.";
+              } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "COMERCIAL")) {
+                this.resClasificaZona = "NO ZONA";
+                this.notColorZona = "primary";
+                this.notTextoZona =
+                  "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+              } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "NO COMERCIAL")) {
+                this.resClasificaZona = "NO ZONA";
+                this.notColorZona = "primary";
+                this.notTextoZona =
+                  "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+              } else if ((this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "PELIGROSA")) {
+                this.resClasificaZona = "NO ZONA";
+                this.notColorZona = "primary";
+                this.notTextoZona =
+                  "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+              } else if ((this.clasificacionZonaO == "" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "")) {
+                this.resClasificaZona = "NO ZONA";
+                this.notColorZona = "primary";
+                this.notTextoZona =
+                  "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+              }
+            }else if(this.termodalidad == 'FTL'){
+              this.resClasificaZona = "COMERCIAL";
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }*/
+    },
+
+    async showOpcion(valor) {
+      this.opcion = 0;
+
+      let val = valor;
+
+      if (val == 1) {
+        this.tipoOpcion = "Maritimo";
+        this.fondoBusqueda = "primary";
+        this.fondoEtiquetas = "primary";
+        this.opcion = 1;
+
+        this.$refs.uno.style.background = "#2aab5c";
+        this.$refs.fondoB1.style.background = "#2aab5c";
+        this.$refs.fondoB1.style.color = "#ffffff";
+        this.$refs.textB1.style.color = "#ffffff";
+
+        this.$refs.dos.style.background = "#ffffff";
+        this.$refs.fondoB2.style.background = "#ffffff";
+        this.$refs.fondoB2.style.color = "#5a6268";
+        this.$refs.textB2.style.color = "#9fb1c1";
+
+        this.$refs.tres.style.background = "#ffffff";
+        this.$refs.fondoB3.style.background = "#ffffff";
+        this.$refs.fondoB3.style.color = "#5a6268";
+        this.$refs.textB3.style.color = "#9fb1c1";
+      } else if (val == 2) {
+        this.tipoOpcion = "Terrestre";
+        this.fondoBusqueda = "success";
+        this.fondoEtiquetas = "success";
+        this.opcion = 2;
+
+        this.terstatusdir1 = 1;
+        this.action = 1;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "true";
+        this.modoEnvio = "Directo";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "false";
+
+        this.$refs.uno.style.background = "#ffffff";
+        this.$refs.fondoB1.style.background = "#ffffff";
+        this.$refs.fondoB1.style.color = "#5a6268";
+        this.$refs.textB1.style.color = "#9fb1c1";
+
+        this.$refs.dos.style.background = "#2aab5c";
+        this.$refs.fondoB2.style.background = "#2aab5c";
+        this.$refs.fondoB2.style.color = "#ffffff";
+        this.$refs.textB2.style.color = "#ffffff";
+
+        this.$refs.tres.style.background = "#ffffff";
+        this.$refs.fondoB3.style.background = "#ffffff";
+        this.$refs.fondoB3.style.color = "#5a6268";
+        this.$refs.textB3.style.color = "#9fb1c1";
+      } else if (val == 3) {
+        this.tipoOpcion = "Aereo";
+        this.fondoBusqueda = "info";
+        this.fondoEtiquetas = "info";
+        this.opcion = 3;
+
+        this.$refs.uno.style.background = "#ffffff";
+        this.$refs.fondoB1.style.background = "#ffffff";
+        this.$refs.fondoB1.style.color = "#5a6268";
+        this.$refs.textB1.style.color = "#9fb1c1";
+
+        this.$refs.dos.style.background = "#ffffff";
+        this.$refs.fondoB2.style.background = "#ffffff";
+        this.$refs.fondoB2.style.color = "#5a6268";
+        this.$refs.textB2.style.color = "#9fb1c1";
+
+        this.$refs.tres.style.background = "#2aab5c";
+        this.$refs.fondoB3.style.background = "#2aab5c";
+        this.$refs.fondoB3.style.color = "#ffffff";
+        this.$refs.textB3.style.color = "#ffffff";
+      }
+
+      //setTimeout(this.insertConsecutivo(), 5000);
+
+      await this.insertConsecutivo();
+    },
+
+    selectNacional(terOperation, statusnac) {
+      let validar = terOperation;
+      let estado = statusnac;
+      this.terMostrar = 0;
+      //this.tercotizacion = 0;
+      this.tipoModalidad = terOperation;
+
+      if (validar == 1 || estado == false) {
+        this.terOperation = 1;
+        this.statusnac = "true";
+        this.tipoEnvio = "Nacional";
+        this.statusexp = "false";
+        this.statusimp = "false";
+      }
+    },
+
+    selectExpo(terOperation, statusexp) {
+      let validar = terOperation;
+      let estado = statusexp;
+      this.terMostrar = 0;
+      //this.tercotizacion = 0;
+      this.tipoModalidad = terOperation;
+
+      if (validar == 2 || estado == false) {
+        this.terOperation = 2;
+        this.statusexp = "true";
+        this.tipoEnvio = "Expo";
+        this.statusnac = "false";
+        this.statusimp = "false";
+      }
+    },
+
+    selectImpo(terOperation, statusimp) {
+      let validar = terOperation;
+      let estado = statusimp;
+      this.terMostrar = 0;
+      //this.tercotizacion = 0;
+      this.tipoModalidad = terOperation;
+
+      if (validar == 3 || estado == false) {
+        this.terOperation = 3;
+        this.statusimp = "true";
+        this.tipoEnvio = "Impo";
+        this.statusnac = "false";
+        this.statusexp = "false";
+      }
+    },
+
+    selectDirecto1(action, terstatusdir1) {
+      let validar = action;
+      let estado = terstatusdir1;
+      this.terMostrar = 0;
+
+      // thi.nombreOperacion =
+      // thi.modoOperacion =
+      // thi.tiposOperacion =
+
+      if (validar == 1 || estado == false) {
+        this.action = 1;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "true";
+        this.modoEnvio = "Directo";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "false";
+      }
+    },
+
+    selectMulti(action, terstatusmul) {
+      let validar = action;
+      let estado = terstatusmul;
+      this.terMostrar = 0;
+
+      if (validar == 2 || estado == false) {
+        this.action = 2;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "false";
+        this.terstatusmul = "true";
+        this.modoEnvio = "Multiparada";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "false";
+      }
+    },
+
+    selectDirecto2(action, terstatusdir2) {
+      let validar = action;
+      let estado = terstatusdir2;
+      this.terMostrar = 0;
+
+      if (validar == 1 || estado == false) {
+        this.action = 1;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "false";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "true";
+        this.modoEnvio = "Directo";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "false";
+      }
+    },
+
+    selectTras1(action, terstatustras1) {
+      let validar = action;
+      let estado = terstatustras1;
+      this.terMostrar = 0;
+
+      if (validar == 2 || estado == false) {
+        this.action = 2;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "false";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "true";
+        this.modoEnvio = "Trasbordo";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "false";
+      }
+    },
+
+    selectDirecto3(action, terstatusdir3) {
+      let validar = action;
+      let estado = terstatusdir3;
+      this.terMostrar = 0;
+
+      if (validar == 1 || estado == false) {
+        this.action = 1;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "false";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "true";
+        this.modoEnvio = "Directo";
+        this.terstatustras2 = "false";
+      }
+    },
+
+    selectTras2(action, terstatustras2) {
+      let validar = action;
+      let estado = terstatustras2;
+      this.terMostrar = 0;
+
+      if (validar == 2 || estado == false) {
+        this.action = 2;
+        this.terMostrar = 1;
+        this.terstatusdir1 = "false";
+        this.terstatusmul = "false";
+        this.terstatusdir2 = "false";
+        this.terstatustras1 = "false";
+        this.terstatusdir3 = "false";
+        this.terstatustras2 = "true";
+        this.modoEnvio = "Trasbordo";
+      }
+    },
+
+    showOrigenDestino(valor) {
+      let val = valor;
+      if (val == 1) {
+        this.origen_destino = "Origen";
+      } else if (val == 2) {
+        this.origen_destino = "Destino";
+      }
+    },
+
+    showMercancias() {
+      let val = this.tertipocarga;
+      if (val == "g") {
+        this.mercancias = "Mercancía General";
+      } else if (val == "h") {
+        this.mercancias = "Mercancía Peligrosa";
+      } else if (val == "r") {
+        this.mercancias = "Mercancía Refrigerada";
+      }
+    },
+
+    addDirection() {
+      let direction = this.origen_destino;
+      // let vcp = document.getElementById('cpRutaO').value
+      let vcp = this.cpRutaO.codigo_postal;
+      let col = this.cpRutaO.asentamiento;
+
+      let vciudad = this.ciudad;
+
+      let index_pais = this.countrys.findIndex((x) => x.id === this.pais);
+      let index_estado = this.estates.findIndex((x) => x.id === this.estado);
+
+      let txt_pais = this.countrys[index_pais].name;
+      let txt_estado = this.estates[index_estado].name;
+
+      if (direction == "Origen") {
+        this.terorigen =
+          txt_pais + ", " + vcp + ", " + txt_estado + ", " + vciudad;
+
+        let nompaiso = [];
+        let nomciudado = [];
+
+        let origen = {
+          idpaiso: this.pais,
+          paiso: txt_pais,
+          cpo: vcp,
+          idestadoo: this.estado,
+          estadoo: txt_estado,
+          ciudado: this.ciudad,
+          colonia: col,
+        };
+        this.arrayOrigen.push(origen);
+
+        let O;
+
+        for (O = 0; O < this.arrayOrigen.length; O++) {
+          nompaiso = this.arrayOrigen[O].paiso;
+          nomciudado = this.arrayOrigen[O].ciudado;
+        }
+
+        this.pais = "";
+        this.estado = "";
+        this.ciudad = "";
+
+        this.cpRutaO = "";
+
+        this.ciudadori = vciudad;
+      } else if (direction == "Destino") {
+        this.terdestino =
+          txt_pais + ", " + vcp + ", " + txt_estado + ", " + vciudad;
+
+        let nompaisd = [];
+        let nomciudadd = [];
+
+        let destino = {
+          idpaisd: this.pais,
+          paisd: txt_pais,
+          cpd: vcp,
+          idestadod: this.estado,
+          estadod: txt_estado,
+          ciudadd: this.ciudad,
+          colonia: col,
+        };
+        this.arrayDestino.push(destino);
+
+        let D;
+
+        for (D = 0; D < this.arrayDestino.length; D++) {
+          nompaisd = this.arrayDestino[D].paisd;
+          nomciudadd = this.arrayDestino[D].ciudadd;
+        }
+
+        this.pais = "";
+        this.estado = "";
+        this.ciudad = "";
+        this.cpRutaO = "";
+      }
+
+      this.ciudaddes = vciudad;
+
+      this.getCoincidencia();
+
+      this.$bvModal.hide("signup-modal");
+    },
+
+    mercanciaDatos() {
+      let merca = this.mercancia;
+    },
+
+    generateCotizacion(val) {
+      let o;
+      let d;
+
+      let vpaisOrigen;
+      let vcpOrigen;
+      let vestadoOrigen;
+      let vciudadOrigen;
+      let vcoloniaOrigen;
+      let vcalleOrigen = this.calleOrigen;
+      let vnumExtOrigen = this.numExtOrigen;
+      let vnumIntOrigen = this.numIntOrigen;
+      let ocurreO = this.ocurreO;
+      let almacenO = this.almacenO;
+
+      let vpaisDestino;
+      let vcpDestino;
+      let vestadoDestino;
+      let vciudadDestino;
+      let vcoloniaDestino;
+      let vcalleDestino = this.calleDestino;
+      let vnumExtDestino = this.numExtDestino;
+      let vnumIntDestino = this.numIntDestino;
+      let ocurreD = this.ocurreD;
+      let almacenD = this.almacenD;
+
+      let vorigen = this.origen;
+      let vdestino = this.destino;
+      let vfecha = this.terfecha;
+      let modalidad = this.termodalidad;
+      let tipocarga = this.tertipocarga;
+
+      let embalaje = this.terembalaje;
+      let estibable = this.terestibable;
+      let clasifica = this.clasifica;
+      let descripMerc = this.descripMerc;
+      let cantMerc = this.cantMerc;
+      let volMerc = this.volMerc;
+      let pesTMerc = this.pesTMerc;
+      let unidaMedidaMerc = this.unidaMedidaMerc;
+      let unMerc = this.unMerc;
+      let classMerc = this.classMerc;
+      let gradosMerc = this.gradosMerc;
+      let tUnidadMerc = this.tUnidadMerc;
+
+      for (o = 0; o < this.arrayOrigen.length; o++) {
+        vpaisOrigen = this.arrayOrigen[o].paiso;
+        vcpOrigen = this.arrayOrigen[o].cpo;
+        vestadoOrigen = this.arrayOrigen[o].estadoo;
+        vciudadOrigen = this.arrayOrigen[o].ciudado;
+        vcoloniaOrigen = this.arrayOrigen[o].colonia;
+      }
+
+      for (d = 0; d < this.arrayDestino.length; d++) {
+        vpaisDestino = this.arrayDestino[d].paisd;
+        vcpDestino = this.arrayDestino[d].cpd;
+        vestadoDestino = this.arrayDestino[d].estadod;
+        vciudadDestino = this.arrayDestino[d].ciudadd;
+        vcoloniaDestino = this.arrayDestino[d].colonia;
+      }
+
+      this.obtenerZona(vcpOrigen, vcpDestino);
+
+      if (this.termodalidad == "FTL") {
+        //this.buscaUnidad();
+        this.tertipocarga = "g";
+      }
+
+      if (this.opcion == 0) {
+        Swal.fire({
+          title: "Selecciona un tipo de Transporte",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (this.termodalidad == "") {
+        Swal.fire({
+          title: "Selecciona la modalidad",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (this.resClasificaZona != "NO ZONA") {
+        if (vorigen == "" || vorigen == null) {
+          Swal.fire({
+            title: "Ingresa Origen",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        if (vdestino == "" || vdestino == null) {
+          Swal.fire({
+            title: "Ingresa Destino",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        /*if (vcalleOrigen == "" || vcalleOrigen == null) {
+          Swal.fire({
+            title: "Ingresa la calle del Origen",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }*/
+
+        if (ocurreO && almacenO == '') {
+          Swal.fire({
+            title: "Selecciona un almacen de Origen",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        /*if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+          Swal.fire({
+            title: "Ingresa el número exterior de Origen",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        if (vcalleDestino == "" || vcalleDestino == null) {
+          Swal.fire({
+            title: "Ingresa la calle de Destino",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }*/
+
+        if (ocurreD && almacenD == '') {
+          Swal.fire({
+            title: "Selecciona un almacen de Destino",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        /*if (vnumExtDestino == "" || vnumExtDestino == null) {
+          Swal.fire({
+            title: "Ingresa el número de exterior de Destino",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }*/
+
+        if (vfecha == "" || vfecha == null || vfecha == 0) {
+          Swal.fire({
+            title: "Ingresa Fecha Valida",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
+        if (this.termodalidad == "LTL" || this.termodalidad == "FTL") {
+          if (modalidad == "" || modalidad == null || modalidad == 0) {
+            Swal.fire({
+              title: "Selecciona Tipo de Operacion",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+
+          /*if (tipocarga == "" || tipocarga == null || tipocarga == 0) {
+            Swal.fire({
+              title: "Selecciona Tipo de Carga",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }*/
+
+          if (this.termodalidad == "LTL") {
+            //if (embalaje == "" || embalaje == null) {
+            if (this.agregarMercancias.length == 0) {
+              Swal.fire({
+                title: "Debes agregar al menos una mercancia.",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+              return false;
+            }
+          }
+
+          /*if (estibable == "" || estibable == null) {
+            Swal.fire({
+              title: "Campo Estibable no Seleccionado",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }*/
+
+          if (clasifica == "" || clasifica == null) {
+            Swal.fire({
+              title: "Ingresa una clasificación",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+
+          /*if (cantMerc == "" || cantMerc == null) {
+            Swal.fire({
+              title: "Ingresa la Cantidad",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+
+          if (volMerc == 0 || volMerc == null) {
+            Swal.fire({
+              title: "Ingresa el Volúmen",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+
+          if (pesTMerc == 0 || pesTMerc == null) {
+            Swal.fire({
+              title: "Ingresa el Peso",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }*/
+
+          if (unidaMedidaMerc == "" || unidaMedidaMerc == null) {
+            Swal.fire({
+              title: "Selecciona la Unidad de Medida",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+
+          if (tipocarga == "h") {
+            if (unMerc == "" || unMerc == null) {
+              Swal.fire({
+                title: "Campo UN esta vacío",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+              return false;
+            }
+
+            if (classMerc == "" || classMerc == null) {
+              Swal.fire({
+                title: "Campo CLASS vacío",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+              return false;
+            }
+          }
+
+          if (tipocarga == "r") {
+            if (gradosMerc == "" || gradosMerc == null) {
+              Swal.fire({
+                title: "Ingresa los Grados",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+              return false;
+            }
+
+            if (tUnidadMerc == "" || tUnidadMerc == null) {
+              Swal.fire({
+                title: "Ingresa el tipo de unidad",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+              return false;
+            }
+          }
+
+          if (descripMerc == "" || descripMerc == null) {
+            Swal.fire({
+              title: "El campo descripción esta vacío",
+              text: "",
+              icon: "error",
+              confirmButtonText: "Cerrar",
+            });
+            return false;
+          }
+        }
+
+        this.tercotizacion = val;
+
+        if(this.termodalidad == 'LTL'){
+          this.validaServicios();
+          this.validaServicios();
+        }
+
+        this.getTarifario();
+
+        this.getCoincidencia();
+        this.detallesMercancias();
+        
+
+        /*if(this.termodalidad == 'LTL'){
+          if (!this.requiereRecoleccion && !this.requiereEntrega) {
+            this.$bvModal.show('recoleccion');
+          }
+        }*/
+      } else {
+        let msg,
+          msg2 = "";
+
+        if (this.clasificacionZonaO == "") {
+          msg = "Origen";
+          msg2 = "Cargar de Mercancias";
+        }
+        if (this.clasificacionZonaD == "") {
+          msg = "Destino";
+          msg2 = "Recibir Mercancias";
+        }
+
+        Swal.fire({
+          title: "El código postal de " + msg + " no esta disponible para " + msg2 + ".",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+      }
+    },
+
+    async generateCotizacionFTL(val){
+
+      this.itemsTarifarioFTL = []
+      this.datosOrigenesFTLOcupar = []
+      this.datosDestinosFTLOcupar = []
+      this.datosUnidaddesFtlOcupar = []
+      this.rangos = []
+      
+      const auth = { username: "admin", password: "123", }
+      let ids = ''
+
+      if (this.origenes_ftl.length == 0) {
+        Swal.fire({
+          title: "Debes seleccionar al menos un origen.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+      
+      if(this.destinos_ftl.length == 0){
+        Swal.fire({
+          title: "Debes seleccionar al menos un destino.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+      
+      if(this.unidadesLTL.length == 0){
+        Swal.fire({
+          title: "Debes seleccionar al menos una Unidad.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      for (let i = 0; i < this.origenes_ftl.length; i++) {
+        let org =  await axios({
+          method: "get",
+          url: "/api/v1/get-datos-geocercas/",
+          params: {
+            idGeocerca: this.origenes_ftl[i].idGeocerca,
+          },
+          auth: auth,
+        }).then((response) => {
+          this.datosOrigenesFTLOcupar.push(response.data[0])
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+
+      for (let i = 0; i < this.destinos_ftl.length; i++) {
+        let dest =  await axios({
+          method: "get",
+          url: "/api/v1/get-datos-geocercas/",
+          params: {
+            idGeocerca: this.destinos_ftl[i].idGeocerca,
+          },
+          auth: auth,
+        }).then((response) => {
+          this.datosDestinosFTLOcupar.push(response.data[0])
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+
+      for (let i = 0; i < this.unidadesLTL.length; i++) {
+        let unit =  await axios({
+          method: "get",
+          url: "/api/v1/catalogo-getUnidad/"+this.unidadesLTL[i].idUnidad+"/",
+          params: {},
+          auth: auth,
+        }).then((response) => {
+          this.datosUnidaddesFtlOcupar.push(response.data)
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+
+      let rangos =  await axios({
+        method: "get",
+        url: "/api/v1/getRangos/",
+        params: {},
+        auth: auth,
+      }).then((response) => {          
+        this.rangos = response.data.data
+      }).catch((error) => {
+        console.log(error);
+      });
+
+      this.listOD = []
+
+      for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
+        for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
+          let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
+          this.listOD.push(dato)
+        }
+      }
+      
+      await axios({
+        method: "post",
+        url: "/api/v1/valida-tipo-zona/",
+        data: {data:this.listOD},
+        auth: auth,
+      }).then((response) => {
+        this.listTipoZona = response.data
+      }).catch((error) => {
+        console.log(error);
+      });
+
+      await this.obtenerPorcentajes();
+
+      await this.colspanDinamico();
+
+      
+    },
+
+    getautocomplit_r1(input) {
+      return new Promise((resolve) => {
+        let idPaisO = this.pais;
+
+        if (idPaisO > 0) {
+          if (input.length < 3) {
+            return resolve([]);
+          }
+          // event.preventDefault()
+          axios({
+            method: "post",
+            url: "/api/v1/search-zipcode/",
+            data: {
+              data: input,
+              pais: idPaisO,
+            },
+          }).then((response) => {
+            const results = response.data.map((result, index) => {
+              return { ...result, index };
+            });          
+            resolve(results);
+          }).catch((error) => {
+            console.log(error);
+          });
+        }
+      });
+    },
+
+    getResultValue_r1(result) {
+      return result.codigo_postal;
+    },
+
+    onSubmit_r1(result) {
+      this.estado = result.estado_id;
+      this.ciudad = result.municipio;
+    },
+
+    mostrarRutaDirecta(val) {
+      let dimeVal = val;
+
+      if (dimeVal == 0) {
+        this.cambioTerrestre = 1;
+      } else if (dimeVal == 1) {
+        this.cambioTerrestre = 0;
+      } else {
+      }
+    },
+
+    formatMoney(value) {
+      let val = (value / 1).toFixed(2).replace(",", ".");
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
+    addServiciosOptimo(idEnvioado, nombreEnviado) {
+      let indice;
+      let comprobar = "";
+
+      if (this.confirmarServices3.length > 0) {
+        comprobar = document.getElementById(idEnvioado + "cheServ").checked;
+        indice = this.confirmarServices3
+          .map((busqueda) => busqueda.ids)
+          .indexOf(idEnvioado);
+
+        if (indice >= 0) {
+          if (comprobar == false) {
+            this.confirmarServices3.splice(indice, 1);
+          }
+        } else {
+          if (comprobar == true) {
+            axios({
+              method: "post",
+              url: `/api/v1/service-filtro/`,
+              data: {
+                servicio: nombreEnviado,
+              },
+            })
+              .then((response) => {
+                let resid = 0;
+                let resnombre = "";
+                let resprecio = 0;
+                let addXpress = 0;
+                let addVenta = 0;
+
+                if (response.data.length > 0) {
+                  for (let j = 0; j < response.data.length; j++) {
+                    resid = response.data[j].id;
+                    resnombre = response.data[j].servicio;
+                    resprecio = response.data[j].total;
+                    addXpress = response.data[j].porcentajeXpress;
+                    addVenta = response.data[j].porcentajeVenta;
+                  }
+                  if (this.aumentoPorcentaje == 1) {
+                    if (addVenta > 0) {
+                      resprecio = this.trunc(parseFloat(resprecio), 2);
+                      addVenta = parseFloat(addVenta) / 100;
+                      addVenta = addVenta * parseFloat(resprecio);
+                      this.precioVentas =
+                        parseFloat(resprecio) + parseFloat(addVenta);
+
+                      let agrega = {
+                        ids: idEnvioado,
+                        nombre: resnombre,
+                        precio: this.precioVentas,
+                        id: resid,
+                      };
+                      this.confirmarServices3.push(agrega);
+                    }
+                  } else if (this.aumentoPorcentaje == 2) {
+                    if (addVenta > 0) {
+                      if (addVenta > 0) {
+                        resprecio = this.trunc(parseFloat(resprecio), 2);
+                        addVenta = parseFloat(addVenta) / 100;
+                        addVenta = addVenta * parseFloat(resprecio);
+                        addXpress = parseFloat(addXpress) / 100;
+                        addXpress = addXpress * parseFloat(resprecio);
+                        this.precioExpres =
+                          parseFloat(resprecio) +
+                          parseFloat(addVenta) +
+                          parseFloat(addXpress);
+                        let agregado = {
+                          ids: idEnvioado,
+                          nombre: resnombre,
+                          precio: this.precioExpres,
+                          id: resid,
+                        };
+                        this.confirmarServices3.push(agregado);
+                      }
+                    }
+                  }
+                } else {
+                  let agrega = {
+                    ids: idEnvioado,
+                    nombre: nombreEnviado,
+                    precio: 0,
+                    id: 0,
+                  };
+                  this.confirmarServices3.push(agrega);
+                }
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
+        }
+      } else {
+        let agrega = {
+          ids: this.idFleteNacional,
+          nombre: "FLETE NACIONAL",
+          precio: 0,
+          id: 0,
+        };
+        this.confirmarServices3.push(agrega);
+      }
+    },
+
+    sumaBoton() {
+      let aumentos = 0;
+      this.priceSale = 0;
+     
+      for (let i = 0; i < this.confirmarServices.length; i++) {
+        if (this.confirmarServices[i].totalServicio > 0) {
+          this.priceSale = this.priceSale + this.confirmarServices[i].totalServicio;
+        }
+        if (this.confirmarServices[i].porcAumento > 0) {
+          aumentos = aumentos + this.confirmarServices[i].porcAumento;
+        }
+      }
+
+      this.priceSale = this.priceSale + aumentos;
+
+      if (this.divisa == 1) {
+        this.priceSale = this.priceSale / this.valorDolar;
+      }
+      this.Total();
+    },
+
+    showDetails() {
+      if (this.details == 0) {
+        this.details = 1;
+      } else if (this.details == 1) {
+        this.details = 0;
+      }
+    },
+
+    valorBoton(id, nombres, precios, diasTransito) {
+      this.totalRetOpt = 0;
+      this.totalRetExp = 0;
+      this.totalIvaOpt = 0;
+      this.totalIvaExp = 0;
+      this.totalPrecioOpt = 0;
+      this.totalPrecioExp = 0;
+      this.totalTotalOpt = 0;
+      this.totalTotalExp = 0;
+
+      let vprecio = 0;
+
+      this.diasTransito = diasTransito;
+
+      if (this.divisa == 1) {
+        vprecio = parseFloat(precios) / parseFloat(this.valorDolar);
+        this.idBTN = id;
+        this.nomBTN = nombres;
+        this.valorBTN = vprecio;
+      } else if (this.divisa == 2) {
+        vprecio = parseFloat(precios);
+        this.idBTN = id;
+        this.nomBTN = nombres;
+        this.valorBTN = vprecio;
+      }
+      this.impuestos = 0;
+      this.arrayOcultar = 0;
+
+      let i;
+      let nombreCompara = "";
+
+      this.Total();
+    },
+
+    hideResumen(valor) {
+      this.$bvModal.hide("resumen-modal");
+    },
+
+    hideResumen2() {
+      if(this.termodalidad == 'LTL'){
+        this.$bvModal.hide("resumen-modal");
+      }else if(this.termodalidad == 'FTL'){
+        this.$bvModal.hide("resumen-modal-ftl");
+      }
+    },
+
+    addOther() {
+      let nid = 0;
+      let nservice = "";
+      let nprecio = 0;
+
+      let idPaisOrigen = "";
+      let nombrePaisOrigen = "";
+      let cpOrigen = "";
+      let idEstadoOrigen = "";
+      let nombreEstadoOrigen = "";
+      let nombreCiudadOrigen = "";
+
+      let idPaisDestino = "";
+      let nombrePaisDestino = "";
+      let cpDestino = "";
+      let idEstadoDestino = "";
+      let nombreEstadoDestino = "";
+      let nombreCiudadDestino = "";
+
+      for (let i = 0; i < this.arrayOrigen.length; i++) {
+        idPaisOrigen = this.arrayOrigen[i].idpaiso;
+        nombrePaisOrigen = this.arrayOrigen[i].paiso;
+        cpOrigen = this.arrayOrigen[i].cpo;
+        idEstadoOrigen = this.arrayOrigen[i].idestadoo;
+        nombreEstadoOrigen = this.arrayOrigen[i].estadoo;
+        nombreCiudadOrigen = this.arrayOrigen[i].ciudado;
+      }
+
+      for (let j = 0; j < this.arrayDestino.length; j++) {
+        idPaisDestino = this.arrayDestino[j].idpaisd;
+        nombrePaisDestino = this.arrayDestino[j].paisd;
+        cpDestino = this.arrayDestino[j].cpd;
+        idEstadoDestino = this.arrayDestino[j].idestadod;
+        nombreEstadoDestino = this.arrayDestino[j].estadod;
+        nombreCiudadDestino = this.arrayDestino[j].ciudadd;
+      }
+
+      for (let a = 0; a < this.confirmarServices3.length; a++) {
+        nprecio = this.confirmarServices3[a].subtotal;
+
+        if (nprecio == 0) {
+          nid = this.confirmarServices3[a].idService;
+          nservice = this.confirmarServices3[a].nombreSer;
+          if (nservice != "FLETE NACIONAL") {
+            let tipoServicio = 10;
+
+            axios({
+              method: "post",
+              url: "servicioVenta/",
+              data: {
+                idCotizacion: this.idCotizacion,
+                tipoOperacion: 2,
+                tipoServicio: tipoServicio, //Poner el id del servicio
+                servicio: nservice,
+                idServicio: nid, //Colocar el id del Servicio
+                idVenta: this.idNuevoServ,
+                paisOrigen: nombrePaisOrigen,
+                cpOrigen: cpOrigen,
+                estadoOrigen: nombreEstadoOrigen,
+                ciudadOrigen: nombreCiudadOrigen,
+                paisDestino: nombrePaisDestino,
+                cpDestino: cpDestino,
+                estadoDestino: nombreEstadoDestino,
+                ciudadDestino: nombreCiudadDestino,
+                estatusCompleto: 3,
+                unidaModality: this.tertipocarga,
+                tipoUnidad: this.tipoUnidad,
+                idestadoDestino_id: idEstadoDestino,
+                idestadoOrigen_id: idEstadoOrigen,
+                idpaisOrigen_id: idPaisOrigen,
+                idpaisDestino_id: idPaisDestino,
+                dateInicio: this.fechaCoincidencia,
+                modality: this.termodalidad,
+                checkVentas: "SI",
+                velocidadEnvio: this.velocidadEnvio,
+                total: 0.0,
+                ruta: this.resClasificaZona,
+              },
+              auth: {
+                username: "admin",
+                password: "123",
+              },
+            })
+              .then((response) => {})
+              .catch((error) => {
+                console.log(error);
+              });
+          }
+        }
+      }
+    },
+
+    Save2() {
+
+      this.$bvModal.hide("validaConfirmacionCliente");
+      
+      let idPaisOrigen = "";
+      let nombrePaisOrigen = "";
+      let cpOrigen = "";
+      let idEstadoOrigen = "";
+      let nombreEstadoOrigen = "";
+      let nombreCiudadOrigen = "";
+
+      let idPaisDestino = "";
+      let nombrePaisDestino = "";
+      let cpDestino = "";
+      let idEstadoDestino = "";
+      let nombreEstadoDestino = "";
+      let nombreCiudadDestino = "";
+
+      for (let i = 0; i < this.arrayOrigen.length; i++) {
+        idPaisOrigen = this.arrayOrigen[i].idpaiso;
+        nombrePaisOrigen = this.arrayOrigen[i].paiso;
+        cpOrigen = this.arrayOrigen[i].cpo;
+        idEstadoOrigen = this.arrayOrigen[i].idestadoo;
+        nombreEstadoOrigen = this.arrayOrigen[i].estadoo;
+        nombreCiudadOrigen = this.arrayOrigen[i].ciudado;
+      }
+
+      for (let j = 0; j < this.arrayDestino.length; j++) {
+        idPaisDestino = this.arrayDestino[j].idpaisd;
+        nombrePaisDestino = this.arrayDestino[j].paisd;
+        cpDestino = this.arrayDestino[j].cpd;
+        idEstadoDestino = this.arrayDestino[j].idestadod;
+        nombreEstadoDestino = this.arrayDestino[j].estadod;
+        nombreCiudadDestino = this.arrayDestino[j].ciudadd;
+      }
+
+      this.Save3();
+    },
+
+    Save3() {
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+        let nombre = this.contacName;
+
+        let email = this.contacEmail;
+        let expReg =
+          /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+        let EmailValido = expReg.test(email);
+
+        let lada = this.contacLada;
+        let telefono = this.contacTelefono;
+        let producto = this.contacProductName;
+        let descripcion = this.contacDescription;
+
+        if (nombre == "" || nombre == null) {
+          Swal.fire({
+            title: "Ingresa Nombre",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        } else if (email == "" || email == null) {
+          Swal.fire({
+            title: "Ingresa Email",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        } else if (EmailValido == true) {
+        } else {
+          Swal.fire({
+            title: "Email no Valido",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+        if (lada == "" || lada == null) {
+          Swal.fire({
+            title: "Seleccione Lada",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        } else if (telefono == "" || telefono == null) {
+          Swal.fire({
+            title: "Ingresa Telefono",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        } else if (telefono.length < 10) {
+          Swal.fire({
+            title: "Ingrese 10 Digitos Minimos",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        } else if (telefono.length > 16) {
+          Swal.fire({
+            title: "Ingrese 16 Digitos Maximo",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }/* else if (descripcion == "" || descripcion == null) {
+          Swal.fire({
+            title: "Ingresa Descripción",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }*/
+
+        let servicePrice = 0;
+        let sumaInicial = 0;
+
+        for (let i = 0; i < this.confirmarServices.length; i++) {
+          servicePrice = this.confirmarServices[i].totalServicio;
+          sumaInicial = parseFloat(sumaInicial) + parseFloat(servicePrice);
+          sumaInicial = this.trunc(sumaInicial);
+        }
+
+        let idPaisOrigen = "";
+        let nombrePaisOrigen = "";
+        let cpOrigen = "";
+        let idEstadoOrigen = "";
+        let nombreEstadoOrigen = "";
+        let nombreCiudadOrigen = "";
+        let calleOrigen = "";
+        let numExtOrigen = "";
+        let numIntOrigen = "";
+
+        let idPaisDestino = "";
+        let nombrePaisDestino = "";
+        let cpDestino = "";
+        let idEstadoDestino = "";
+        let nombreEstadoDestino = "";
+        let nombreCiudadDestino = "";
+        let calleDestino = "";
+        let numExtDestino = "";
+        let numIntDestino = "";
+
+        for (let i = 0; i < this.arrayOrigen.length; i++) {
+          idPaisOrigen = this.arrayOrigen[i].idpaiso;
+          nombrePaisOrigen = this.arrayOrigen[i].paiso;
+          cpOrigen = this.arrayOrigen[i].cpo;
+          idEstadoOrigen = this.arrayOrigen[i].idestadoo;
+          nombreEstadoOrigen = this.arrayOrigen[i].estadoo;
+          nombreCiudadOrigen = this.arrayOrigen[i].ciudado;
+        }
+
+        for (let j = 0; j < this.arrayDestino.length; j++) {
+          idPaisDestino = this.arrayDestino[j].idpaisd;
+          nombrePaisDestino = this.arrayDestino[j].paisd;
+          cpDestino = this.arrayDestino[j].cpd;
+          idEstadoDestino = this.arrayDestino[j].idestadod;
+          nombreEstadoDestino = this.arrayDestino[j].estadod;
+          nombreCiudadDestino = this.arrayDestino[j].ciudadd;
+        }
+
+        calleOrigen = this.calleOrigen;
+        calleDestino = this.calleDestino;
+        numExtOrigen = this.numExtOrigen;
+        numExtDestino = this.numExtDestino;
+        numIntOrigen = this.numIntOrigen;
+        numIntDestino = this.numIntDestino;
+        /* */
+
+        //Inica AXIOS
+        const swalWithBootstrapButtons = Swal.mixin({
+          customClass: {
+            confirmButton: "btn btn-success",
+            cancelButton: "btn btn-danger",
+          },
+          buttonsStyling: false,
+        });
+
+        swalWithBootstrapButtons
+          .fire({
+            title: "Generar Cotizacion",
+            text: "Al Confirmar no se Podra Realizar Cambios",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Confirmar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              this.getFolioCon();
+
+              if (this.confirmarServices3.length > 0) {
+                this.estatusCotiza = 4;
+              }
+              if (this.termodalidad == "LTL") {
+                axios({
+                  method: "post",
+                  url: "servicioCotizaciones/",
+                  data: {
+                    tipoServicio: this.tipoOpcion,
+                    tipoEnvio: this.tipoEnvio,
+                    modoEnvio: this.modoEnvio,
+
+                    paisOrigen: nombrePaisOrigen,
+                    idpaisOrigen: idPaisOrigen,
+                    cpOrigen: cpOrigen,
+                    estadoOrigen: nombreEstadoOrigen,
+                    idestadoOrigen: idEstadoOrigen,
+                    ciudadOrigen: nombreCiudadOrigen,
+                    calleOrigen: calleOrigen,
+                    numExtOrigen: numExtOrigen,
+                    numIntOrigen: numIntOrigen,
+                    almacenOcurreOrigen: this.almacenO,
+
+                    paisDestino: nombrePaisDestino,
+                    idpaisDestino: idPaisDestino,
+                    cpDestino: cpDestino,
+                    estadoDestino: nombreEstadoDestino,
+                    idestadoDestino: idEstadoDestino,
+                    ciudadDestino: nombreCiudadDestino,
+                    calleDestino: calleDestino,
+                    numExtDestino: numExtDestino,
+                    numIntDestino: numIntDestino,
+                    almacenOcurreDestino: this.almacenD,
+
+                    fechaCarga: this.terfecha,
+                    tipoOperacion: this.termodalidad,
+                    tipoCarga: this.tertipocarga,
+                    tipoUnidad: this.tipoUnidad,
+                    precioTotalInicial: sumaInicial,
+                    precioTotalFinal: sumaInicial,
+                    divisaFinal: this.divisa,
+                    serie: "DOC",
+                    velocidadEnvio: this.velocidadEnvio,
+                    idVenta: 1,
+                    estatus: this.estatusCotiza, // Sin Completar
+                    diasTransito: this.diasTransito,
+                    nametipoUnidad: this.nombreTipoUnidad,
+                    folioConsecutivo: this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"),
+                    estibable: this.terestibable,
+                    gradosRef: this.gradosMerc,
+                    tipoUnidadRef: this.tipoUnidadRef,
+                    unHaz: this.unMerc,
+                    classHaz: this.classMerc,
+                    embalaje: this.terembalaje,
+                    idclasificacion: this.idclasifica,
+                    cantidad: this.cantMerc,
+                    volumen: this.volMerc,
+                    pesoTotal: this.pesTMerc,
+                    unidadMedida: this.unidaMedidaMerc,
+                    unidadPeso: this.unidaPesoMerc,
+                    largo: this.largoMerc,
+                    alto: this.altoMerc,
+                    ancho: this.anchoMerc,
+                    descrip: this.descripMerc,
+                    zona: this.resClasificaZona,
+                    valorDeclaradoMerc: this.valorMercancia,
+                    usuarioGenera: this.username,
+                  },
+                  auth: {
+                    username: "admin",
+                    password: "123",
+                  },
+                }).then((response) => {
+                    this.estadoCotiza = true;
+                    //this.isActive = true;
+                    this.idCotizacion = response.data.id;
+                    this.getFolios();
+                    this.agregaMerch();
+                    this.agregaServices();
+                    this.updateConsecutivo();
+                    this.addContact();
+                    this.agregaPlanes();
+
+                    if(this.contactaAgente){
+                      this.notificaAgente();
+                    }
+
+                    if (this.confirmarServices3.length > 0) {
+                      this.enviaCorreoPricing(this.idCotizacion, this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"));
+                    }
+                    
+                    this.existeCotizacion = false
+
+                    Swal.fire({
+                      title: "Cotizacion Generada correctamente",
+                      text: "",
+                      icon: "success",
+                      confirmButtonText: "Cerrar",
+                      allowOutsideClick: false,                      
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        if(this.username == 'Invitado'){
+                          window.location.href = "/logout";
+                        }
+                      }
+                    })
+                }).catch((error) => {
+                    Swal.fire({
+                      title: "Error Cotizacion",
+                      text:
+                        "Se detecto un error mientras se generaba la cotizacion: " +
+                        error,
+                      icon: "success",
+                      confirmButtonText: "Cerrar",
+                    });
+                });
+              } else if (this.termodalidad == "FTL" || this.termodalidad == "FCL") {
+                axios({
+                  method: "post",
+                  url: "servicioCotizaciones/",
+                  data: {
+                    tipoServicio: this.tipoOpcion,
+                    tipoEnvio: this.tipoEnvio,
+                    modoEnvio: this.modoEnvio,
+
+                    paisOrigen: nombrePaisOrigen,
+                    idpaisOrigen: idPaisOrigen,
+                    cpOrigen: cpOrigen,
+                    estadoOrigen: nombreEstadoOrigen,
+                    idestadoOrigen: idEstadoOrigen,
+                    ciudadOrigen: nombreCiudadOrigen,
+                    calleOrigen: calleOrigen,
+                    numExtOrigen: numExtOrigen,
+                    numIntOrigen: numIntOrigen,
+                    almacenOcurreOrigen: this.almacenO,
+
+                    paisDestino: nombrePaisDestino,
+                    idpaisDestino: idPaisDestino,
+                    cpDestino: cpDestino,
+                    estadoDestino: nombreEstadoDestino,
+                    idestadoDestino: idEstadoDestino,
+                    ciudadDestino: nombreCiudadDestino,
+                    calleDestino: calleDestino,
+                    numExtDestino: numExtDestino,
+                    numIntDestino: numIntDestino,
+                    almacenOcurreDestino: this.almacenD,
+
+                    fechaCarga: this.terfecha,
+                    tipoOperacion: this.termodalidad,
+                    tipoCarga: this.tertipocarga,
+                    tipoUnidad: this.tipoUnidad,
+                    precioTotalInicial: sumaInicial,
+                    precioTotalFinal: sumaInicial,
+                    divisaFinal: this.divisa,
+                    serie: "DOC",
+                    velocidadEnvio: this.velocidadEnvio,
+                    idVenta: 1,
+                    estatus: this.estatusCotiza, // Sin Completar
+                    diasTransito: this.diasTransito,
+                    nametipoUnidad: this.nombreTipoUnidad,
+                    folioConsecutivo: this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"),
+                    estibable: this.terestibable,
+                    gradosRef: this.gradosMerc,
+                    tipoUnidadRef: this.tipoUnidadRef,
+                    unHaz: this.unMerc,
+                    classHaz: this.classMerc,
+                    embalaje: this.terembalaje,
+                    idclasificacion: this.idclasifica,
+                    volumen: this.volumenMax,
+                    pesoTotal: this.pesTMerc,
+                    cantidad: this.cantMerc,
+                    unidadMedida: this.unidaMedidaMerc,
+                    descrip: this.descripMerc,
+                    valorDeclaradoMerc: this.valorMercancia,
+                    zona: this.resClasificaZona,
+                    usuarioGenera: this.username,
+                  },
+                  auth: {
+                    username: "admin",
+                    password: "123",
+                  },
+                })
+                  .then((response) => {
+                    this.estadoCotiza = true;
+                    //this.isActive = true;
+                    this.idCotizacion = response.data.id;
+                    this.getFolios();
+                    this.agregaMerch();
+                    this.agregaServices();
+                    this.updateConsecutivo();
+                    this.addContact();
+                    this.agregaPlanes();
+
+                    if(this.contactaAgente){
+                      this.notificaAgente();
+                    }
+
+                    if (this.confirmarServices3.length > 0) {
+                      this.enviaCorreoPricing(this.idCotizacion, this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, "0"));
+                    }
+
+                    this.existeCotizacion = false
+
+                    Swal.fire({
+                      title: "Cotizacion Generada correctamente",
+                      text: "",
+                      icon: "success",
+                      confirmButtonText: "Cerrar",
+                      allowOutsideClick: false,                      
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        if(this.username == 'Invitado'){
+                          window.location.href = "/logout";
+                        }
+                      }
+                    })
+                  }).catch((error) => {
+                    Swal.fire({
+                      title: "Cotizacion",
+                      text:
+                        "Se detecto un error mientras se generaba la cotizacion: " +
+                        error,
+                      icon: "success",
+                      confirmButtonText: "Cerrar",
+                    });
+                  });
+              }
+            } else {
+              Swal.fire({
+                title: "Cotización cancelada",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+            }
+          });
+      } else {
+        Swal.fire({
+          title:
+            "Ya existe una cotización con la misma información, verificalo por favor.",
+          text: "",
+          icon: "info",
+          confirmButtonText: "Cerrar",
+        });
+      }
+    },
+
+    addId() {
+      axios({
+        method: "put",
+        url: `servicioVenta/${this.idFail}/`,
+        data: {
+          idCotizacion: this.idFail,
+        },
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      })
+        .then((response) => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    agregaServices() {
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+        Swal.fire({
+          title: "Genere Cotizacion",
+          text: "",
+          icon: "success",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (idCotiza > 0) {
+        let m;
+        let serviceIds;
+        let serviceNombre;
+        let servicePrice;
+
+        let ajusteVenta;
+        let servicePorcentaje;
+        let serviceAgregado;
+        let servicePriceFinal;
+        let ajustaTotal = 0;
+
+        let subtotal = 0;
+        let total = 0;
+        let iva = 0;
+        let ret = 0;
+        let porcentajeVenta = 0;
+        let porcentajeXpress = 0;
+
+        let porcentajeBaseOptExt = 0;
+        let basePorcOpt = 0;
+        let porcentajeIvaOpt = 0;
+        let monedaOptExt = 0;
+        let precioBaseOptExt = 0;
+        let totalOptExt = 0;
+        let porcentajeBaseExpExt = 0;
+        let basePorcExp = 0;
+        let porcentajeIvaExp = 0;
+        let monedaExpExt = 0;
+        let precioBaseExpExt = 0;
+        let totalExpExt = 0;
+        let porcentajeExtra = 0;
+        let validaCeroTotal = 0;
+
+        let kilometraje = 0;
+        let tarifaKilometraje = 0;
+        let porcIva = 0;
+        let porcZPeligrosa = 0;
+        let porcNComercial = 0;
+        let porcSobrepeso = 0;
+        let porcSusceptible = 0;
+        let totalServicio = 0;
+
+        for (m = 0; m < this.confirmarServices.length; m++) {
+          // Inicia el for de llenado
+          serviceIds = this.confirmarServices[m].idService;
+          serviceNombre = this.confirmarServices[m].nombreSer;
+          subtotal = this.confirmarServices[m].subtotal;
+          iva = this.confirmarServices[m].iva;
+          ajusteVenta = this.confirmarServices[m].ajusteVenta;
+
+          kilometraje = this.confirmarServices[m].kilometraje;
+          tarifaKilometraje = this.confirmarServices[m].tarifaK;
+          porcIva = this.confirmarServices[m].porcIva;
+          porcZPeligrosa = this.confirmarServices[m].porcZPeligrosa;
+          porcNComercial = this.confirmarServices[m].porcNComercial;
+          porcSobrepeso = this.confirmarServices[m].porcSobrepeso;
+          porcSusceptible = this.confirmarServices[m].porcSusceptible;
+          totalServicio = this.confirmarServices[m].totalServicio;
+
+          axios({
+            method: "post",
+            url: "servicioAgregados/",
+            data: {
+              idcotizacion: this.idCotizacion,
+              idService: serviceIds,
+              nameService: serviceNombre,
+              priceService: servicePrice,
+              divisa: this.divisa,
+              ajusteVenta: ajusteVenta,
+              porcentaje: servicePorcentaje,
+              agregado: serviceAgregado,
+              ajusteTotal: ajustaTotal,
+
+              total: total,
+              subtotal: subtotal,
+              total: total,
+              iva: iva,
+              porcentajeVenta: porcentajeVenta,
+              porcentajeXpress: porcentajeXpress,
+
+              porcentajeBaseOptExt: porcentajeBaseOptExt,
+              basePorcOpt: basePorcOpt,
+              porcentajeIvaOpt: porcentajeIvaOpt,
+              monedaOptExt: monedaOptExt,
+              precioBaseOptExt: precioBaseOptExt,
+              totalOptExt: totalOptExt,
+              porcentajeBaseExpExt: porcentajeBaseExpExt,
+              basePorcExp: basePorcExp,
+              porcentajeIvaExp: porcentajeIvaExp,
+              monedaExpExt: monedaExpExt,
+              precioBaseExpExt: precioBaseExpExt,
+              totalExpExt: totalExpExt,
+              porcentajeExtra: porcentajeExtra,
+
+              kilometraje: kilometraje.toFixed(2),
+              tarifaKilometraje: tarifaKilometraje.toFixed(2),
+              porcIva: porcIva.toFixed(2),
+              porcZPeligrosa: porcZPeligrosa.toFixed(2),
+              porcNComercial: porcNComercial.toFixed(2),
+              porcSobrepeso: porcSobrepeso.toFixed(2),
+              porcSusceptible: porcSusceptible.toFixed(2),
+              totalServicio: totalServicio.toFixed(2),
+            },
+            auth: {
+              username: "admin",
+              password: "123",
+            },
+          }).then((response) => {
+            if (response.data.nameService == "FLETE NACIONAL") {
+              this.idNuevoServ = response.data.id;
+            }
+          }).catch((error) => {
+            console.log(error);
+          });
+        }
+        if (this.confirmarServices3.length > 0) {
+          this.addOther();
+          //this.enviaCorreoPricing(this.idCotizacion,this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6, '0'));
+        }
+      }
+    },
+
+    async addContact() {
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+        Swal.fire({
+          title: "Genere Cotizacion",
+          text: "",
+          icon: "success",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (idCotiza > 0) {
+        await axios({
+          method: "post",
+          url: "contactoCotizaciones/",
+          data: {
+            idcotizacion: this.idCotizacion,
+            name: this.contacName,
+            lada: this.contacLada,
+            phone: this.contacTelefono,
+            email: this.contacEmail,
+            productname: this.contacProductName,
+            description: this.contacDescription,
+          },
+          auth: {
+            username: "admin",
+            password: "123",
+          },
+        })
+          .then((response) => {
+            this.sendEmailCotiza();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    },
+
+    //Fin Terrestre
+    getFolios() {
+      axios
+        .get(`/api/v1/consultar-folio/`)
+        .then((response) => {
+          let numfolios = 0;
+          let cont = 0;
+          numfolios = parseInt(response.data.folio);
+          if (numfolios == 0) {
+            cont = 1;
+          } else {
+            cont = parseInt(numfolios) + 1;
+          }
+
+          //funcion 300621
+          axios({
+            method: "put",
+            url: `servicioCotizaciones/${this.idCotizacion}/`,
+            data: {
+              folio: cont,
+            },
+            auth: {
+              username: "admin",
+              password: "123",
+            },
+          })
+            .then((response) => {})
+            .catch((error) => {
+              console.log(error);
+            });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    mostrarImpuesto(valor2) {
+      //valor2 = id servicio seleccionado
+      let porcentaje = document.getElementById(
+        valor2 + "escondeImpuesto"
+      ).value;
+      let total = document.getElementById(valor2 + "ocultarSumaTotal").value;
+
+      let obtenido = parseInt(valor2);
+
+      // this.addResumen.length = 0
+
+      if (porcentaje == 0 && total == 0) {
+        this.impuestos = 1;
+        document.getElementById(valor2 + "escondeImpuesto").value = 1;
+        document.getElementById(valor2 + "ocultarSumaTotal").value = 1;
+        document.getElementById(valor2 + "seleccionImpuesto").hidden = false;
+        document.getElementById(valor2 + "sumaTotal").hidden = false;
+
+        let comprobar = document.getElementById(valor2 + "check").checked;
+
+        if (comprobar == true) {
+          document.getElementById(valor2 + "seleccionImpuesto").value = 0;
+        } else {
+          this.restauraExtra(valor2);
+        }
+
+        this.arrayOcultar = this.arrayOcultar + obtenido;
+
+        let index_service = this.confirmarServices.findIndex(
+          (x) => x.idService === valor2
+        );
+        this.confirmarServices[index_service].ajusteVenta = true;
+      } else if (porcentaje == 1 && total == 1) {
+        document.getElementById(valor2 + "escondeImpuesto").value = 0;
+        document.getElementById(valor2 + "ocultarSumaTotal").value = 0;
+
+        document.getElementById(valor2 + "seleccionImpuesto").hidden = true;
+        document.getElementById(valor2 + "sumaTotal").hidden = true;
+
+        let comprobar = document.getElementById(valor2 + "check").checked;
+
+        if (comprobar == false) {
+          this.restauraExtra(valor2);
+          document.getElementById(valor2 + "sumaTotal").value = 0;
+          document.getElementById(valor2 + "impuestoOculto").value = 0;
+          document.getElementById(valor2 + "seleccionImpuesto").value = 0;
+          this.sumaFinal();
+        }
+
+        this.arrayOcultar = this.arrayOcultar - obtenido;
+
+        if (this.arrayOcultar == 0) {
+          this.impuestos = 0;
+          this.addResumen.length = 0;
+        }
+
+        let index_service = this.confirmarServices.findIndex(
+          (x) => x.idService === valor2
+        );
+        this.confirmarServices[index_service].ajusteVenta = false;
+      }
+    },
+
+    sumaImpuesto(event, id) {
+      //this.confirmarServices5 = []
+
+      let ids = id;
+      let porcentaje = 0;
+
+      let nombre = "";
+      let subtotal = 0;
+      let porcAumento = 0;
+      let nuevoTotal = 0;
+
+      let comprobar = false;
+
+      porcentaje = parseFloat(event.target.value);
+      if (porcentaje > 0) {
+      }
+      let index_service = this.confirmarServices.findIndex(
+        (x) => x.idService === ids
+      );
+      ids = parseInt(this.confirmarServices[index_service].idService);
+      nombre = this.confirmarServices[index_service].nombreSer;
+      subtotal = this.confirmarServices[index_service].subtotal;
+
+      porcAumento = subtotal * (porcentaje / 100);
+
+      for (let i = 0; i < this.confirmarServices.length; i++) {
+        this.confirmarServices2.push(this.confirmarServices[i]); //SE RESPALDA LA INFORMACION DE confirmarServices
+
+        if (this.confirmarServices[i].idService == ids) {
+          let agregado = {
+            ajusteVenta: this.confirmarServices[i].ajusteVenta,
+            idService: this.confirmarServices[i].idService,
+            nombreSer: this.confirmarServices[i].nombreSer,
+            kilometraje: this.confirmarServices[i].kilometraje,
+            tarifaK: this.confirmarServices[i].tarifaK,
+            subtotal: this.confirmarServices[i].subtotal,
+            iva: this.confirmarServices[i].iva,
+            porcIva: this.confirmarServices[i].porcIva,
+            porcZPeligrosa: this.confirmarServices[i].porcZPeligrosa,
+            porcNComercial: this.confirmarServices[i].porcNComercial,
+            porcSobrepeso: this.confirmarServices[i].porcSobrepeso,
+            porcSusceptible: this.confirmarServices[i].porcSusceptible,
+            aumento: porcentaje,
+            porcAumento: porcAumento,
+            totalServicio: this.confirmarServices[i].totalServicio,
+          };
+          this.arrayResp.push(agregado);
+        } else {
+          this.arrayResp.push(this.confirmarServices[i]);
+        }
+      }
+
+      this.confirmarServices = [];
+
+      this.confirmarServices = this.arrayResp;
+
+      this.arrayResp = [];
+
+      let precioFinal = subtotal + porcAumento;
+      let precioInicial = subtotal;
+
+      if (this.divisa == 2) {
+        document.getElementById(ids + "sumaTotal").value = precioFinal;
+        document.getElementById(ids + "impuestoOculto").value = precioInicial;
+      } else {
+        precioFinal = precioFinal / this.valorDolar;
+        precioFinal = this.trunc(precioFinal, 2);
+        document.getElementById(ids + "sumaTotal").value = precioFinal;
+
+        precioInicial = precioInicial / this.valorDolar;
+        precioInicial = this.trunc(precioInicial, 2);
+        document.getElementById(ids + "impuestoOculto").value = precioInicial;
+      }
+
+      this.Total();
+    },
+
+    restauraExtra(id) {
+      let nuevoTotal = 0;
+
+      for (let i = 0; i < this.confirmarServices.length; i++) {
+        if (this.confirmarServices[i].idService == id) {
+          let agregado = {
+            ajusteVenta: false,
+            idService: this.confirmarServices[i].idService,
+            nombreSer: this.confirmarServices[i].nombreSer,
+            kilometraje: this.confirmarServices[i].kilometraje,
+            tarifaK: this.confirmarServices[i].tarifaK,
+            subtotal: this.confirmarServices[i].subtotal,
+            iva: this.confirmarServices[i].iva,
+            porcIva: this.confirmarServices[i].porcIva,
+            porcZPeligrosa: this.confirmarServices[i].porcZPeligrosa,
+            porcNComercial: this.confirmarServices[i].porcNComercial,
+            porcSobrepeso: this.confirmarServices[i].porcSobrepeso,
+            porcSusceptible: this.confirmarServices[i].porcSusceptible,
+            aumento: 0,
+            porcAumento: 0,
+            totalServicio: this.confirmarServices[i].totalServicio,
+          };
+
+          this.arrayResp.push(agregado);
+        } else {
+          this.arrayResp.push(this.confirmarServices[i]);
+        }
+      }
+
+      this.confirmarServices = [];
+
+      this.confirmarServices = this.arrayResp;
+
+      this.arrayResp = [];
+      this.sumaBoton();
+    },
+
+    sumaFinal() {
+      let i;
+
+      let vid = 0;
+      let agregado = 0;
+      this.totalSugerido = 0;
+      let comprobar;
+
+      for (i = 0; i < this.confirmarServices.length; i++) {
+        if (this.confirmarServices[i].subtotal > 0) {
+          vid = this.confirmarServices[i].idService;
+
+          comprobar = document.getElementById(vid + "check").checked;
+          agregado = document.getElementById(vid + "impuestoOculto").value;
+          agregado = parseFloat(agregado);
+
+          if (comprobar == false) {
+            this.totalSugerido = this.totalSugerido - agregado;
+            /*if(this.velocidadEnvio.toUpperCase() == 'OPTIMO'){
+              this.totalTotalOpt = this.totalTotalOpt - agregado
+            }else{
+              this.totalTotalExp = this.totalTotalExp - agregado
+            }*/
+          } else {
+            this.totalSugerido = this.totalSugerido + agregado;
+            /*if(this.velocidadEnvio.toUpperCase() == 'OPTIMO'){
+              this.totalTotalOpt = this.totalTotalOpt + agregado
+            }else{
+              this.totalTotalExp = this.totalTotalExp + agregado
+            }*/
+          }
+        }
+      }
+    },
+
+    trunc(x, posiciones = 0) {
+      let s = x.toString();
+      let l = s.length;
+      let decimalLength = s.indexOf(".") + 1;
+
+      if (l - decimalLength <= posiciones) {
+        return x;
+      }
+      // Parte decimal del número
+      let isNeg = x < 0;
+      let decimal = x % 1;
+      let entera = isNeg ? Math.ceil(x) : Math.floor(x);
+      // Parte decimal como número entero
+      // Ejemplo: parte decimal = 0.77
+      // decimalFormated = 0.77 * (10^posiciones)
+      // si posiciones es 2 ==> 0.77 * 100
+      // si posiciones es 3 ==> 0.77 * 1000
+      let decimalFormated = Math.floor(
+        Math.abs(decimal) * Math.pow(10, posiciones)
+      );
+      // Sustraemos del número original la parte decimal
+      // y le sumamos la parte decimal que hemos formateado
+      let finalNum =
+        entera +
+        (decimalFormated / Math.pow(10, posiciones)) * (isNeg ? -1 : 1);
+
+      return finalNum;
+    },
+
+    selectDivisa(valor) {
+      if (valor == 1) {
+        // USD Formula mxn/dolar
+        //this.hideResumen();
+        this.divisa = 2;
+
+        this.sumaBoton();
+        this.planes();
+        //this.$bvModal.show("resumen-modal");
+      }
+
+      if (valor == 2) {
+        // MXN Formula dolar*mxn
+        //this.hideResumen();
+        this.divisa = 1;
+
+        this.sumaBoton();
+        this.planes();
+
+        ////
+        //this.$bvModal.show("resumen-modal");
+      }
+    },
+
+    aumentaOptimo(val) {
+      if (val == 1) {
+        this.aumentoPorcentaje = 1;
+        this.sumaBoton();
+        this.velocidadEnvio = "Optimo";
+      } else if (val == 2) {
+        this.aumentoPorcentaje = 1;
+        this.velocidadEnvio = "Optimo";
+
+        //
+        let nid = 0;
+        let nservicio = "";
+        let nprecio = 0;
+
+        if (this.confirmarServices3.length > 1) {
+          for (let j = 0; j < this.confirmarServices3.length; j++) {
+            nid = this.confirmarServices3[j].ids;
+            nprecio = this.confirmarServices3[j].precio;
+
+            if (nprecio > 0) {
+              nservicio = this.confirmarServices3[j].nombre;
+
+              axios({
+                method: "post",
+                url: `/api/v1/service-filtro/`,
+                data: {
+                  servicio: nservicio,
+                },
+              })
+                .then((response) => {
+                  let resnombre = "";
+                  let resprecio = 0;
+                  let addVenta = 0;
+                  let ventaOptima = 0;
+
+                  for (let n = 0; n < response.data.length; n++) {
+                    // resid = response.data[n].id
+                    resnombre = response.data[n].servicio;
+                    resprecio = response.data[n].total;
+                    addVenta = response.data[n].porcentajeVenta;
+                  }
+
+                  resprecio = this.trunc(parseFloat(resprecio), 2);
+                  addVenta = parseFloat(addVenta) / 100;
+                  addVenta = addVenta * parseFloat(resprecio);
+                  ventaOptima = parseFloat(resprecio) + parseFloat(addVenta);
+                  this.confirmarServices3[j].precio = ventaOptima;
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            }
+          }
+        }
+        //
+      }
+    },
+
+    aumentaExpress(val) {
+      if (val == 1) {
+        this.aumentoPorcentaje = 2;
+        this.sumaBoton();
+        this.velocidadEnvio = "Express";
+      } else if (val == 2) {
+        this.aumentoPorcentaje = 2;
+        this.velocidadEnvio = "Express";
+
+        let nid = 0;
+        let nservicio = "";
+        let nprecio = 0;
+
+        if (this.confirmarServices3.length > 1) {
+          for (let j = 0; j < this.confirmarServices3.length; j++) {
+            nid = this.confirmarServices3[j].ids;
+            nprecio = this.confirmarServices3[j].precio;
+
+            if (nprecio > 0) {
+              nservicio = this.confirmarServices3[j].nombre;
+
+              axios({
+                method: "post",
+                url: `/api/v1/service-filtro/`,
+                data: {
+                  servicio: nservicio,
+                },
+              })
+                .then((response) => {
+                  // let resid
+                  let resnombre;
+                  let resprecio;
+                  let addVenta;
+                  let addXpress;
+                  let ventaXpress;
+
+                  for (let n = 0; n < response.data.length; n++) {
+                    // resid = response.data[n].id
+                    resnombre = response.data[n].servicio;
+                    resprecio = response.data[n].total;
+                    addXpress = response.data[n].porcentajeXpress;
+                    addVenta = response.data[n].porcentajeVenta;
+                  }
+
+                  resprecio = this.trunc(parseFloat(resprecio), 2);
+                  addVenta = parseFloat(addVenta) / 100;
+                  addVenta = addVenta * parseFloat(resprecio);
+                  addXpress = parseFloat(addXpress) / 100;
+                  addXpress = addXpress * parseFloat(resprecio);
+                  ventaXpress =
+                    parseFloat(resprecio) +
+                    parseFloat(addVenta) +
+                    parseFloat(addXpress);
+                  this.confirmarServices3[j].precio = ventaXpress;
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            }
+          }
+        }
+      }
+    },
+
+    async sendEmailCotiza() {
+      let idCotiza = this.idCotizacion;
+
+      await axios({
+        method: "post",
+        url: "api/v1/sendEmailCotiza/",
+        data: {
+          idcotizacion: this.idCotizacion,
+          name: this.contacName,
+          lada: this.contacLada,
+          phone: this.contacTelefono,
+          email: this.contacEmail,
+          productname: this.contacProductName,
+          description: this.contacDescription,
+        },
+      })
+        .then((response) => {})
+        .catch((error) => {
+          console.log("err" + error);
+        });
+    },
+
+    enviaCorreoPricing(idCotiza, folioCons) {
+      axios({
+        method: "post",
+        url: "api/v1/sendEmailNuevoServicio/",
+        data: {
+          idcotizacion: idCotiza,
+          folio: folioCons,
+        },
+      })
+        .then((response) => {})
+        .catch((error) => {
+          console.log("err" + error);
+        });
+    },
+
+    realizaAjuste() {
+      let resid = 0;
+      let resnombre = "";
+      let resprecio = 0;
+      let addXpress = 0;
+      let addVenta = 0;
+      let iva = 0;
+      let ret = 0;
+      let subtotal = 0;
+      let total = 0;
+      let xpress = 0;
+      let venta = 0;
+      let porcIva = 0;
+      let precioBaseSinIvaOpt = 0;
+      let precioBaseSinIvaExp = 0;
+      let porcExtra = 0;
+      let ajustePorcentOpt = 0;
+      let ajustePorcentExp = 0;
+      let comprobar = false;
+
+      for (let i = 0; i < this.confirmarServices.length; i++) {
+        comprobar = document.getElementById(
+          this.confirmarServices[i].ids + "check"
+        ).checked;
+        if (comprobar) {
+          if (this.confirmarServices[i].porcentajeExtra > 0) {
+            iva = parseFloat(this.confirmarServices[i].iva); //16
+
+            /* INICIA CALCULO PORCENTAJE EXTRA */
+
+            addVenta = parseFloat(this.confirmarServices[i].adVenta); //10
+            addXpress = parseFloat(this.confirmarServices[i].adXpress); //10
+            porcExtra = parseFloat(this.confirmarServices[i].porc); //0
+
+            ajustePorcentOpt = addVenta + porcExtra; // 2 + 10 = 12
+            ajustePorcentExp = addXpress + porcExtra; // 2 + 10 = 12
+
+            /* FIN CALCULO PORCENTAJE EXTRA */
+
+            /* INICIO CALCULO PRECIO BASE SIN IVA CON NUEVO PORCENTAJE */
+
+            precioBaseSinIvaOpt =
+              parseFloat(this.confirmarServices[i].subtotal) +
+              (ajustePorcentOpt / 100) *
+                parseFloat(this.confirmarServices[i].subtotal); // 2000 + ((12 / 100) * 2000) = 2240
+
+            porcIvaOptiomo = precioBaseSinIvaOpt * (iva / 100); // 2240 * (10 / 100) = 358.40
+
+            this.precioVentas =
+              parseFloat(precioBaseSinIvaOpt) + parseFloat(porcIvaOptiomo); //2320 +  232 = 2552
+
+            total =
+              parseFloat(this.confirmarServices[i].subtotal) +
+              parseFloat(porcIvaOptiomo);
+
+            let monedaop =
+              parseFloat(this.precioVentas) / parseFloat(this.valorDolar); // 2552 / 19.8532 = 128.5435093586928
+            monedaop = this.trunc(monedaop);
+
+            /*------------------------EXPRESS------------------------*/
+
+            addXpress = parseFloat(addXpress) / 100; // 10 / 100 = 0.10
+            addXpress = addXpress * parseFloat(resprecio); // 0.10 * 2320 = 232
+            precioBaseSinIvaExp =
+              parseFloat(precioBaseSinIvaOpt) + parseFloat(addXpress);
+            this.precioExpres =
+              parseFloat(resprecio) +
+              parseFloat(addVenta) +
+              parseFloat(addXpress); // 2320 + 232 + 232 = 2784
+            let monedaxp =
+              parseFloat(this.precioExpres) / parseFloat(this.valorDolar); // 2784 / 19.8532 = 140.2292829367558
+            monedaxp = this.trunc(monedaxp);
+
+            /* FIN CALCULO PRECIO BASE SIN IVA CON NUEVO PORCENTAJE */
+
+            let agregado = {
+              ids: this.confirmarServices[i].ids,
+              nombre: this.confirmarServices[i].nombre,
+              precio: this.precioVentas,
+              id: this.confirmarServices[i].id,
+              express: this.precioExpres /**/,
+              monedaopt: monedaop /**/,
+              monedaxpr: monedaxp /**/,
+              optimoOriginal: this.precioVentas,
+              expressOriginal: this.precioExpres /**/,
+              iva: iva,
+              porcIvaOptiomo: porcIvaOptiomo,
+              porcIvaExpress: this.ivaExpress /**/,
+              ret: this.confirmarServices[i].ret,
+              baseVenta: precioBaseSinIvaOpt,
+              subtotal: this.confirmarServices[i].subtotal,
+              total: total,
+              baseVentaOpt: precioBaseSinIvaOpt,
+              baseVentaExp: precioBaseSinIvaExp /**/,
+              adXpress: addXpress,
+              adVenta: addVenta,
+              porcentajeExtra: porcExtra,
+            };
+          } else {
+            this.arrayResp.push(this.confirmarServices[i]);
+          }
+        } else {
+          this.arrayResp.push(this.confirmarServices[i]);
+        }
+      }
+    },
+
+    Total() {
+      this.totalIvaGlobal = 0;
+      this.totalSubtotalGlobal = 0;
+      this.totalRetencionGlobal = 0;
+      this.totalZonaPeligrosa = 0;
+      this.totalZonaNoComercial = 0;
+      this.totalSobrepesoGlobal = 0;
+      this.totalRobosGlobal = 0;
+      this.totalGlobalServicio = 0;
+      this.totalGlobal = 0;
+      this.totalVolMercancias = 0;
+      let aumentos = 0;
+
+      if (this.confirmarServices.length > 0) {
+        for (let i = 0; i < this.confirmarServices.length; i++) {
+          if (this.confirmarServices[i].subtotal > 0) {
+            aumentos = aumentos + this.confirmarServices[i].porcAumento;
+
+            this.totalIvaGlobal = this.totalIvaGlobal + this.confirmarServices[i].porcIva;
+            this.totalSubtotalGlobal = this.totalSubtotalGlobal + this.confirmarServices[i].subtotal + aumentos;
+            this.totalZonaPeligrosa = this.totalZonaPeligrosa + this.confirmarServices[i].porcZPeligrosa;
+            this.totalZonaNoComercial = this.totalZonaNoComercial + this.confirmarServices[i].porcNComercial;
+            this.totalSobrepesoGlobal = this.totalSobrepesoGlobal + this.confirmarServices[i].porcSobrepeso;
+            this.totalVolMercancias = this.totalVolMercancias + this.confirmarServices[i].porcVolMerc;
+            this.totalRobosGlobal = this.totalRobosGlobal + this.confirmarServices[i].porcSusceptible;
+            this.totalGlobalServicio = this.totalGlobalServicio + this.confirmarServices[i].totalGlobalServicio;
+            this.totalGlobal = this.totalGlobal + this.confirmarServices[i].totalServicio + aumentos;
+          }
+        }
+
+        if (this.divisa == 1) {
+          this.totalIvaGlobal = this.totalIvaGlobal / this.valorDolar;
+          this.totalSubtotalGlobal = this.totalSubtotalGlobal / this.valorDolar;
+          this.totalZonaPeligrosa = this.totalZonaPeligrosa / this.valorDolar;
+          this.totalZonaNoComercial = this.totalZonaNoComercial / this.valorDolar;
+          this.totalVolMercancias = this.totalVolMercancias / this.valorDolar;
+          this.totalSobrepesoGlobal = this.totalSobrepesoGlobal / this.valorDolar;
+          this.totalRobosGlobal = this.totalRobosGlobal / this.valorDolar;
+          this.totalGlobalServicio = this.totalGlobal / this.valorDolar;
+          this.totalGlobal = this.totalGlobal / this.valorDolar;
+        }
+      }
+    },
+
+    buscaUnidad() {
+      let datoUsr = parseFloat(this.volumenMax);
+      let rangoInicial = 0;
+      let res = 0;
+      let idUnidad = 0;
+
+      for (let i = 0; i < this.units.length; i++) {
+        if (datoUsr >= rangoInicial && datoUsr <= parseFloat(this.units[i].capacidad_vol)) {
+          idUnidad = this.units[i].id;
+          this.nomUnidadModalidad = this.units[i].name;
+          this.nombreTipoUnidad = this.units[i].name;
+          break;
+        } else {
+          rangoInicial = parseFloat(this.units[i].capacidad_vol) + 0.01;
+        }
+      }
+      this.tipoUnidad = idUnidad;
+    },
+
+    buscaUnidadLTL() {
+
+      this.tipoUnidad = 0
+      let idUnidad = 0;
+
+      for (let i = 0; i < this.units.length; i++) {
+        let volTotUnit = parseFloat(this.units[i].capacidad_vol)
+        let canTotUnit = parseFloat(this.units[i].capacidadMaxima)
+        let pesTotUnit = parseFloat(this.units[i].peso_bruto_total)
+        let lonTotUnit = parseFloat(this.units[i].long) //Largo
+        let widTotUnit = parseFloat(this.units[i].width) //Ancho
+        let higTotUnit = parseFloat(this.units[i].high) //Alto
+        
+        if(this.tipoUnidad == 0){
+          for (let j = 0; j < this.agregarMercancias.length; j++) {
+            let volTotMerc = parseFloat(this.agregarMercancias[j].volumenTotal)
+            let canTotMerc = parseFloat(this.agregarMercancias[j].cantidad)
+            let pesTotMerc = parseFloat(this.agregarMercancias[j].pesoTotal)
+            let lonTotMerc = parseFloat(this.agregarMercancias[j].largo) //Largo
+            let widTotMerc = parseFloat(this.agregarMercancias[j].ancho) //Ancho
+            let higTotMerc = parseFloat(this.agregarMercancias[j].alto) //Alto
+
+            let volTotMercTot = 0
+            let canTotMercTot = 0
+            let pesTotMercTot = 0
+            let lonTotMercTot = 0
+            let widTotMercTot = 0
+            let higTotMercTot = 0
+            for (let k = 0; k < this.agregarMercancias.length; k++) {
+              volTotMercTot = volTotMercTot + parseFloat(this.agregarMercancias[k].volumenTotal)
+              canTotMercTot = canTotMercTot + parseFloat(this.agregarMercancias[k].cantidad)
+              pesTotMercTot = pesTotMercTot + parseFloat(this.agregarMercancias[k].pesoTotal)
+              lonTotMercTot = parseFloat(this.agregarMercancias[k].largo) //Largo
+              widTotMercTot = parseFloat(this.agregarMercancias[k].ancho) //Ancho
+              higTotMercTot = parseFloat(this.agregarMercancias[k].alto) //Alto
+            }
+
+            //if(canTotMerc <= canTotUnit && canTotMercTot <= canTotUnit){
+              if(volTotMerc <= volTotUnit && volTotMercTot <= volTotUnit){
+                if(pesTotMerc <= pesTotUnit && pesTotMercTot <= pesTotUnit){
+                  if(lonTotMerc <= lonTotUnit && lonTotMercTot <= lonTotUnit){
+                    if(widTotMerc <= widTotUnit && widTotMercTot <= widTotUnit){
+                      if(higTotMerc <= higTotUnit && higTotMercTot <= higTotUnit){
+                        this.tipoUnidad = parseInt(this.units[i].id);
+                        this.nomUnidadModalidad = this.units[i].name;
+                        this.nombreTipoUnidad = this.units[i].name;
+                        break;
+                      }else{
+                        break;
+                      }
+                    }else{
+                      break;
+                    }
+                  }else{
+                    break;
+                  }
+                }else{
+                  break;
+                }
+              }else{
+                break
+              } 
+            /*}else{
+              break
+            }*/
+          }
+        }else{
+          break;
+        }
+      }
+      
+    },
+
+    getMinMax() {
+      let numeros = 0;
+      numeros = this.units.map((dato) => dato.capacidad_vol);
+
+      this.maxRange = Math.max(...numeros);
+      this.minRange = Math.min(...numeros);
+    },
+
+    validaVolumen() {
+      if (this.volumenMax < 0) {
+        this.volumenMax = 0;
+      }
+
+      if (this.volumenMax > this.maxRange) {
+        this.volumenMax = this.maxRange;
+      }
+
+      this.buscaUnidad();
+
+      if (this.tercotizacion == 1) {
+        this.generateCotizacion(1);
+      }
+    },
+
+    validaPeso() {
+      let cant = parseFloat(this.cantMerc);
+      let peso = parseFloat(this.pesTMerc);
+
+      if (peso < 0) {
+        this.pesTMerc = 0;
+      } else {
+        this.pesoTotal = cant * peso;
+      }
+
+      this.getPesoVolumetrico();
+    },
+
+    removeRanges() {
+      window.getSelection().removeAllRanges();
+    },
+
+    cierraModal(idServ) {
+      var indice = this.selectServices.indexOf(idServ);
+
+      if (indice != -1) this.selectServices.splice(indice, 1);
+
+      this.$bvModal.hide("valorDeclaradoMercancia");
+    },
+
+    cierraModalSeguro() {
+      this.$bvModal.hide("valorDeclaradoMercanciaInfo");
+    },
+
+    cierraModalManiobras(){
+      this.$bvModal.hide("maniobrasInfo");
+    },
+
+    validaValorMercancia(val) {
+      if (val.target.value < 0) {
+        this.valorMercancia = 0;
+      }
+    },
+
+    eliminaPaquete(idPaq) {
+      this.aplicaAumentoAlto = false
+      this.aplicaAumentoAncho = false
+      this.aplicaAumentoLargo = false
+      this.aplicaAumentoPeso = false
+      let indice = this.agregarMercancias.map((busqueda) => busqueda.idPaq).indexOf(idPaq);
+      this.agregarMercancias.splice(indice, 1);
+
+      let totalKilos = 0;
+      let totalVolumen = 0;
+      let largo = 0.0 
+      let ancho = 0.0
+      let alto = 0.0
+        
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+
+        totalKilos = totalKilos + parseFloat(this.agregarMercancias[i].pesoTotal);
+        totalVolumen = totalVolumen + parseFloat(this.agregarMercancias[i].volumen);
+
+        largo = parseFloat(this.agregarMercancias[i].largo);
+        ancho = parseFloat(this.agregarMercancias[i].ancho);
+        alto = parseFloat(this.agregarMercancias[i].alto);
+
+        if(largo > 2){
+          this.aplicaAumentoLargo = false;
+        }else if(largo > 1.21 && largo < 1.48){
+            this.aplicaAumentoLargo = true;
+        }else if(largo > 1.48){
+          this.aplicaAumentoLargo = false;
+        }
+
+        if(ancho > 2){
+          this.aplicaAumentoAncho = false;
+        }else if(ancho > 1.21 && ancho < 1.48){
+            this.aplicaAumentoAncho = true;
+        }else if(ancho > 1.48){
+          this.aplicaAumentoAncho = false;
+        }
+
+        if(alto > 2){
+          this.aplicaAumentoAlto = false;
+        }else if(alto > 1.21 && alto < 1.48){
+            this.aplicaAumentoAlto = true;
+        }else if(alto > 1.48){
+          this.aplicaAumentoAlto = false;
+        }
+
+      }
+
+      this.totalMetcub = totalVolumen; //* this.precioXMetCub
+
+      this.totalKilo = totalKilos; //* this.precioXKiloCub
+
+      this.definePesoXVol = true;
+
+      this.tercotizacion = 0
+
+      let idServicio = 1;
+      let indiceS = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+      this.confirmarServices.splice(indiceS, 1);
+
+      if(this.agregarMercancias.length == 0){
+        this.leyendaPeso = ''
+      this.leyendaVolumen = ''
+      }
+
+      let nombreServicio = "FLETE NACIONAL";
+      this.addServicios(idServicio, nombreServicio);
+    },
+
+    buscaDireccion(text) {
+      let input = text;
+
+      if (input.length >= 5) {
+        axios({
+          method: "post",
+          url: "/api/v1/search-address/",
+          data: {
+            data: input,
+          },
+        }).then((response) => {
+          this.dates_search_address = response.data;
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+    },
+
+    validaDatosMercancias(id) {
+      let totalKilos = 0;
+      let totalVolumen = 0;
+      let totalCantidad = 0;
+
+      if (this.agregarMercancias.length > 0 ) {
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalKilos = totalKilos + parseFloat(this.agregarMercancias[i].pesoTotal);
+          totalVolumen = totalVolumen + parseFloat(this.agregarMercancias[i].volumen);
+          totalCantidad = totalCantidad + parseInt(this.agregarMercancias[i].cantidad)
+        }
+
+        if (totalKilos > this.unidadPesoBruto && this.termodalidad == 'LTL') {
+          Swal.fire({
+            title: "El peso total supera el limite de carga",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+
+          const index = this.agregarMercancias.findIndex(
+            (elemento) => elemento.idPaq === id
+          );
+          if (index !== -1) {
+            this.agregarMercancias.splice(index, 1);
+          }
+          return false;
+        }
+
+        if (totalVolumen > this.unidadCapacidad && this.termodalidad == 'LTL') {
+          Swal.fire({
+            title: "El Volumen total supera el limite de carga",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+
+          const index = this.agregarMercancias.findIndex(
+            (elemento) => elemento.idPaq === id
+          );
+          if (index !== -1) {
+            this.agregarMercancias.splice(index, 1);
+          }
+
+          return false;
+        }
+
+        if (totalCantidad > this.unidadCapacidadMaxima && this.termodalidad == 'LTL') {
+          Swal.fire({
+            title: "La cantidad total de embalajes supera el limite permitido por la unidad.",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+
+          const index = this.agregarMercancias.findIndex(
+            (elemento) => elemento.idPaq === id
+          );
+          if (index !== -1) {
+            this.agregarMercancias.splice(index, 1);
+          }
+
+          return false;
+        }
+      }
+    },
+
+    detallesMercancias() {
+
+      this.totalCantidad = 0
+      this.totalVolumen = 0
+      this.totalPesoReal = 0
+      this.totalPesoFaturado = 0
+
+      let embalajes = [];
+      let estibable = [];
+      let cantidad = 0;
+      let volumen = 0;
+      let pesoTotal = 0;
+
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        this.totalCantidad = this.totalCantidad + this.agregarMercancias[i].cantidad
+        this.totalVolumen = this.totalVolumen + this.agregarMercancias[i].volumenTotal
+        this.totalPesoReal = this.totalPesoReal + this.agregarMercancias[i].pesoTotal
+        this.totalPesoFaturado = this.totalPesoFaturado + this.agregarMercancias[i].pesoVolumetricoTotal
+      }
+    },
+
+    rotarContenedor(event) {
+      const contenedor = this.$el.querySelector('.contenedor');
+      const mitadAncho = contenedor.offsetWidth / 2;
+      const mitadAlto = contenedor.offsetHeight / 2;
+      const rotarX = -(event.clientY - mitadAlto) / mitadAlto * 20;
+      const rotarY = (event.clientX - mitadAncho) / mitadAncho * 20;
+
+      contenedor.style.transform = `rotateX(${rotarX}deg) rotateY(${rotarY}deg)`;
+    },
+
+    validacionEspacioContenedor(){
+
+      /* DATOS DE JSON ARRAY
+        idPaq: idPaq,
+        cantidad: cant,
+        peso: peso,
+        pesoTotal: pesoT,
+        alto: alto,
+        ancho: ancho,
+        largo: largo,
+        medida: unidadM,
+        embalaje: embalaje,
+        upeso: unidadP,
+        volumen: volumen,
+        estibable: estibable,
+      */
+      if(this.agregarMercancias.length > 0){
+        let volumenTotal = this.unidadCapacidad;
+        let pesoTotal = this.unidadPesoBruto;
+        let metrosCuadradosTotal = this.unidadLong * this.unidadWidth
+        let espaciosContenedor = this.unidadCapacidadMaxima
+
+        let pesoPorPallet = pesoTotal / espaciosContenedor
+        let volumenPorPallet = volumenTotal / espaciosContenedor
+        let metrosCuadradosPorPallet = metrosCuadradosTotal / espaciosContenedor
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          const cantidad = this.agregarMercancias[i].cantidad
+          const peso = this.agregarMercancias[i].peso
+          const largo = this.agregarMercancias[i].largo
+          const alto = this.agregarMercancias[i].alto
+          const ancho = this.agregarMercancias[i].ancho
+
+          const volumen = largo * alto * ancho
+          const metroCuadrado = largo * ancho
+          const espaciosOcupados = 0
+          const espaciosRestantes = espaciosContenedor
+
+          if(cantidad == 1){
+            const contador = 0;
+            if(metroCuadrado > metrosCuadradosPorPallet){
+              Swal.fire({
+                title: "El espacio asignado para el embalaje 1 supera el espacio establecido, se ocuparan dos espacios.",
+                text: "",
+                icon: "info",
+                confirmButtonText: "Cerrar",
+              });
+
+              while( metrosCuadradosPorPallet < metroCuadrado ){
+                console.log( contador );
+                contador++;
+                console.log( 'Test' );
+              }
+
+            }
+               
+            }else{
+              
+            }
+          
+          
+          /*if(cantidad > 1){
+            
+            for (let j = 0; j < cantidad; j++) {
+
+              if(metroCuadrado > metrosCuadradosPorPallet){
+
+              }else{
+                
+              }
+
+              if(peso > pesoPorPallet){
+
+              }else{
+                if(volumen > volumenPorPallet){
+
+                }else{
+                  
+                }
+              }
+
+              
+            }
+          }else{
+
+          }*/
+          //arrayContenedorMercancias
+
+          const element = this.agregarMercancias[i];
+          
+        }
+
+      }
+
+    },
+
+    detectaUnidadLTL(){
+
+      let vol = 0;
+      let cant = 0;
+      let peso = 0;
+        
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        vol = vol + parseFloat(this.agregarMercancias[i].volumen);
+        cant = cant + parseInt(this.agregarMercancias[i].cantidad);
+        peso = peso + parseFloat(this.agregarMercancias[i].pesoTotal);
+      }
+
+    },
+
+    getPesoVolumetrico(){
+
+      if(this.terestibable != '' && this.largoMerc > 0 && this.anchoMerc > 0 && this.altoMerc > 0){
+        if(this.terestibable == 'si'){
+          this.pesoVol = this.largoMerc * this.altoMerc * this.anchoMerc * this.factorConversionEstiba
+          this.pesoVolTot = this.pesoVol * this.cantMerc
+          
+          this.pesoVol = this.pesoVol.toFixed(2)
+          this.pesoVolTot = this.pesoVolTot.toFixed(2)
+
+        }else if(this.terestibable == 'no'){
+          this.pesoVol = ((this.largoMerc * this.anchoMerc) / 2.073732) * this.factorConversionNoEstiba 
+          this.pesoVolTot = this.pesoVol * this.cantMerc
+
+          this.pesoVol = this.pesoVol.toFixed(2)
+          this.pesoVolTot = this.pesoVolTot.toFixed(2)
+        
+        }
+        
+      }
+    },
+
+    agregaPaquetes() {
+      let estibable = this.terestibable;
+      let cant = parseFloat(this.cantMerc);
+      let peso = parseFloat(this.pesTMerc);
+      let pesoT = parseFloat(this.pesoTotal);
+      let alto = parseFloat(this.altoMerc);
+      let ancho = parseFloat(this.anchoMerc);
+      let largo = parseFloat(this.largoMerc);
+      let volumen = parseFloat(this.volMerc);
+      let volumenTotal = parseFloat(this.volMercTot);
+      let unidadM = this.unidaMedidaMerc;
+      let embalaje = this.terDescEmbalaje.toUpperCase();
+      let unidadP = this.unidaPesoMerc;
+      let pesoVol = parseFloat(this.pesoVol);
+      let pesoVolTot = parseFloat(this.pesoVolTot);
+
+  
+      let idPaq = this.agregarMercancias.length + 1;
+      let precioTotal = 0
+      let factor = 350
+      this.flete_nacional = 400
+
+      if(estibable == 'si'){
+
+        if(pesoVolTot > pesoT){
+          precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )    
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen Tasable)'
+        }else{
+          precioTotal = ((pesoT / factor) * this.flete_nacional )    
+          this.leyendaPeso = '(Peso Tasable)'
+          this.leyendaVolumen = ''
+        }
+          
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+          precioTotal = precioTotal * 1.35
+        }
+
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        //this.redondearCifra()
+        precioTotal = this.cifraOriginal
+
+      }else if(estibable == 'no'){
+
+        if(pesoVolTot > pesoT){
+          precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen Tasable)'
+        }else{
+          precioTotal = ((pesoT / factor) * this.flete_nacional )
+          this.leyendaPeso = '(Peso a Tasable)'
+          this.leyendaVolumen = ''
+        }
+
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+          precioTotal = precioTotal * 1.35
+        }
+
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        //this.redondearCifra()
+        precioTotal = this.cifraOriginal
+      }
+
+        let agrega = {
+          idPaq: idPaq,
+          cantidad: cant,
+          peso: peso,
+          pesoTotal: pesoT,
+          alto: alto,
+          ancho: ancho,
+          largo: largo,
+          medida: unidadM,
+          embalaje: embalaje,
+          upeso: unidadP,
+          volumen: volumen,
+          volumenTotal: volumenTotal,
+          estibable: estibable,
+          pesoVolumetrico: pesoVol,
+          pesoVolumetricoTotal: pesoVolTot,
+        };
+
+        this.agregarMercancias.push(agrega);
+
+        if (this.agregarMercancias.length > 0) {
+          this.validaDatosMercancias(idPaq);
+        }
+
+        this.cantMerc = 0;
+        this.pesTMerc = 0;
+        this.pesoTotal = 0;
+        this.altoMerc = 0;
+        this.anchoMerc = 0;
+        this.largoMerc = 0;
+        this.volMerc = 0;
+        this.volMercTot = 0;
+        this.unidaPesoMerc = "kg";
+        this.terestibable = "";
+
+        let totalPrecioVolumen = 0;
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+        }
+
+        this.totalPrecioVolumen = totalPrecioVolumen;
+
+        this.definePesoXVol = true;
+
+
+        let idServicio = 1;
+        let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+        this.confirmarServices.splice(indice, 1);
+
+        let nombreServicio = "FLETE NACIONAL";
+        this.addServicios(idServicio, nombreServicio);
+
+      //}
+    },
+
+    recalculaAgregaPaquetes() {
+      let estibable = '';
+      let cant = 0;
+      let peso = 0;
+      let pesoT = 0;
+      let alto = 0;
+      let ancho = 0;
+      let largo = 0;
+      let volumen = 0;
+      let volumenTotal = 0;
+      let unidadM = '';
+      let embalaje = '';
+      let unidadP = '';
+      let pesoVol = 0;
+      let pesoVolTot = 0;
+      
+      let idPaq = 0;
+      let precioTotal = 0
+      let factor = this.factorConversionEstiba
+
+      let totalPrecioVolumen = 0;
+      
+      console.log(this.agregarMercancias)
+      return false;
+
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        
+        estibable = this.agregarMercancias[i].estibable;
+        cant = this.agregarMercancias[i].cantidad;
+        peso = this.agregarMercancias[i].peso;
+        pesoT = this.agregarMercancias[i].pesoTotal;
+        alto = this.agregarMercancias[i].alto;
+        ancho = this.agregarMercancias[i].ancho;
+        largo = this.agregarMercancias[i].largo;
+        volumen = this.agregarMercancias[i].volumen;
+        volumenTotal = this.agregarMercancias[i].volumenTotal;
+        unidadM = this.agregarMercancias[i].medida;
+        embalaje = this.agregarMercancias[i].embalaje;
+        unidadP = this.agregarMercancias[i].upeso;
+        pesoVol = this.agregarMercancias[i].pesoVolumetrico;
+        pesoVolTot = this.agregarMercancias[i].pesoVolumetricoTotal;
+        idPaq = this.agregarMercancias[i].idPaq;
+
+        if(estibable == 'si'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )
+            
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            
+            this.leyendaPeso = '(Peso Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+
+        }else if(estibable == 'no'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            this.leyendaPeso = '(Peso a Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+        }
+
+        this.agregarMercancias[i].alto = alto;
+        this.agregarMercancias[i].ancho = ancho;
+        this.agregarMercancias[i].cantidad = cant;
+        this.agregarMercancias[i].embalaje = embalaje;
+        this.agregarMercancias[i].estibable = estibable;
+        this.agregarMercancias[i].idPaq = idPaq;
+        this.agregarMercancias[i].largo = largo;
+        this.agregarMercancias[i].medida = unidadM;
+        this.agregarMercancias[i].peso = peso;
+        this.agregarMercancias[i].pesoTotal = pesoT;
+        this.agregarMercancias[i].pesoVolumetrico = pesoVol;
+        this.agregarMercancias[i].pesoVolumetricoTotal = pesoVolTot;
+        this.agregarMercancias[i].upeso = unidadP;
+        this.agregarMercancias[i].volumen = volumen;
+        this.agregarMercancias[i].volumenTotal = volumenTotal;
+
+        if (this.agregarMercancias.length > 0) {
+          this.validaDatosMercancias(idPaq);
+        }
+
+        this.cantMerc = 0;
+        this.pesTMerc = 0;
+        this.pesoTotal = 0;
+        this.altoMerc = 0;
+        this.anchoMerc = 0;
+        this.largoMerc = 0;
+        this.volMerc = 0;
+        this.volMercTot = 0;
+        this.unidaPesoMerc = "kg";
+        this.terestibable = "";
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+        }
+
+        this.totalPrecioVolumen = totalPrecioVolumen;
+
+        this.definePesoXVol = true;
+
+
+        let idServicio = 1;
+        let indice = this.confirmarServices.map((busqueda) => busqueda.idService).indexOf(idServicio);
+        this.confirmarServices.splice(indice, 1);
+
+        let nombreServicio = "FLETE NACIONAL";
+        this.addServicios(idServicio, nombreServicio);
+        
+      }
+    },
+
+    agregaPaquetesLTL() {
+      let estibable = this.terestibable;
+      let cant = parseFloat(this.cantMerc);
+      let peso = parseFloat(this.pesTMerc);
+      let pesoT = parseFloat(this.pesoTotal);
+      let alto = parseFloat(this.altoMerc);
+      let ancho = parseFloat(this.anchoMerc);
+      let largo = parseFloat(this.largoMerc);
+      let volumen = parseFloat(this.volMerc);
+      let volumenTotal = parseFloat(this.volMercTot);
+      let pesoVol = parseFloat(this.pesoVol);
+      let pesoVolTot = parseFloat(this.pesoVolTot);
+      let unidadM = this.unidaMedidaMerc;
+      let embalaje = this.terDescEmbalaje.toUpperCase();
+      let unidadP = this.unidaPesoMerc;
+
+      if (cant <= 0) {
+        Swal.fire({
+          title: "Ingresa una cantidad mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (largo <= 0) {
+        Swal.fire({
+          title: "Ingresa un largo mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (ancho <= 0) {
+        Swal.fire({
+          title: "Ingresa un ancho mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (alto <= 0) {
+        Swal.fire({
+          title: "Ingresa un alto mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (peso <= 0) {
+        Swal.fire({
+          title: "Ingresa un peso mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (pesoT <= 0) {
+        Swal.fire({
+          title: "El peso calculado debe ser mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (volumen <= 0) {
+        Swal.fire({
+          title: "El volumen calculado debe ser mayor a 0.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (unidadP == "") {
+        Swal.fire({
+          title: "Selecciona una unidad de peso.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (estibable == "") {
+        Swal.fire({
+          title: "Selecciona un embalaje",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      let idPaq = this.agregarMercancias.length + 1;
+      let precioTotal = 0
+      let factor = this.factorConversionEstiba
+
+      if(estibable == 'si'){
+
+        if(pesoVolTot > pesoT){
+          precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )
+          
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen Tasable)'
+        }else{
+          
+          precioTotal = ((pesoT / factor) * this.flete_nacional )
+          
+          this.leyendaPeso = '(Peso Tasable)'
+          this.leyendaVolumen = ''
+        }
+
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+          precioTotal = precioTotal * 1.35
+        }
+        
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        //this.redondearCifra()
+        precioTotal = this.cifraOriginal
+        
+      }else if(estibable == 'no'){
+        
+        if(pesoVolTot > pesoT){
+          precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen Tasable)'
+        }else{
+          precioTotal = ((pesoT / factor) * this.flete_nacional )
+          this.leyendaPeso = '(Peso a Tasable)'
+          this.leyendaVolumen = ''
+        }
+
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+          precioTotal = precioTotal * 1.35
+        }
+
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        //this.redondearCifra()
+        precioTotal = this.cifraOriginal
+      }
+
+      /*if(estibable == 'si'){
+        
+        if(pesoVolTot > pesoT){
+          precioTotal = (pesoVolTot / 100) * this.flete_nacional
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen a Facturar)'
+        }else{
+          precioTotal = (pesoT / 100) * this.flete_nacional
+          this.leyendaPeso = '(Peso a Facturar)'
+          this.leyendaVolumen = ''
+        }
+
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo){
+          precioTotal = precioTotal * 1.35
+        }
+        
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        
+        precioTotal = this.cifraOriginal
+        
+      }else if(estibable == 'no'){
+        
+        if(pesoVolTot > pesoT){
+          precioTotal = (pesoVolTot / 100) * this.flete_nacional
+          this.leyendaPeso = ''
+          this.leyendaVolumen = '(Volumen a Facturar)'
+        }else{
+          precioTotal = (pesoT / 100) * this.flete_nacional
+          this.leyendaPeso = '(Peso a Facturar)'
+          this.leyendaVolumen = ''
+        }
+
+        if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo){
+          precioTotal = precioTotal * 1.35
+        }
+
+        this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+        precioTotal = this.cifraOriginal
+      }*/
+
+      let agrega = {
+        idPaq: idPaq,
+        cantidad: cant,
+        peso: peso,
+        pesoTotal: pesoT,
+        alto: alto,
+        ancho: ancho,
+        largo: largo,
+        medida: unidadM,
+        embalaje: embalaje,
+        upeso: unidadP,
+        volumen: volumen,
+        volumenTotal: volumenTotal,
+        estibable: estibable,
+        pesoVolumetrico: pesoVol,
+        pesoVolumetricoTotal: pesoVolTot,
+        precioVolumen: precioTotal,
+      };
+
+      this.agregarMercancias.push(agrega);
+      this.buscaUnidadLTL();
+
+      this.cantMerc = 0;
+      this.pesTMerc = 0;
+      this.pesoTotal = 0;
+      this.altoMerc = 0;
+      this.anchoMerc = 0;
+      this.largoMerc = 0;
+      this.volMerc = 0;
+      this.volMercTot = 0;
+      this.pesoVol = 0;
+      this.pesoVolTot = 0;
+      this.unidaPesoMerc = "kg";
+      this.terestibable = "";
+
+      let totalPrecioVolumen = 0;
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+      }
+
+      this.totalPrecioVolumen = totalPrecioVolumen;
+      this.totalPrecioVolumen = totalPrecioVolumen;
+      //this.totalKilo = totalKilos;
+      this.definePesoXVol = true;
+      this.detallesMercancias();
+      
+    },
+
+    recalculaAgregaPaquetesLTL() {
+
+      let estibable = '';
+      let cant = 0;
+      let peso = 0;
+      let pesoT = 0;
+      let alto = 0;
+      let ancho = 0;
+      let largo = 0;
+      let volumen = 0;
+      let volumenTotal = 0;
+      let pesoVol = 0;
+      let pesoVolTot = 0;
+      let unidadM = '';
+      let embalaje = '';
+      let unidadP = '';
+
+      let idPaq = 0;
+      let precioTotal = 0;
+      let factor = this.factorConversionEstiba;
+      let totalPrecioVolumen = 0;
+
+      for (let i = 0; i < this.agregarMercancias.length; i++) {
+        alto = this.agregarMercancias[i].alto;
+        ancho = this.agregarMercancias[i].ancho;
+        cant = this.agregarMercancias[i].cantidad;
+        embalaje = this.agregarMercancias[i].embalaje;
+        estibable = this.agregarMercancias[i].estibable;
+        idPaq = this.agregarMercancias[i].idPaq;
+        largo = this.agregarMercancias[i].largo;
+        unidadM = this.agregarMercancias[i].medida;
+        peso = this.agregarMercancias[i].peso;
+        pesoT = this.agregarMercancias[i].pesoTotal;
+        pesoVol = this.agregarMercancias[i].pesoVolumetrico;
+        pesoVolTot = this.agregarMercancias[i].pesoVolumetricoTotal;
+        //this.agregarMercancias[i].precioVolumen;
+        unidadP = this.agregarMercancias[i].upeso;
+        volumen = this.agregarMercancias[i].volumen;
+        volumenTotal = this.agregarMercancias[i].volumenTotal;
+
+        if(estibable == 'si'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal =  ((this.flete_nacional / factor) * pesoVolTot )
+            
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            
+            this.leyendaPeso = '(Peso Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+
+        }else if(estibable == 'no'){
+
+          if(pesoVolTot > pesoT){
+            precioTotal = ((this.flete_nacional / factor) * pesoVolTot )
+            this.leyendaPeso = ''
+            this.leyendaVolumen = '(Volumen Tasable)'
+          }else{
+            precioTotal = ((pesoT / factor) * this.flete_nacional )
+            this.leyendaPeso = '(Peso a Tasable)'
+            this.leyendaVolumen = ''
+          }
+
+          if(this.aplicaAumentoAlto || this.aplicaAumentoAncho || this.aplicaAumentoLargo || this.aplicaAumentoPeso){
+            precioTotal = precioTotal * 1.35
+          }
+
+          this.cifraOriginal = parseFloat(precioTotal.toFixed(2))
+          //this.redondearCifra()
+          precioTotal = this.cifraOriginal
+        }
+
+        this.agregarMercancias[i].alto = alto;
+        this.agregarMercancias[i].ancho = ancho;
+        this.agregarMercancias[i].cantidad = cant;
+        this.agregarMercancias[i].embalaje = embalaje;
+        this.agregarMercancias[i].estibable = estibable;
+        this.agregarMercancias[i].largo = largo;
+        this.agregarMercancias[i].medida = unidadM;
+        this.agregarMercancias[i].peso = peso;
+        this.agregarMercancias[i].pesoTotal = pesoT;
+        this.agregarMercancias[i].pesoVolumetrico = pesoVol;
+        this.agregarMercancias[i].pesoVolumetricoTotal = pesoVolTot;
+        this.agregarMercancias[i].precioVolumen = precioTotal;
+        this.agregarMercancias[i].upeso = unidadP;
+        this.agregarMercancias[i].volumen = volumen;
+        this.agregarMercancias[i].volumenTotal = volumenTotal;
+
+        this.buscaUnidadLTL();
+
+        estibable = '';
+        cant = 0;
+        peso = 0;
+        pesoT = 0;
+        alto = 0;
+        ancho = 0;
+        largo = 0;
+        volumen = 0;
+        volumenTotal = 0;
+        pesoVol = 0;
+        pesoVolTot = 0;
+        unidadM = '';
+        embalaje = '';
+        unidadP = '';
+
+        idPaq = 0;
+        precioTotal = 0;
+        factor = 0;
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          totalPrecioVolumen = totalPrecioVolumen + parseFloat(this.agregarMercancias[i].precioVolumen);
+        }
+        this.totalPrecioVolumen = totalPrecioVolumen;
+        this.totalPrecioVolumen = totalPrecioVolumen;
+        //this.totalKilo = totalKilos;
+        this.definePesoXVol = true;
+        this.detallesMercancias();
+
+      }
+    },
+
+    redondearCifra() {
+
+      const cadena = this.cifraOriginal.toString();
+      const posicionPunto = cadena.indexOf('.');
+      const digitosAntesDelPunto = cadena.substring(0, posicionPunto).length;
+
+      let posicionUno = 0
+      let posicionDos = 0
+
+      switch (digitosAntesDelPunto) {
+        case 3:
+          if(this.cifraOriginal < 499){
+            this.cifraOriginal = 499
+          }else if(this.cifraOriginal < 999 && this.cifraOriginal > 499){
+            this.cifraOriginal = 999
+          }
+        break;
+        case 4:
+          posicionUno = cadena.substring(0, 1);
+          posicionDos = cadena.substring(1, 4);
+          if(parseFloat(posicionDos) < 499){
+            posicionDos = 499
+          }else if(parseFloat(posicionDos) < 999 && parseFloat(posicionDos) > 499){
+            posicionDos = 999
+          }
+          posicionDos = posicionDos.toString()
+          this.cifraOriginal = parseFloat(posicionUno+posicionDos)
+        break;
+        case 5:
+          posicionUno = cadena.substring(0, 2);
+          posicionDos = cadena.substring(2, 5);
+          if(parseFloat(posicionDos) < 499){
+            posicionDos = 499
+          }else if(parseFloat(posicionDos) < 999 && parseFloat(posicionDos) > 499){
+            posicionDos = 999
+          }
+          posicionDos = posicionDos.toString()
+          this.cifraOriginal = parseFloat(posicionUno+posicionDos)
+        break;
+        case 6:
+          posicionUno = cadena.substring(0, 3);
+          posicionDos = cadena.substring(3, 6);
+          if(parseFloat(posicionDos) < 499){
+            posicionDos = 499
+          }else if(parseFloat(posicionDos) < 999 && parseFloat(posicionDos) > 499){
+            posicionDos = 999
+          }
+          posicionDos = posicionDos.toString()
+          this.cifraOriginal = parseFloat(posicionUno+posicionDos)
+        break;
+      case 7:
+          posicionUno = cadena.substring(0, 4);
+          posicionDos = cadena.substring(4, 7);
+          if(parseFloat(posicionDos) < 499){
+            posicionDos = 499
+          }else if(parseFloat(posicionDos) < 999 && parseFloat(posicionDos) > 499){
+            posicionDos = 999
+          }
+          posicionDos = posicionDos.toString()
+          this.cifraOriginal = parseFloat(posicionUno+posicionDos)
+        break;
+      }
+    },
+
+    getTarifario(){
+
+      try {
+        
+        let ori = this.arrayOrigen.length
+        let des = this.arrayDestino.length
+
+        if(ori > 0){
+          if(des > 0){
+            let ori = this.arrayOrigen[0].estadoo
+            let des = this.arrayDestino[0].estadod
+
+            this.mapsOrigen = this.arrayOrigen[0].paiso + ' ' + this.arrayOrigen[0].estadoo + ' ' + this.arrayOrigen[0].ciudado + ' ' + this.arrayOrigen[0].cpo
+            this.mapsDestino = this.arrayDestino[0].paisd + ' ' + this.arrayDestino[0].estadod + ' ' + this.arrayDestino[0].ciudadd + ' ' + this.arrayDestino[0].cpd
+
+            //this.getLatLonDireccion('O');
+            //this.getLatLonDireccion('D');
+
+            if(this.arrayOrigen[0].estadoo == "Colima" && this.arrayOrigen[0].ciudado == "MANZANILLO"){
+              ori = "MANZANILLO"
+            }
+
+            if(this.arrayDestino[0].estadod == 'Colima' && this.arrayDestino[0].ciudadd == "MANZANILLO"){
+              des = "MANZANILLO"
+            }
+
+            axios({
+              method: "post",
+              url: "/api/v1/getTarifario/",
+              data: {
+                ori: ori,
+                des: des,
+                modalidad: this.termodalidad,
+              },
+            }).then((response) => {
+              if(response.data.length > 0){
+                this.arrayDatosTarifario = response.data;
+                this.factorConversionEstiba = parseFloat(response.data[0].factor_conversion);
+                this.recoleccion_tres_y_media = parseFloat(response.data[0].recoleccion_tres_y_media);
+                this.recoleccion_rabon = parseFloat(response.data[0].recoleccion_rabon);
+                this.recoleccion_torton = parseFloat(response.data[0].recoleccion_torton);
+                this.entrega_puerto_nissan = parseFloat(response.data[0].entrega_puerto_nissan);
+                this.entrega_puerto_tres_y_media = parseFloat(response.data[0].entrega_puerto_tres_y_media);
+                this.entrega_rabon = parseFloat(response.data[0].entrega_rabon);
+                this.entrega_torton = parseFloat(response.data[0].entrega_torton);
+                this.flete_nacional = parseFloat(response.data[0].flete_nacional);
+              }
+            }).catch((error) => {
+              console.log(error);
+            });
+          }
+        }
+      } catch (error) {
+       console.log(error) 
+      }
+    },
+
+    getLatLonDireccion(val){
+
+      if(val == 'O'){
+        this.direccionGeo = this.mapsOrigen
+      }else if(val == 'D'){
+        this.direccionGeo = this.mapsDestino
+      }
+
+      if (this.googleMapsLoaded) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: this.direccionGeo }, (results, status) => {
+          if (status === 'OK') {
+            const location = results[0].geometry.location;
+            if(val == 'O'){
+              this.latitudOrigen = location.lat();
+              this.longitudOrigen = location.lng();
+            }else if(val == 'D'){
+              this.latitudDestino = location.lat();
+              this.longitudDestino = location.lng();
+            }
+            console.log('Latitud:', location.lat());
+            console.log('Longitud:', location.lng());
+          } else {
+            console.error('Error al geocodificar la dirección:', status);
+          }
+        });
+      }
+    },
+
+    loadGoogleMaps() {
+      const script = document.createElement('script');
+      const key = 'AIzaSyCnvqpzdhVn2QkFoOqn-rByDuOxnE857Ac'
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCnvqpzdhVn2QkFoOqn-rByDuOxnE857Ac&callback=initialize`;
+      script.async = true;
+      script.defer = true;
+      window.initialize = this.initializeGoogleMaps;
+      document.head.appendChild(script);
+    },
+
+    initializeGoogleMaps() {
+      this.googleMapsLoaded = true;
+    },
+
+    /*validaServicios(){
+      
+      if(this.tipoEnvioDetalleSi){ //if(this.requiereRecoleccion){
+        document.getElementById("10cheServicios").checked = true;
+        this.addServicios(10, 'RECOLECCION');
+      }
+
+      if(this.tipoEnvioDetalleSi){ //if(this.requiereEntrega){
+        document.getElementById("11cheServicios").checked = true;
+        this.addServicios(11, 'ENTREGA');
+      }
+
+      if(this.tipoEnvioDetalleSi){ //if(this.requiereCruce){
+        document.getElementById("9cheServicios").checked = true;
+        this.addServicios(9, 'INGRESO ADUANAL');
+      }
+
+      let idServicio = 1;
+      let nombreServicio = "FLETE NACIONAL";
+      this.addServicios(idServicio, nombreServicio);
+
+      this.$bvModal.hide("recoleccion");
+      this.$bvModal.hide("recoleccionFTL");
+    },*/
+
+    validaServicios(){
+
+      let idServicio = 0;
+      let nombreServicio = "";
+
+      if(this.tipoEnvioDetalleSi){
+        document.getElementById("9cheServicios").checked = true;
+        idServicio = 9
+        nombreServicio = "INGRESO ADUANAL"
+        this.addServicios(idServicio, nombreServicio);
+      }else{
+        document.getElementById("11cheServicios").checked = true;
+        idServicio = 11
+        nombreServicio = "ENTREGA"
+        this.addServicios(idServicio, nombreServicio);
+      }
+
+      document.getElementById("10cheServicios").checked = true;
+      idServicio = 10
+      nombreServicio = "RECOLECCION"
+      this.addServicios(idServicio, nombreServicio);
+
+      idServicio = 1;
+      nombreServicio = "FLETE NACIONAL";
+      this.addServicios(idServicio, nombreServicio);
+
+      this.$bvModal.hide('recoleccion');
+      this.$bvModal.hide('recoleccionFTL');
+    },
+
+    closeValidaServicios(){
+      this.$bvModal.hide("recoleccion");
+    },
+
+    closeRecoleccion(){
+      this.$bvModal.hide('recoleccionFTL')
+    },
+
+    onSlideStart(slide) {
+      this.sliding = true
+    },
+    
+    onSlideEnd(slide) {
+      this.sliding = false
+    },
+
+    getOfertas(){
+      axios.get('/api/v1/ofertas-publico/', {
+      }).then(res => {
+        this.all_ofertas = res.data.data;
+        //console.log(this.all_ofertas)
+      });
+      
+    },
+
+    agregaMerch() {
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+        Swal.fire({
+          title: "Genere Cotizacion",
+          text: "",
+          icon: "success",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (idCotiza > 0) {
+        
+        let embalaje = ''
+        let cantidad = 0
+        let factor_conversion = 0
+        let largo = 0
+        let ancho = 0
+        let alto = 0
+        let volumen = 0
+        let volumenTotal = 0
+        let pesoVolumetrico = 0
+        let pesoVolumetricoTotal = 0
+        let peso = 0
+        let pesoTotal = 0
+        let estibable = ''
+        let upeso = ''
+        let umedi = ''
+        let precioVolumen = 0
+
+        for (let i = 0; i < this.agregarMercancias.length; i++) {
+          embalaje = this.agregarMercancias[i].embalaje
+          cantidad = this.agregarMercancias[i].cantidad
+          peso = this.agregarMercancias[i].peso
+          pesoTotal = this.agregarMercancias[i].pesoTotal
+          alto = this.agregarMercancias[i].alto
+          ancho = this.agregarMercancias[i].ancho
+          largo = this.agregarMercancias[i].largo
+          umedi = this.agregarMercancias[i].medida
+          upeso = this.agregarMercancias[i].upeso
+          volumen = this.agregarMercancias[i].volumen
+          volumenTotal = this.agregarMercancias[i].volumenTotal
+          estibable = this.agregarMercancias[i].estibable
+          pesoVolumetrico = this.agregarMercancias[i].pesoVolumetrico
+          pesoVolumetricoTotal = this.agregarMercancias[i].pesoVolumetricoTotal
+          precioVolumen = this.agregarMercancias[i].precioVolumen
+
+          if(estibable == 'si'){
+            factor_conversion = this.factorConversionEstiba
+          }else{
+            factor_conversion = this.factorConversionNoEstiba
+          }
+         
+          axios({
+            method: "post",
+            url: "mercanciasCotizaciones/",
+            data: {
+              idCotizacion: idCotiza,
+              embalaje: embalaje,
+              cantidad: cantidad,
+              peso: peso,
+              pesoTotal: pesoTotal,
+              alto: alto,
+              ancho: ancho,
+              largo: largo,
+              medida: umedi,
+              upeso: upeso,
+              volumen: volumen,
+              volumenTotal: volumenTotal,
+              estibable: estibable,
+              pesoVolumetrico: pesoVolumetrico,
+              pesoVolumetricoTotal: pesoVolumetricoTotal,
+              precioVolumen: precioVolumen,
+              factor_conversion: factor_conversion,
+              usuarioAlta: this.username,
+            },
+            auth: {
+              username: "admin",
+              password: "123",
+            },
+          }).then((response) => {
+            
+          }).catch((error) => {
+            Swal.fire({
+              title: "Mercancias agregadas error",
+              text:
+              "Se detecto un error mientras se cargaban las mercancias: " +
+              error,
+              icon: "success",
+              confirmButtonText: "Cerrar",
+            });
+          });
+        }
+      }
+    },
+
+    selectAlmOcurreO(val){
+      if(this.ocurreO){
+        this.almacenO = val  
+      }else{
+        this.almacenO = ''
+      }
+      
+    },
+
+    selectAlmOcurreD(val){
+      if(this.ocurreD){
+        this.almacenD = val  
+      }else{
+        this.almacenD = ''
+      }
+    },
+
+    selectOcurreO(val){
+      this.ocurreO = val
+
+      if(this.ocurreO){
+        this.selectModalidad('LTL');
+        this.ocurreD = true
+      }
+      
+    },
+
+    selectOcurreD(val){
+      this.ocurreD = val
+    },
+
+    /*async obtenerDetallesUbicacion(val) {
+      
+
+
+      const apiKey = "AIzaSyAKaWnY1l7mejTiKUf2cg_fRR7SVINOr8o";
+
+      try {
+        // Obtener detalles de ubicación
+        const ubicacionDetalles = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${apiKey}`);
+        if(val == 'O'){
+          this.ubicacionDetallesOri = ubicacionDetalles.data.results[0].formatted_address;
+          console.log(this.ubicacionDetallesOri, 'ubicacionDetallesOri')
+        }else{
+          this.ubicacionDetallesDes = ubicacionDetalles.data.results[0].formatted_address;
+          console.log(this.ubicacionDetallesDes, 'ubicacionDetallesDes')
+        }
+        
+
+        // Función para buscar lugares cercanos y filtrar por keyword
+        const buscarLugaresCercanos = async (keyword, radius) => {
+          const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${ubicacionDetalles.data.results[0].geometry.location.lat},${ubicacionDetalles.data.results[0].geometry.location.lng}&radius=${radius}&keyword=${keyword}&key=${apiKey}`);
+          return response.data.results;
+        };
+
+        // Encontrar aduanas cercanas
+        if(val == 'O'){
+          this.aduanasCercanasOri = await buscarLugaresCercanos("aduana", 5000);
+        }else{
+          this.aduanasCercanasDes = await buscarLugaresCercanos("aduana", 5000);
+        }
+
+        // Encontrar aeropuertos cercanos
+        if(val == 'O'){
+          this.aeropuertosCercanosOri = await buscarLugaresCercanos("aeropuerto", 10000);
+        }else{
+          this.aeropuertosCercanosDes = await buscarLugaresCercanos("aeropuerto", 10000);
+        }
+        
+        // Encontrar puertos cercanos
+        if(val == 'O'){
+          this.puertosCercanosOri = await buscarLugaresCercanos("puerto", 10000);
+        }else{
+          this.puertosCercanosDes = await buscarLugaresCercanos("puerto", 10000);
+        }
+        
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },*/
+
+    async obtenerDetallesUbicacion(val) {
+
+      let location = ""
+
+      if(val == 'O'){
+        location = this.terorigen
+      }else{
+        location = this.terdestino
+      }
+      try {
+        const auth = { username: "admin", password: "123", }
+        const params = { direccion: location,}
+        const geoDetalles = await axios.get("/api/v1/detalles-ubicacion/", {
+          params,
+          auth
+        });
+
+        if(val == 'O'){
+          this.aduanasCercanasOri = geoDetalles.data['aduanas']
+          this.aeropuertosCercanosOri = geoDetalles.data['aeropuertos']
+          this.puertosCercanosOri = geoDetalles.data['puertos']
+        }else{
+          this.aduanasCercanasDes = geoDetalles.data['aduanas']
+          this.aeropuertosCercanosDes = geoDetalles.data['aeropuertos']
+          this.puertosCercanosDes = geoDetalles.data['aeropuertos']
+        }
+        
+        if(this.arrayOrigen.length > 0 && this.arrayDestino.length > 0){
+          
+          let leyAd = ''
+          let leyAe = ''
+          let leyPu = ''
+
+          if(this.aduanasCercanasOri.length > 0 || this.aduanasCercanasDes.length > 0){
+            leyAd = 'aduanas'
+          }
+
+          if(this.aeropuertosCercanosOri.length > 0 || this.aeropuertosCercanosDes.length > 0){
+            leyAe = 'aeropuertos'
+          }
+
+          if(this.puertosCercanosOri.length > 0 || this.puertosCercanosDes.length > 0){
+            leyPu = 'puertos'
+          }
+
+          leyAd = leyAd.length > 0 ? leyAd+', ' : '' 
+          leyAe = leyAe.length > 0 ? leyAe+', ' : ''
+          leyPu = leyPu.length > 0 ? leyPu+' ' : ''
+
+          this.leyendaServicios = leyAd + leyAe + leyPu
+        }
+      } catch (error) {
+        console.error('Error en las peticiones:', error);
+      }
+    },
+    
+    inicio(){
+      this.$bvModal.show("inicio-transporte");
+      //this.$bvModal.show("inicio-mercancias");
+    },
+
+    async validaTransporte(val){
+      await this.showOpcion(val);
+      this.$bvModal.hide("inicio-transporte");
+      this.$bvModal.show("inicio-carga");
+    },
+
+    regresarTransporte(){
+      this.$bvModal.hide("inicio-carga");
+      this.$bvModal.show("inicio-transporte");
+    },
+
+    validaCarga(val){
+
+      if(val == 1){
+        this.tipoEnvioCheckNac = true
+        this.tipoEnvioCheckInt = false
+        this.tipoEnvio = 'Nacional'
+
+        //this.$bvModal.hide("inicio-carga");
+        //this.$bvModal.show("inicio-modalidad");
+      } 
+      
+      if(val == 2){
+        this.tipoEnvioCheckNac = false
+        this.tipoEnvioCheckInt = true
+        this.tipoEnvio = 'Internacional'
+
+        //this.$bvModal.hide("inicio-carga");
+        //this.$bvModal.show("inicio-comercio");
+      }
+
+      this.$bvModal.hide("inicio-carga");
+      this.$bvModal.show("inicio-detalle-envio");
+    },
+
+    regresarCarga(){
+      this.$bvModal.hide("inicio-modalidad");
+      this.$bvModal.show("inicio-carga");
+    },
+
+    clickDetalleEnvio(val){ 
+      if(val == 1){
+        this.tipoEnvioDetalleSi = true
+        this.tipoEnvioDetalleNo = false
+      }else if (val == 2){
+        this.tipoEnvioDetalleSi = false
+        this.tipoEnvioDetalleNo = true
+
+        if(this.tipoEnvioCheckNac){
+          this.$bvModal.hide("inicio-detalle-envio");
+          this.$bvModal.show("inicio-modalidad");
+        }else if(this.tipoEnvioCheckInt){
+          this.$bvModal.hide("inicio-detalle-envio");
+          this.$bvModal.show("inicio-comercio");
+        }
+      }
+      
+    },
+
+    async validaDetalleEnvio(val){
+      let params = {}
+      this.tipoEnvioDetalle = val
+  
+      switch (val) {
+        case 'Aduana Aeropuerto Internacional de la Ciudad de México (AICM)':
+          params = {nombre_corto: 'AICM'}
+        break;
+        case 'Aduana Aeropuerto Internacional Felipe Angeles (AIFA)':
+          params = {nombre_corto: 'AIFA'}
+        break;
+        case 'Aduana Aeropuerto Internacional de Toluca (AIT)':
+          params = {nombre_corto: 'AIT'}
+        break;
+        case 'Aduana Aeropuerto Internacional de Querétaro':
+          params = {nombre_corto: 'AIQ'}
+        break;
+        case 'Puerto de Veracruz':
+          params = {nombre_corto: 'Puerto de Veracruz'}
+        break;
+        case 'Puerto de Manzanillo':
+          //this.origenes_ftl.push({ "name": "Aguascalientes, Aguascalientes, C.P.:20000", "idGeocerca": 2632 })
+          params = {nombre_corto: 'Puerto de Manzanillo'}
+        break;
+        case 'Puerto Lázaro Cárdenas':
+          //this.origenes_ftl.push({ "name": "Aguascalientes, Aguascalientes, C.P.:20000", "idGeocerca": 2632 })
+          params = {nombre_corto: 'Puerto Lázaro Cárdenas'}
+        break;
+      }
+        const auth = { username: "admin", password: "123", }
+
+        const geoDetallesPuertos = await axios.get("/api/v1/detalles-geocerca-puertos/", {
+          params,
+          auth
+        });
+
+        this.destinos_ftl.push({ "name": geoDetallesPuertos.data.geocerca[0].nombre_corto, "idGeocerca": geoDetallesPuertos.data.geocerca[0].idGeocerca })
+
+      if(this.tipoEnvioCheckNac){
+        this.$bvModal.hide("inicio-detalle-envio");
+        this.$bvModal.show("inicio-modalidad");
+      }else if(this.tipoEnvioCheckInt){
+        this.$bvModal.hide("inicio-detalle-envio");
+        this.$bvModal.show("inicio-comercio");
+      }
+
+    },
+
+    regresarDetalleEnvio(){
+      this.$bvModal.hide("inicio-detalle-envio");
+      this.$bvModal.show("inicio-carga");
+    },
+
+    async validaModalidad(mod){
+      await this.selectModalidad(mod)
+      
+      //this.$bvModal.hide("inicio-modalidad");
+      //this.$bvModal.show("inicio-origen");
+
+      if(this.termodalidad == 'LTL'){
+        this.$bvModal.hide("inicio-modalidad");
+        this.$bvModal.show("inicio-origen");
+      }else{
+        this.$bvModal.hide("inicio-modalidad");
+        this.$bvModal.show("inicio-unidades");
+      }
+      
+    },
+
+    regresarModalidad(){
+
+      if(this.tipoEnvio == 'Nacional'){
+        this.$bvModal.hide("inicio-modalidad");
+        this.$bvModal.show("inicio-detalle-envio");
+      }
+
+      if(this.tipoEnvio == 'Internacional'){
+        this.$bvModal.hide("inicio-modalidad");
+        this.$bvModal.show("inicio-ubicacion");
+      }
+
+      
+    },
+
+    validaComercio(val){
+      if(val == 1){
+        this.comercio = 'Impo'
+      }else if( val == 2){
+        this.comercio = 'Expo'
+      }else if(val == 3){
+        this.comercio = 'FNE'
+      }
+
+      this.$bvModal.hide("inicio-comercio");
+      this.$bvModal.show("inicio-ubicacion");
+
+    },
+    
+    regresarComercio(){
+      this.$bvModal.hide("inicio-comercio");
+      this.$bvModal.show("inicio-carga");
+    },
+
+    validaUbicacion(val){
+      if(val == 1){
+        this.comercioUbicacion = 'USA'
+      }else if( val == 2){
+        this.comercioUbicacion = 'CENAM'
+      }
+
+      if(this.tipoEnvio == 'Nacional'){
+
+      }
+
+      if(this.tipoEnvio == 'Internacional'){
+        this.$bvModal.hide("inicio-ubicacion");
+        this.$bvModal.show("inicio-modalidad");
+      }
+
+      
+
+    },
+    
+    regresarUbicacion(){
+      this.$bvModal.hide("inicio-ubicacion");
+      this.$bvModal.show("inicio-comercio");
+    },
+    
+    validaOD(){
+
+      if(this.origenes_ftl.length == 0 || this.destinos_ftl.length == 0){
+        Swal.fire({
+          title: "Debes de seleccionar al menos un origen y un destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+      
+      this.$bvModal.hide("inicio-origen-destino-ltl");
+      this.$bvModal.show("inicio-mercancias");
+    },
+
+    async validaO(){
+      
+      let vcalleOrigen = this.calleOrigen;
+      let vnumExtOrigen = this.numExtOrigen;
+      let ocurreO = this.ocurreO;
+      let almacenO = this.almacenO;
+      let vorigen = this.origen;
+
+      /*if (vorigen == "" || vorigen == null) {
+        Swal.fire({
+          title: "Ingresa Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vcalleOrigen == "" || vcalleOrigen == null) {
+        Swal.fire({
+          title: "Ingresa la calle del Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }*/
+
+      if (ocurreO && almacenO == '') {
+        Swal.fire({
+          title: "Selecciona un almacen de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      /*if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+        Swal.fire({
+          title: "Ingresa el número exterior de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }*/
+
+      if(this.termodalidad == 'LTL'){
+        let direccionOrigen = ''
+
+        for (let i = 0; i < this.arrayOrigen.length; i++) {
+
+          direccionOrigen = this.arrayOrigen[i].paiso + ', ' + this.arrayOrigen[i].estadoo + ', ' + this.arrayOrigen[i].ciudado + ', ' + this.arrayOrigen[i].colonia + ', ' + vcalleOrigen + ' ' + vnumExtOrigen + ', CP ' + this.arrayOrigen[i].cpo
+          
+        }
+
+        await this.validaDireccionGeocerca(direccionOrigen, 'O');
+
+        
+
+        if(this.validaOrigenGeo){
+
+          if(this.tipoEnvioDetalleSi){
+
+            let item = {}
+            
+            switch (this.tipoEnvioDetalle) {
+              case 'Aduana Aeropuerto Internacional de la Ciudad de México (AICM)':
+                item = {
+                  asentamiento: "México (Lic. Benito Juárez)",
+                  codigo_postal: "15620",
+                  estado_code: "CDMX",
+                  estado_id: 1,
+                  estado_name: "Ciudad de Mexico",
+                  municipio: "VENUSTIANO CARRANZA",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+
+                this.calleDestino = "Aduana Aeropuerto Internacional de la Ciudad de México"
+                this.numExtDestino = "S/N"
+              break;
+              
+              case 'Aduana Aeropuerto Internacional Felipe Angeles (AIFA)':
+              item = {
+                asentamiento: "Santa Lucia Base Aérea Militar",
+                codigo_postal: "55640",
+                estado_code: "MEX",
+                estado_id: 15,
+                estado_name: "Edo. Mexico",
+                municipio: "ZUMPANGO",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+                }
+
+                this.calleDestino = "Aduana AIFA"
+                this.numExtDestino = "S/N"
+              break;
+
+              case 'Aduana Aeropuerto Internacional de Toluca':
+                item = {
+                  asentamiento: "San Pedro Totoltepec",
+                  codigo_postal: "50226",
+                  estado_code: "MEX",
+                  estado_id: 15,
+                  estado_name: "Edo. Mexico",
+                  municipio: "TOLUCA",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                this.calleDestino = "Aeropuerto Internacional de Toluca"
+                this.numExtDestino = "S/N"
+              break;
+
+              case 'Aduana Aeropuerto Internacional de Querétaro':
+                item = {
+                  asentamiento: "Carretera Querétaro-Tequisquiapan",
+                  codigo_postal: "76270",
+                  estado_code: "MEX",
+                  estado_id: 22,
+                  estado_name: "Queretaro",
+                  municipio: "Santiago de Querétaro",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                this.calleDestino = "Aduana Aeropuerto Internacional de Querétaro"
+                this.numExtDestino = "22500"
+              break;
+              
+              case 'Puerto de Veracruz':
+              item = {
+                  asentamiento: "Veracruz",
+                  codigo_postal: "91709",
+                  estado_code: "VER",
+                  estado_id: 30,
+                  estado_name: "Veracruz",
+                  municipio: "VERACRUZ",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name:"Mexico",
+                }
+
+                this.calleDestino = "Puerto de Veracruz"
+                this.numExtDestino = "S/N"
+              break;
+              
+              case 'Puerto de Manzanillo':
+              item = {
+                asentamiento: "Parque industrial FONDEPORT",
+                codigo_postal: "28219",
+                estado_code: "COL",
+                estado_id: 9,
+                estado_name: "Colima",
+                municipio: "MANZANILLO",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+                }
+
+                this.calleDestino = "Puerto de Manzanillo"
+                this.numExtDestino = "S/N"
+              break;
+
+              case 'Puerto Lázaro Cárdenas':
+                item = {
+                  asentamiento: "Isla del Cayacal",
+                  codigo_postal: "60950",
+                  estado_code: "COL",
+                  estado_id: 9,
+                  estado_name: "Michoacan de Ocampo",
+                  municipio: "LAZARO CARDENAS",
+                  pais_code: "MEX",
+                  pais_estatus: 1,
+                  pais_id: 2,
+                  pais_name: "Mexico",
+                }
+                
+                this.calleDestino = "De Las Islas"
+                this.numExtDestino = "1"
+              break;
+            }
+
+            this.getLabelAddressD(item)
+
+            this.$bvModal.hide("inicio-origen");
+            this.$bvModal.show("inicio-mercancias");
+          }else{
+            this.$bvModal.hide("inicio-origen");
+            this.$bvModal.show("inicio-destino");  
+          }
+          
+        }else{
+          Swal.fire({
+            title: "Error de Zona",
+            text: "La dirección que intentas ingresar no está dentro de nuestra cobertura, intentalo con otra dirección.",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }else{
+        if(this.tipoEnvioDetalleSi){
+
+          let item = {}
+
+          switch (this.tipoEnvioDetalle) {
+            case 'Aduana Aeropuerto Internacional de la Ciudad de México (AICM)':
+              item = {
+                asentamiento: "México (Lic. Benito Juárez)",
+                codigo_postal: "15620",
+                estado_code: "CDMX",
+                estado_id: 1,
+                estado_name: "Ciudad de Mexico",
+                municipio: "VENUSTIANO CARRANZA",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "Aduana Aeropuerto Internacional de la Ciudad de México"
+              this.numExtDestino = "S/N"
+            break;
+            
+            case 'Aduana Aeropuerto Internacional de Toluca':
+              item = {
+                asentamiento: "San Pedro Totoltepec",
+                codigo_postal: "50226",
+                estado_code: "MEX",
+                estado_id: 15,
+                estado_name: "Edo. Mexico",
+                municipio: "TOLUCA",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "Aeropuerto Internacional de Toluca"
+              this.numExtDestino = "S/N"
+            break;
+
+            case 'Aduana Aeropuerto Internacional de Querétaro':
+              item = {
+                asentamiento: "Carretera Querétaro-Tequisquiapan",
+                codigo_postal: "76270",
+                estado_code: "MEX",
+                estado_id: 22,
+                estado_name: "Queretaro",
+                municipio: "Santiago de Querétaro",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "Aduana Aeropuerto Internacional de Querétaro"
+              this.numExtDestino = "22500"
+            break;
+            
+            case 'Puerto de Veracruz':
+              item = {
+                asentamiento: "Veracruz",
+                codigo_postal: "91709",
+                estado_code: "VER",
+                estado_id: 30,
+                estado_name: "Veracruz",
+                municipio: "VERACRUZ",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name:"Mexico",
+              }
+              
+              this.calleDestino = "Puerto de Veracruz"
+              this.numExtDestino = "S/N"
+            break;
+            
+            case 'Puerto de Manzanillo':
+              item = {
+                asentamiento: "Parque industrial FONDEPORT",
+                codigo_postal: "28219",
+                estado_code: "COL",
+                estado_id: 9,
+                estado_name: "Colima",
+                municipio: "MANZANILLO",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "Puerto de Manzanillo"
+              this.numExtDestino = "S/N"
+            break;
+
+            case 'Puerto Lázaro Cárdenas':
+              item = {
+                asentamiento: "Isla del Cayacal",
+                codigo_postal: "60950",
+                estado_code: "COL",
+                estado_id: 9,
+                estado_name: "Michoacan de Ocampo",
+                municipio: "LAZARO CARDENAS",
+                pais_code: "MEX",
+                pais_estatus: 1,
+                pais_id: 2,
+                pais_name: "Mexico",
+              }
+              
+              this.calleDestino = "De Las Islas"
+              this.numExtDestino = "1"
+            break;
+          }
+          this.getLabelAddressD(item)
+          this.$bvModal.hide("inicio-origen");
+          this.$bvModal.show("inicio-mercancias");
+        }else{
+          this.$bvModal.hide("inicio-origen");
+          this.$bvModal.show("inicio-destino");  
+        }
+      }
+
+    },
+    
+    regresarO(){
+
+      /*if(this.tipoEnvio == 'Nacional'){
+        this.$bvModal.hide("inicio-origen");
+        this.$bvModal.show("inicio-modalidad");
+      }
+      
+      if(this.tipoEnvio == 'Internacional'){
+        this.$bvModal.hide("inicio-origen");
+        this.$bvModal.show("inicio-modalidad");
+      }*/
+
+      if(this.termodalidad == 'LTL'){
+        this.$bvModal.hide("inicio-origen");
+        this.$bvModal.show("inicio-modalidad");
+      }else{
+        this.$bvModal.hide("inicio-origen");
+        this.$bvModal.show("inicio-unidades");
+      }
+      
+      
+    },
+
+    async validaD(){
+      
+      let vcalleDestino = this.calleDestino;
+      let vnumExtDestino = this.numExtDestino;
+      let ocurreD = this.ocurreD;
+      let almacenD = this.almacenD;
+      let vdestino = this.destino;
+
+      /*if (vdestino == "" || vdestino == null) {
+          Swal.fire({
+            title: "Ingresa Destino",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+      }
+
+      if (vcalleDestino == "" || vcalleDestino == null) {
+        Swal.fire({
+          title: "Ingresa la calle de Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }*/
+
+      if (ocurreD && almacenD == '') {
+        Swal.fire({
+          title: "Selecciona un almacen de Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      /*if (vnumExtDestino == "" || vnumExtDestino == null) {
+        Swal.fire({
+          title: "Ingresa el número de exterior de Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }*/
+
+      
+      if(this.termodalidad == 'LTL'){
+        let direccionDestino = ''
+
+        for (let i = 0; i < this.arrayDestino.length; i++) {
+
+          direccionDestino = this.arrayDestino[i].paisd + ', ' + this.arrayDestino[i].estadod + ', ' + this.arrayDestino[i].ciudadd + ', ' + this.arrayDestino[i].colonia + ', ' + vcalleDestino + ' ' + vnumExtDestino + ', CP ' + this.arrayDestino[i].cpd
+          
+        }
+
+        await this.validaDireccionGeocerca(direccionDestino, 'D');
+
+        if(this.validaDestinoGeo){
+          this.$bvModal.hide("inicio-destino");
+          this.$bvModal.show("inicio-mercancias");
+        }else{
+          Swal.fire({
+            title: "Error de Zona",
+            text: "La dirección que intentas ingresar no está dentro de nuestra cobertura, intentalo con otra dirección.",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }else{
+        this.$bvModal.hide("inicio-destino");
+        this.$bvModal.show("inicio-mercancias");
+      }
+    },
+    
+    regresarD(){
+      this.$bvModal.hide("inicio-destino");
+      this.$bvModal.show("inicio-origen");
+    },
+
+    async validaUnidades(id, nombre){
+
+      this.nombreTipoUnidad = nombre;
+      this.tipoUnidad = id;
+      let data = {idUnidad: id, nombreUnidad: nombre}
+      let cadena = 'select_card_view_'+id
+
+      if(this.unidadesLTL.length > 0){
+        for (let u = 0; u < this.unidadesLTL.length; u++) {
+          const index = this.unidadesLTL.findIndex(objeto => objeto.idUnidad === data.idUnidad && objeto.nombreUnidad === data.nombreUnidad);
+          if (index !== -1) {
+            this.unidadesLTL.splice(index, 1);
+            $("#"+cadena).css({'display':'none'});
+            //console.log(this.unidadesLTL, 'Quita');
+            break;
+          }else{
+            this.unidadesLTL.push(data);
+            //console.log(this.unidadesLTL, 'Agrega 1')
+            $("#"+cadena).css({'display':'block'});
+            break;
+          }
+          
+          
+          /*if (this.unidadesLTL[u].id === id && this.unidadesLTL[u].nombre === nombre) {
+            data = {idUnidad: id, nombreUnidad: nombre}
+
+            const index = this.unidadesLTL.findIndex(objeto => objeto.id === data.idUnidad && objeto.nombre === data.nombreUnidad);
+            if (index !== -1) {
+              this.unidadesLTL.splice(index, 1);
+            }
+            console.log(this.unidadesLTL, 'Quita');
+            break;
+            
+          }else{
+            data = {idUnidad: id, nombreUnidad: nombre}
+            this.unidadesLTL.push(data);
+            console.log(this.unidadesLTL, 'Agrega 1')
+            break;
+            
+          }*/
+        }
+      }else{
+        data = {idUnidad: id, nombreUnidad: nombre}
+        this.unidadesLTL.push(data);
+        $("#"+cadena).css({'display':'block'});
+        //console.log(this.unidadesLTL, 'Agrega 2')
+      }
+
+      //await this.getDataUnidad();
+      
+      //this.$bvModal.hide("inicio-unidades");
+      //this.$bvModal.show("inicio-origen");
+
+    },
+
+    async validaU(){
+      if(this.unidadesLTL.length == 0){
+        Swal.fire({
+          title: "Selecciona una o mas unidades",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      await this.obtenerOrigenesDestinos();
+      this.$bvModal.hide("inicio-unidades");
+      this.$bvModal.show("inicio-origen-destino-ltl");
+      //this.$bvModal.show("inicio-origen");
+    },
+    
+    regresarUnidades(){
+
+   
+      this.$bvModal.hide("inicio-unidades");
+      this.$bvModal.show("inicio-modalidad");
+      
+      //this.$bvModal.hide("inicio-unidades");
+      //this.$bvModal.show("inicio-destino");
+    },
+
+    async validaMercancias(){
+
+      if(this.termodalidad == 'LTL' && this.tipoEnvioDetalleSi){
+        this.getTarifario();
+      }
+
+      if (this.clasificaText == '' ) {
+        Swal.fire({
+          title: "Ingresa una Clasificación",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if (this.unidaMedidaMerc == '' ) {
+        Swal.fire({
+          title: "Selecciona una unidad de medida",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if (this.descripMerc == '' ) {
+        Swal.fire({
+          title: "Ingresa la descripción de la mercancia",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if (this.agregarMercancias.length == 0 ) {
+        Swal.fire({
+          title: "Debe de haber al menos 1 mercancía ingresada para poder realizar la cotización.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.tertipocarga == 'h' && this.unMerc == ''){
+        Swal.fire({
+          title: "Para cotizar, debes ingresar la clave UN.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.tertipocarga == 'h' && this.classMerc == ''){
+        Swal.fire({
+          title: "Para cotizar, debes ingresar la clave CLASS.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.tertipocarga == 'r' && this.gradosMerc == ''){
+        Swal.fire({
+          title: "Para cotizar, debes ingresar los grados de refrigeración.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.tertipocarga == 'r' && this.tUnidadMerc == ''){
+        Swal.fire({
+          title: "Para cotizar, debes especificaciones de refrigeración.",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false
+      }
+
+      if(this.termodalidad == 'LTL'){
+        await this.generateCotizacion(1)
+      }else{
+        await this.generateCotizacionFTL(1)
+      }
+      
+      this.$bvModal.hide("inicio-mercancias");
+      //this.$bvModal.show("inicio-origen");
+    },
+
+    regresarMercancias(){
+
+      if(this.tipoEnvioDetalleSi){
+        this.$bvModal.hide("inicio-mercancias");
+        this.$bvModal.show("inicio-origen");
+
+      }else{
+        if(this.termodalidad == 'LTL'){
+          this.$bvModal.hide("inicio-mercancias");
+          this.$bvModal.show("inicio-destino");
+        }else{
+          this.$bvModal.hide("inicio-mercancias");
+          this.$bvModal.show("inicio-origen-destino-ltl");
+        }
+      }
+      
+      /*this.$bvModal.hide("inicio-mercancias");
+      this.$bvModal.show("inicio-destino");*/
+    },
+
+    ingresaSeguro(){
+      this.$bvModal.hide("valorDeclaradoMercanciaInfo");
+      this.$bvModal.show("valorDeclaradoMercancia");
+    },
+
+    async validaDireccionGeocerca(direccion, tipoDireccion) {
+      try {
+        // Utiliza la API de Google Maps para convertir la dirección en latitud y longitud
+        const geocoder = new google.maps.Geocoder();
+
+        const results = await new Promise((resolve, reject) => {
+          geocoder.geocode({ address: direccion }, (results, status) => {
+            if (status === 'OK' && results.length > 0) {
+              resolve(results);
+            } else {
+              reject(`Error al convertir la dirección en coordenadas: ${status}`);
+            }
+          });
+        });
+
+        if (results && results.length > 0) {
+          const location = results[0].geometry.location;
+          this.latitudBusca = location.lat();
+          this.longitudBusca = location.lng();
+          //console.log(location, 'location');
+
+          const resultado = await this.buscaLatLngCordenadas(this.latitudBusca, this.longitudBusca, tipoDireccion);
+          //console.log(resultado);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async buscaLatLngCordenadas(lat, lng, tipoDireccion){
+
+      let params = {}
+      if(tipoDireccion == 'O'){
+        params = { cp: this.arrayOrigen[0].cpo, estado: this.arrayOrigen[0].estadoo,}
+      }else if(tipoDireccion == 'D'){
+        params = { cp: this.arrayDestino[0].cpd, estado: this.arrayDestino[0].estadod, }
+      }
+
+      const auth = { username: "admin", password: "123", }
+
+      const geoDetalles = await axios.get("/api/v1/detalles-geocerca/", {
+        params,
+        auth
+      });
+
+      if(geoDetalles.data['geocerca']['estatus']){
+
+        var map
+
+        if(tipoDireccion == 'O'){
+          map = new google.maps.Map(document.getElementById("mapaOrigen"), {
+            center: { lat: lat, lng: lng },
+            zoom: 3,
+          });
+        }else if(tipoDireccion == 'D'){
+          map = new google.maps.Map(document.getElementById("mapaDestino"), {
+            center: { lat: lat, lng: lng },
+            zoom: 3,
+          });
+        }
+
+        const coordenadasPoligono = geoDetalles.data['geocerca']['datos'][0][0]
+
+        const circle = new google.maps.Circle({
+          center: coordenadasPoligono,
+          radius: 15000, // Radio en metros (ajusta según sea necesario)
+          map: map,
+          editable: false,
+          draggable: false,
+        });
+
+        const coordenadasAValidar = { lat: lat, lng: lng };
+
+        const distancia = google.maps.geometry.spherical.computeDistanceBetween(coordenadasPoligono, coordenadasAValidar);
+
+        if (distancia <= circle.getRadius()) {
+          if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = true
+            //console.log("El punto origen está dentro del polígono.");
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = true
+            //console.log("El punto destino está dentro del polígono.");
+          }
+        } else {
+          if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = false
+            //console.log("El punto origen NO está dentro del polígono.");
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = false
+            //console.log("El punto destino NO está dentro del polígono.");
+          }
+        }
+      }else{
+        if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = false
+            //console.log("El punto origen NO está dentro del polígono.");
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = false
+            //console.log("El punto destino NO está dentro del polígono.");
+          }
+      }
+    },
+
+    /*async buscaLatLngCordenadas(lat, lng, tipoDireccion){
+
+      let params = {}
+      if(tipoDireccion == 'O'){
+        params = { cp: this.arrayOrigen[0].cpo,}
+      }else if(tipoDireccion == 'D'){
+        params = { cp: this.arrayDestino[0].cpd,}
+      }
+
+      const auth = { username: "admin", password: "123", }
+      
+      const geoDetalles = await axios.get("/api/v1/detalles-geocerca/", {
+        params,
+        auth
+      });
+
+      if(geoDetalles.data['geocerca']['estatus']){
+
+        var map
+
+        if(tipoDireccion == 'O'){
+          map = new google.maps.Map(document.getElementById("mapaOrigen"), {
+            center: { lat: lat, lng: lng },
+            zoom: 3,
+          });
+        }else if(tipoDireccion == 'D'){
+          map = new google.maps.Map(document.getElementById("mapaDestino"), {
+            center: { lat: lat, lng: lng },
+            zoom: 3,
+          });
+        }
+
+        const coordenadasPoligono = geoDetalles.data['geocerca']['datos']
+
+        const poligono = new google.maps.Polygon({
+          paths: coordenadasPoligono,
+          map: map,
+        });
+
+
+        const punto = new google.maps.LatLng(
+          lat, 
+          lng
+        );
+
+        const estaDentro = await google.maps.geometry.poly.containsLocation(
+          punto,
+          poligono
+        );
+
+        if (estaDentro) {
+          if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = true
+            
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = true
+            
+          }
+        } else {
+          if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = false
+            
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = false
+            
+          }
+        }
+      }else{
+        if(tipoDireccion == 'O'){
+            this.validaOrigenGeo = false
+            
+          }else if(tipoDireccion == 'D'){
+            this.validaDestinoGeo = false
+            
+          }
+      }
+    },*/
+
+    validaInfoConfirma(){
+      this.$bvModal.show("validaConfirmacionOrigen");
+      
+    },
+
+    cerrarConfirmacionOrigen(){
+      this.$bvModal.hide("validaConfirmacionOrigen");
+    },
+
+    async validaConfirmacionOrigen(){
+
+      let vcalleOrigen = this.calleOrigen;
+      let vnumExtOrigen = this.numExtOrigen;
+      let vorigen = this.origen;
+
+      if (vorigen == "" || vorigen == null) {
+        Swal.fire({
+          title: "Ingresa Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vcalleOrigen == "" || vcalleOrigen == null) {
+        Swal.fire({
+          title: "Ingresa la calle del Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vnumExtOrigen == "" || vnumExtOrigen == null) {
+        Swal.fire({
+          title: "Ingresa el número exterior de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      await this.recalculaCotizacion();
+
+      if(this.tipoEnvioDetalleSi){
+        this.$bvModal.hide("validaConfirmacionOrigen");
+        this.$bvModal.show("datosContacto");
+      }else{
+        this.$bvModal.hide("validaConfirmacionOrigen");
+        this.$bvModal.show("validaConfirmacionDestino");
+      }
+    },
+
+    cerrarConfirmacionDestino(){
+      this.$bvModal.hide("validaConfirmacionDestino");
+    },
+
+    validaConfirmacionDestino(){
+
+      let vcalleDestino = this.calleDestino;
+      let vnumExtDestino = this.numExtDestino;
+      let vdestino = this.destino;
+
+      if (vdestino == "" || vdestino == null) {
+        Swal.fire({
+          title: "Ingresa Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vcalleDestino == "" || vcalleDestino == null) {
+        Swal.fire({
+          title: "Ingresa la calle del Destino",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      if (vnumExtDestino == "" || vnumExtDestino == null) {
+        Swal.fire({
+          title: "Ingresa el número exterior de Origen",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+
+      this.$bvModal.hide("validaConfirmacionDestino");
+      this.$bvModal.show("datosContacto");
+    },
+
+    cerrarConfirmacionContacto(){
+      if(this.termodalidad == 'LTL'){
+        this.$bvModal.hide("datosContacto");
+
+        if(this.tipoEnvioDetalleSi){
+          this.$bvModal.show("validaConfirmacionOrigen");
+        }else{
+          this.$bvModal.show("validaConfirmacionDestino");
+        }
+      }
+      
+      if(this.termodalidad == 'FTL'){
+        this.$bvModal.hide("datosContactoFTL");
+      }
+
+      
+    },
+
+    validaConfirmacionContacto(){
+      let nombre = this.contacName;
+
+      let email = this.contacEmail;
+      let expReg = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+      let EmailValido = expReg.test(email);
+
+      let lada = this.contacLada;
+      let telefono = this.contacTelefono;
+      let producto = this.contacProductName;
+      let descripcion = this.contacDescription;
+
+      if (nombre == "" || nombre == null) {
+        Swal.fire({
+          title: "Ingresa Nombre",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (email == "" || email == null) {
+        Swal.fire({
+          title: "Ingresa Email",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (EmailValido == true) {
+      } else {
+        Swal.fire({
+          title: "Email no Valido",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }
+      
+      if (lada == "" || lada == null) {
+        Swal.fire({
+          title: "Seleccione Lada",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono == "" || telefono == null) {
+        Swal.fire({
+          title: "Ingresa Telefono",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono.length < 10) {
+        Swal.fire({
+          title: "Ingrese 10 Digitos Minimos",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      } else if (telefono.length > 16) {
+        Swal.fire({
+          title: "Ingrese 16 Digitos Maximo",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }/* else if (descripcion == "" || descripcion == null) {
+        Swal.fire({
+          title: "Ingresa Descripcion",
+          text: "",
+          icon: "error",
+          confirmButtonText: "Cerrar",
+        });
+        return false;
+      }*/
+
+      if(this.termodalidad == 'LTL'){
+        this.$bvModal.hide("datosContacto");
+        this.$bvModal.show("validaConfirmacionCliente");
+      }
+
+      if(this.termodalidad == 'FTL'){
+        this.SaveFTL();
+      }
+
+      
+    },
+
+    cerrarConfirmacionCliente(){
+      this.$bvModal.hide("validaConfirmacionCliente");
+      this.$bvModal.show("datosContacto");
+    },
+
+    async validaRFCUsuario(){
+
+      if(this.rfcClienteInterland != ''){
+        Swal.fire({
+          title: "Validando RFC...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        var rfc = this.rfcClienteInterland.trim().toUpperCase(),
+        resultado = document.getElementById("resultadoRFC"),
+        valido;
+          
+        var rfcCorrecto = this.rfcValido(rfc);   //Acá se comprueba
+      
+        if (rfcCorrecto) {
+
+          rfc = btoa(rfc)
+          const response = await axios.get(`https://trafixu.mx-interland.com/wsCotizador/consultasCotizador.php?action=revisarCreditoClienteCotizador&rfcCliente=${rfc}`);
+
+          this.datosCliente = response.data[0];
+          
+          if(this.datosCliente.clientCheck){
+
+            this.nomCliente = this.datosCliente.nomCliente
+            this.idCliente = this.datosCliente.idCliente
+            this.nombreAgente = this.datosCliente.usuarioFirstname
+            this.correoAgente = this.datosCliente.usuarioEmail
+            this.creditoUSD = parseFloat(this.datosCliente.saldoOriginalUSD)
+            this.creditoMXN = parseFloat(this.datosCliente.saldoOriginalMXN)
+            this.creditoOcupadoUSD = parseFloat(this.datosCliente.saldoOcupadoUSD)
+            this.creditoOcupadoMXN = parseFloat(this.datosCliente.saldoOcupadoMXN)
+
+            let saldoRealUSD = 0
+            let saldoRealMXN = 0
+            let priceSale = parseFloat(this.totalGlobal)
+
+            if(this.creditoUSD > 0 || this.creditoMXN > 0){
+              //PARA CREDITO EN USD
+              if(this.creditoUSD > 0){
+
+                if(this.divisa == '1' || this.divisa == 1){
+                  
+                  saldoRealUSD = this.creditoUSD - this.creditoOcupadoUSD
+
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > saldoRealUSD){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                }else if(this.divisa == '2' || this.divisa == 2){
+                  let conversion = 0;
+
+                  saldoRealUSD = this.creditoUSD - this.creditoOcupadoUSD
+
+                  conversion = saldoRealUSD * this.valorDolar
+
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > conversion){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                  
+                }
+              }
+
+              //PARA CREDITO EN MXN
+              if(this.creditoMXN > 0){
+
+                if(this.divisa == '2' || this.divisa == 2){
+
+                  saldoRealMXN = this.creditoMXN - this.creditoOcupadoMXN
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > saldoRealMXN){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+
+                }else if(this.divisa == '1' || this.divisa == 1){
+                  let conversion = 0;
+
+                  saldoRealMXN = this.creditoMXN - this.creditoOcupadoMXN
+
+                  conversion = saldoRealMXN / this.valorDolar
+                  this.motivoContacto = "su crédito con nosotros no puede cubrir este servicio"
+                  this.contactaAgente = true;
+
+                  if(priceSale > conversion){
+                    Swal.close();
+                    Swal.fire({
+                      title: "Lo sentimos, tu crédito con nosotros no puede cubrir este servicio. En breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                      text: "",
+                      icon: "info",
+                      confirmButtonText: "Cerrar",
+                    });
+                  }else{
+                    Swal.close();
+                    this.Save2();
+                  }
+                }
+              }
+            }else{
+              Swal.close();
+              Swal.fire({
+                title: "Tu solicitud no se puede procesar, en breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+                text: "",
+                icon: "info",
+                confirmButtonText: "Cerrar",
+              });
+
+              this.motivoContacto = 'el cliente es cliente Interland pero no tiene una linea de crédito'
+              this.contactaAgente = true;
+              this.Save2();
+            }
+
+          }else{
+            Swal.close();
+            Swal.fire({
+              title: "No estas registrado como cliente en Interland, en breve se pondrá en contacto contigo un agente para dar seguimiento a tu solicitud.",
+              text: "",
+              icon: "info",
+              confirmButtonText: "Cerrar",
+            });
+            this.motivoContacto = 'el cliente no esta registrado como cliente Interland'
+            this.contactaAgente = true;
+            this.Save2();
+            //return false;
+          }
+        } else {
+          //valido = "No válido"
+          //resultado.classList.remove("ok");
+          
+          Swal.fire({
+            title: "El RFC ingresado es incorrecto, verifícalo",
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+      }else{
+        this.Save2();
+      }
+        
+    },
+
+    rfcValido(rfc, aceptarGenerico = true) {
+      let _rfc_pattern_pm = "^(([A-ZÑ&]{3})([0-9]{2})([0][13578]|[1][02])(([0][1-9]|[12][\\d])|[3][01])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([0-9]{2})([0][13456789]|[1][012])(([0][1-9]|[12][\\d])|[3][0])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([02468][048]|[13579][26])[0][2]([0][1-9]|[12][\\d])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{3})([0-9]{2})[0][2]([0][1-9]|[1][0-9]|[2][0-8])([A-Z0-9]{3}))$";
+      let _rfc_pattern_pf = "^(([A-ZÑ&]{4})([0-9]{2})([0][13578]|[1][02])(([0][1-9]|[12][\\d])|[3][01])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([0-9]{2})([0][13456789]|[1][012])(([0][1-9]|[12][\\d])|[3][0])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([02468][048]|[13579][26])[0][2]([0][1-9]|[12][\\d])([A-Z0-9]{3}))|" +
+                "(([A-ZÑ&]{4})([0-9]{2})[0][2]([0][1-9]|[1][0-9]|[2][0-8])([A-Z0-9]{3}))$";
+      return rfc.match(_rfc_pattern_pm) || rfc.match(_rfc_pattern_pf);
+    },
+
+    async recalculaCotizacion(){
+      let validaCambioOrigen = false
+      let validaCambioDestino = false
+
+      /* SE VALIDA SI HAY CAMBIOS EN LOS ARAYS DE ORIGEN Y DESTINO */
+      for (let i = 0; i < this.arrayOrigen.length; i++) {
+        if (this.arrayOrigen[i] !== this.arrayOrigenR[i]) {
+          validaCambioOrigen = true;
+        }
+      }
+
+      for (let i = 0; i < this.arrayDestino.length; i++) {
+        if (this.arrayDestino[i] !== this.arrayDestinoR[i]) {
+          validaCambioDestino = true;
+        }
+      }
+
+      if(validaCambioOrigen || validaCambioDestino){
+        if(this.termodalidad == 'LTL'){
+          await this.recalculaAgregaPaquetesLTL();
+
+        }else if(this.termodalidad == 'FTL'){
+          await this.recalculaAgregaPaquetes();
+        }
+      }
+
+      this.validaMercancias();
+    },
+
+    notificaAgente(){
+
+      let telefono = ''
+      let idCotiza = this.idCotizacion;
+
+      for (let i = 0; i < this.ladas.length; i++) {
+        this.ladas[i].code;
+        if(parseInt(this.contacLada) == parseInt(this.ladas[i].id)){
+          telefono = '+'+this.ladas[i].code+this.contacTelefono
+        }
+      }
+
+      axios({
+        method: "post",
+        url: "/api/v1/agente-aviso/",
+        data: {
+          id: idCotiza,
+          motivoAgente: this.motivoContacto,
+          nombreCliente: this.contacName,
+          emailCliente: this.contacEmail,
+          telefonoCliente: telefono,
+          nombreAgente: this.nombreAgente,
+          correoAgente: this.correoAgente,
+
+        },
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+        console.log(response.data)
+      }).catch((error) => {
+                   
+      });
+      
+    },
+
+    obtenerOrigenesDestinos(){
+      this.options_origen_ftl = []
+      this.options_destinos_ftl = []
+      this.c_options_origen_ftl = []
+      this.c_options_destinos_ftl = []
+      let data = {}
+      axios({
+        method: "get",
+        url: "/api/v1/get-estados-geocercas/",
+        data: {},
+      }).then((response) => {
+
+        for (let i = 0; i < response.data.data.length; i++) {
+          
+          //const data = {name: response.data.data[i].estado + ', ' + response.data.data[i].ciudad + ', C.P.:' + response.data.data[i].codigoPostal, idGeocerca:response.data.data[i].idGeocerca, lat:data.data[i].lat, lng: data.data[i].lng};
+          
+          if(response.data.data[i].nombre_corto != ''){
+            data = {name: response.data.data[i].nombre_corto, idGeocerca:response.data.data[i].idGeocerca};
+          }else{
+            data = {name: response.data.data[i].estado + ', ' + response.data.data[i].ciudad + ', C.P.:' + response.data.data[i].codigoPostal, idGeocerca:response.data.data[i].idGeocerca};
+          }
+          this.options_origen_ftl.push(data);
+          this.options_destinos_ftl.push(data);
+        }
+
+        this.c_options_origen_ftl = response.data.data
+        this.c_options_destinos_ftl = response.data.data
+        
+        /*const data = {name: "Zona Metropolitana", code:"Zona Metropolitana"};  
+        this.options_origen_ftl.push(data);
+        this.options_destinos_ftl.push(data);*/
+        
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    addOrigenesLTLTag (newTag) {
+      
+      Swal.fire({
+        title: "El origen: "+newTag+" no está dado de alta en las geocercas, verificalo porfavor.",
+        text: "",
+        icon: "error",
+        confirmButtonText: "Cerrar",
+      });
+      return false;
+
+      /*const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      }
+      this.origenes_ftl.push(tag)*/
+    },
+
+    addDestinosLTLTag (newTag) {
+      
+      Swal.fire({
+        title: "El destino: "+newTag+" no está dado de alta en las geocercas, verificalo porfavor.",
+        text: "",
+        icon: "error",
+        confirmButtonText: "Cerrar",
+      });
+      return false;
+      /*const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      }
+      this.destinos_ftl.push(tag)*/
+    },
+
+    addUnidadLTLTag (newTag) {
+      
+      Swal.fire({
+        title: "La unidad: "+newTag+" no está dada de alta, verificalo porfavor.",
+        text: "",
+        icon: "error",
+        confirmButtonText: "Cerrar",
+      });
+      return false;
+      /*const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      }
+      this.unidades.push(tag)*/
+    },
+
+    calculateAndDisplayRoute(directionsService, directionsRenderer, route) {
+      directionsService.route({
+        origin: route.origin,
+        destination: route.destination,
+        travelMode: 'DRIVING'
+      }, (response, status) => {
+        if (status === 'OK') {
+          this.mostrarMapaLTL = true
+          directionsRenderer.setDirections(response);
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      });
+    },
+
+    muestraMapaLTL(){
+      /*console.log(this.origenes_ftl, 'Origen');
+      console.log(this.destinos_ftl, 'Destino');*/
+      let lat_o = ''
+      let lng_o = ''
+      this.mostrarMapaLTL = false
+
+      if(this.origenes_ftl.length > 0 && this.destinos_ftl.length > 0){
+
+        /*this.options_origen_ftl
+        this.options_destinos_ftl*/
+        for (let o = 0; o < this.origenes_ftl.length; o++) {
+          for (let oo = 0; oo < this.c_options_origen_ftl.length; oo++) {
+            if(parseInt(this.c_options_origen_ftl[oo].idGeocerca) == parseInt(this.origenes_ftl[o].idGeocerca)){
+              lat_o = this.c_options_origen_ftl[oo].lat
+              lng_o = this.c_options_origen_ftl[oo].lng
+              break;
+            }
+          }
+        }
+
+        // Crea un nuevo mapa
+        var map = new google.maps.Map(document.getElementById('mapLTL'), {
+          zoom: 12, // Nivel de zoom
+          center: { lat: parseFloat(lat_o), lng: parseFloat(lng_o) } // Centro del mapa (coordenadas)
+        });
+
+        /*var routes = [
+          { origin: {lat: 40.7128, lng: -74.0060}, destination: {lat: 34.0522, lng: -118.2437} }, // Ruta 1: Nueva York a Los Ángeles
+          { origin: {lat: 41.8781, lng: -87.6298}, destination: {lat: 29.7604, lng: -95.3698} }    // Ruta 2: Chicago a Houston
+        ];*/
+
+        var routes = []
+
+        for (let or = 0; or < this.origenes_ftl.length; or++) {
+          for (let de = 0; de < this.destinos_ftl.length; de++) {
+            let dato_o = this.c_options_origen_ftl.find(objeto => objeto.idGeocerca === this.origenes_ftl[or].idGeocerca)
+            let dato_d = this.c_options_destinos_ftl.find(objeto => objeto.idGeocerca === this.destinos_ftl[de].idGeocerca)
+            let ruta = {origin:{lat:parseFloat(dato_o.lat), lng: parseFloat(dato_o.lng)},destination: {lat:parseFloat(dato_d.lat), lng: parseFloat(dato_d.lng)}}
+            routes.push(ruta)
+          }
+        }
+
+        const directionsServices = [];
+        const directionsRenderers = [];
+        routes.forEach((route, index) => {
+          directionsServices[index] = new google.maps.DirectionsService();
+          directionsRenderers[index] = new google.maps.DirectionsRenderer({ map });
+          this.calculateAndDisplayRoute(directionsServices[index], directionsRenderers[index], route);
+        });
+      }
+    },
+
+    generarTituloColumna(unidades) {
+      let rango_text = '';
+      let km = '';
+      return unidades.nombreUnidad;
+      /*for (let i = 0; i < this.listTipoZona.length; i++) {
+        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
+        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
+        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
+          km = parseFloat(this.listTipoZona[i].km)
+          if(km > rango.min  && km < rango.max){
+            rango_text = 'de '+`${rango.min} km a ${km}`+' km (Carga General)';
+            return rango_text
+                
+          }else{
+            if(rango.max <= km ){
+              rango_text = 'de '+`${(rango.min)} km a ${rango.max}`+' km (Carga General)';
+              return rango_text
+            }
+          }
+        }
+      }*/
+    },
+
+    obtenerPorcentajes(){
+      const auth = { username: "admin", password: "123", }
+      
+      axios({
+        method: "get",
+        url: "/api/v1/obtener-porcentajes/",
+        data: {},
+        auth: auth,
+      }).then((response) => {
+        this.listPorcentajes = response.data.data
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    generarValorCelda(unidad, origen, destino) {
+      
+      let datosUnidad = this.units.find(objeto => objeto.id === unidad.idUnidad)
+      //let max = parseFloat(rango.max);
+      let precio = parseFloat(datosUnidad.precio_kilometraje);
+      let resBase = 0;
+      let res = 0;
+      let resDes = 0;
+      let resInc = 0;
+      let tipoCarga = 'Carga General';
+      let resHaz = 0;
+      let resRef = 0;
+      let resSuc = 0;
+      let resSeg = 0;
+
+      let porcentajeIMO = 35;
+      let porcentajeRef = 10;
+      let porcentajeSuc = 15;
+      let porcentajeSeg = 85;
+      let porcentajeIncremento = 0
+      let porcentajeIncrementoZona = 0
+      let porcentajeDecremento = 0
+
+      for (let i = 0; i < this.listTipoZona.length; i++) {
+        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
+        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
+        let destinoRuta = origen.estado+' - '+destino.estado
+        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
+          
+          let tipozona = 'Zona '+this.listTipoZona[i].tipoZona
+          let km = parseFloat(this.listTipoZona[i].km)
+          
+          for (let i = 0; i < this.listPorcentajes.length; i++) {
+            if(this.listPorcentajes[i].mercancia == tipozona && this.listPorcentajes[i].tipo == 'i'){
+              porcentajeIncrementoZona = porcentajeIncrementoZona + parseFloat(this.listPorcentajes[i].porcentaje)
+            }
+            
+            if(this.listPorcentajes[i].mercancia == tipoCarga && this.listPorcentajes[i].tipo == 'i'){
+              porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
+            }
+
+            if(this.listPorcentajes[i].mercancia == destinoRuta  && this.listPorcentajes[i].tipo == 'd'){
+              porcentajeDecremento = porcentajeDecremento + parseFloat(this.listPorcentajes[i].porcentaje)
+              
+            }
+          }
+
+          res = precio * km
+          console.log(res, 'Precio Normal: Precio ', precio, ' * km ', km)
+
+          if(porcentajeIncrementoZona > 0){
+            //res = precio * max;
+            resInc = (res * porcentajeIncrementoZona) / 100;
+
+            res = res + resInc;
+            console.log('Incremento de Zona: ', resInc, 'Porcentaje Aplicado: ', porcentajeIncrementoZona, 'Resultado con procentaje aplicado: ',res)
+          }else{
+            console.log(res, 'Precio Normal')
+          }
+          resBase = res
+          console.log(resBase, 'Precio Base')
+
+          if(this.tertipocarga == 'h'){
+            resHaz = (resBase * porcentajeIMO) / 100;
+            res = resBase + resHaz;
+            console.log('Incremento por Carga IMO/Peigrosa: ', resHaz, 'Porcentaje Aplicado: ',porcentajeIMO, 'Resultado con porcentaje aplicado: ', res)
+          }
+
+          if(this.tertipocarga == 'r'){
+            resRef = (resBase * porcentajeRef) / 100;
+            res = resBase + resRef;
+            console.log('Incremento por Carga Refrigerada: ', resRef, 'Porcentaje Aplicado: ',porcentajeRef, 'Resultado con porcentaje aplicado: ', res)
+          }
+
+          if(this.tertipocarga == 'sr'){
+            resSuc = (resBase * porcentajeSuc) / 100;
+            res = resBase + resSuc;
+            console.log('Incremento por Carga Suceptible a Robo: ', resSuc, 'Porcentaje Aplicado: ',porcentajeSuc, 'Resultado con porcentaje aplicado: ', res)
+          }
+
+          resInc = (resBase * porcentajeIncremento) / 100;
+          res = resBase + resInc;
+          console.log('Incremento Aplicable: ', resInc, 'Porcentaje Aplicado: ',porcentajeIncremento, 'Resultado con porcentaje aplicado: ', res)
+
+          resDes = (resBase * porcentajeDecremento) / 100;
+          res = resBase - resDes;
+          console.log('Decremento Aplicable: ', resDes, 'Porcentaje Aplicado: ',porcentajeDecremento, 'Resultado con porcentaje aplicado: ', res)
+
+          /* SECCION ADICIONALES */
+          
+          for (let ad = 0; ad < this.adicionalesFTL.length; ad++) {
+            switch (unidad.idUnidad) {
+              case 1: //Nissan
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 3200
+                  console.log('Incremento por Servicio: ', 3200, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 530
+                  console.log('Incremento por Servicio: ', 530, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 610
+                  console.log('Incremento por Servicio: ', 610, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = res + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+              break;
+              case 2: //3 1/2
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 3630
+                  console.log('Incremento por Servicio: ', 3630, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 605
+                  console.log('Incremento por Servicio: ', 605, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 1265
+                  console.log('Incremento por Servicio: ', 1265, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = res + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+                
+              break;
+              case 3: //rabon
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 4290
+                  console.log('Incremento por Servicio: ', 4290, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 720
+                  console.log('Incremento por Servicio: ', 720, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 2310
+                  console.log('Incremento por Servicio: ', 2310, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = res + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+              break;
+              case 4: //caja 48
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 6270
+                  console.log('Incremento por Servicio: ', 6270, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 1050
+                  console.log('Incremento por Servicio: ', 1050, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 3780
+                  console.log('Incremento por Servicio: ', 3780, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = resBase + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+              break;
+              case 5: //caja 53
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 6270
+                  console.log('Incremento por Servicio: ', 6270, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 1050
+                  console.log('Incremento por Servicio: ', 1050, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 3780
+                  console.log('Incremento por Servicio: ', 3780, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+                
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = res + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+              break;
+              case 13: //torton
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR DÍA'){
+                  res = res + 4950
+                  console.log('Incremento por Servicio: ', 4950, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'ESTADIA POR HORA'){
+                  res = res + 820
+                  console.log('Incremento por Servicio: ', 820, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'MANIOBRAS DE CARGA Y DESCARGA'){
+                  res = res + 2640
+                  console.log('Incremento por Servicio: ', 2640, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+
+                if(this.adicionalesFTL[ad].nombreServicio == 'SEGURO' && parseFloat(this.valorMercancia) > 0){
+                  resSeg = (resBase * porcentajeSeg) / 100;
+                  res = res + resSeg;
+                  console.log('Incremento por Servicio: ', resSeg, 'Servicio:', this.adicionalesFTL[ad].nombreServicio ,'Resultado con incremento aplicado: ',res)
+                }
+              break;
+            }
+          }
+
+          /* FIN SECCION ADICIONALES */
+
+          if(km > 500 && km < 800 && origen.nombre_corto == 'CDMX'){
+            resDes = (resBase * 30) / 100; //SE RESTA 30% POR EXCEDER 500 KM
+            res = resBase - resDes;
+            console.log('Decremento Por exceder 500 km y menos 800: ', resDes, 'Porcentaje Aplicado: ',30, 'Resultado con porcentaje aplicado: ', res)
+          }
+
+          if(km > 800 && origen.nombre_corto == 'CDMX'){
+            resDes = (resBase * 45) / 100; //SE RESTA 45% POR EXCEDER 500 KM
+            res = resBase - resDes;
+            console.log('Decremento Por exceder 800 km: ', resDes, 'Porcentaje Aplicado: ',45, 'Resultado con porcentaje aplicado: ', res)
+          }
+
+          console.log('Precio Final: ', res)
+          console.log('-----------------------------------------------------------')
+          
+          return(res);
+
+        }
+      }
+    },
+
+    colspanDinamico(){
+      this.colspan = this.unidadesLTL.length
+    },
+
+    generarPDFLTL() {
+
+      axios({
+        method: "post",
+        url: "/api/v1/pdfTarifarioLtl2/",
+        data: {
+          origen: this.datosOrigenesFTLOcupar,
+          destino: this.datosDestinosFTLOcupar,
+          listaOD: this.listOD,
+          unidades: this.datosUnidaddesFtlOcupar,
+          rangos: this.rangos,
+          tipoZona: this.listTipoZona,
+          porcentajes: this.listPorcentajes,
+          tipoMercancia: this.tertipocarga,
+          serviciosAdicionales: this.adicionalesFTL,
+          mercancias: this.agregarMercancias,
+          termodalidad: this.termodalidad,
+          tiposervicio: this.tipoOpcion,
+          usuario: this.username,
+          contacName: this.contacName,
+          contacEmail: this.contacEmail,
+          contacTelefono: this.contacLada + this.contacTelefono,
+          contacDescription: this.contacDescription,
+          idCotizacion: this.controlConse + this.fechaConsecutivo + String(this.numConsecutivo + 1).padStart(6,"0"),
+        },
+        responseType: 'arraybuffer',
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+        // Crear una URL del blob del PDF
+        //const blob = new Blob([response.data], { type: 'application/pdf' });
+        //const pdfUrl = URL.createObjectURL(blob);
+        
+        // Abrir el PDF en una nueva pestaña del navegador
+        //window.open(pdfUrl, '_blank');
+
+        // Crear una URL del blob del PDF
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const pdfUrl = window.URL.createObjectURL(blob);
+
+        // Crear un enlace <a> invisible
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.style.display = 'none'; // Ocultar el enlace
+
+        // Establecer el nombre del archivo
+        link.download = 'Tarifario FTL 2024.pdf'; // Cambia 'nombre_personalizado.pdf' por el nombre que desees
+
+        // Agregar el enlace al DOM
+        document.body.appendChild(link);
+
+        // Simular un clic en el enlace para iniciar la descarga
+        link.click();
+
+        // Limpiar la URL del blob después de un cierto tiempo
+        setTimeout(() => {
+          window.URL.revokeObjectURL(pdfUrl);
+          document.body.removeChild(link);
+        }, 100);
+      }).catch((error) => {
+                  
+      }); 
+
+      /*const tabla = document.getElementById('tarifario');
+
+
+      html2canvas(tabla).then(canvas => {
+        
+        const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+        
+        const imgWidth = 297;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+
+        
+        pdf.save('tarifario.pdf');
+        
+      });*/
+    },
+
+    verResumenFTL(){
+      this.$bvModal.show("resumen-modal-ftl");
+    },
+
+    contactoFTL(){
+      this.$bvModal.show("datosContactoFTL");
+
+    },
+
+    SaveFTL(){
+
+      let idCotiza = this.idCotizacion;
+
+      if (idCotiza == 0) {
+
+        const swalWithBootstrapButtons = Swal.mixin({
+          customClass: {
+            confirmButton: "btn btn-success",
+            cancelButton: "btn btn-danger",
+          },
+          buttonsStyling: false,
+        });
+
+        swalWithBootstrapButtons
+          .fire({
+            title: "Generar Cotizacion",
+            text: "Al Confirmar no se Podra Realizar Cambios",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Confirmar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              this.generarPDFLTL();
+            } else {
+              Swal.fire({
+                title: "Cotización cancelada",
+                text: "",
+                icon: "error",
+                confirmButtonText: "Cerrar",
+              });
+            }
+          });
+      }
+
+
+      
+
+    },
+
+    pruebaCotizacion(){
+      //const URI = 'http://sicolog.ifreight.business/api/v1/chatboot-cotizacion/';
+      const URI = 'http://127.0.0.1:8000/api/v1/chatboot-cotizacion/';
+      const METHOD = 'POST';
+      const options = {
+        method: METHOD,
+        uri: URI,
+        body: {
+          telefono: '5215510296661',
+          origen: 'Vallejo, CDMX',
+          destino: 'Veracruz, Veracruz',
+          transporte: 'Terrestre',
+          servicio: 'LTL',
+          peso: '160',
+          volumen: '7.6044',
+          mercancia: 'Saborizantes',
+          cliente: 'Daniel Romero',
+        },
+        json: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      };
+
+      fetch(options.uri, {
+        method: options.method,
+        headers: options.headers,
+        body: JSON.stringify(options.body)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Hacer algo con la respuesta recibida del servidor
+      })
+      .catch(error => {
+        console.error('Error al realizar la solicitud:', error);
+      });
+    },
+
+    pruebaCotizacionTel(){
+      //const URI = 'http://sicolog.ifreight.business/api/v1/chatboot-cotizacion/';
+      const URI = 'http://127.0.0.1:8000/api/v1/chatboot-valida/';
+      const METHOD = 'POST';
+      const options = {
+        method: METHOD,
+        uri: URI,
+        body: {
+          telefono: '5215510296661',
+        },
+        json: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      };
+
+      fetch(options.uri, {
+        method: options.method,
+        headers: options.headers,
+        body: JSON.stringify(options.body)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data); // Hacer algo con la respuesta recibida del servidor
+      })
+      .catch(error => {
+        console.error('Error al realizar la solicitud:', error);
+      });
+    },
+
+  },
+
+};
+</script>
+
+<template>
+  <Layout>
+    <PageHeader :title="title" :items="items" />
+    
+    
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card" style="border: none; box-shadow: none">
+          <div class="card-body" style="padding: 10px; background-color: #f5f6f8">
+            <!-- <h4 class="header-title">Informacion</h4> -->
+            <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+              <div class="_1n4EOSyAk1BfVWnF_adPB9" v-show="termodalidad == 'LTL'">
+                <div class="YkNOjSwN0S7IrLX5OK2Hc">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Transporte
+                  </div>
+                  <div class="GDwblpm-PHJsqhSUenve5">
+                    <div class="_3wHay473hXYPOlphbqvMW6 _1pk_-C20zpknwxqZLn_t9z" ref="uno">
+                      <button style=" display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB1" @click="showOpcion(1)" title="Maritimo" disabled>
+                        <i class="bx bxs-ship fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB1">Maritimo</span>
+                    </div>
+                    <div class="_3wHay473hXYPOlphbqvMW6" ref="dos">
+                      <button style="display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB2" @click="showOpcion(2)" title="Terrestre">
+                        <i class="bx bxs-truck fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB2">Terrestre</span>
+                    </div>
+                    <div class="_3wHay473hXYPOlphbqvMW6" ref="tres">
+                      <button style="display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB3" @click="showOpcion(3)" title="Aereo" disabled>
+                        <i class="bx bxs-plane-alt fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB3">Aereo</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="_2FJfSi7htM3gHGbKFfAiX6">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Modalidad
+                  </div>
+                  <div class="_3vjMsFU0d1YJalV9Qbqq" tabindex="1">
+                    <div class="E5e3waHARVCVMF2JA93PS">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            <img v-if="termodalidadImg != ''" :src="termodalidadImg" width="25" height="25"/>
+                          </span>
+                        </div>
+                        <b-form-select id="cargas" class="fecha" @change="selectModalidad($event)" v-model="termodalidad" disabled>
+                          <option v-for="option in optionsItemModalidad" :key="option.value" v-bind:value="option.value">
+                            {{ option.text }}
+                          </option>
+                        </b-form-select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="_23ovY8N9sx2ExP0NvytcpI">
+                  <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                    <div class="_2tU2wKoG7YY564aace37OF">
+                      <b style="color: red">*</b>Origen
+                    </div>
+                    <div class="_2tU2wKoG7YY564aace37OF">
+                      <b style="color: red">*</b>Destino
+                    </div>
+                  </div>
+                  <div class="_12VTCAtCmgnF7JdGljsEap">
+                    <div class="_3vCdC7UlpoMI8zyS9070Tm">
+                      <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                        <i class="fas fa-map-marker-alt"></i>
+                      </div>
+                      <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                        <template>
+                          <v-autocomplete
+                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional', disabled:true}"
+                            input-class="_1igQJzeY95hxUNao_yIXrr"
+                            :items="dates_search_address"
+                            :v-model="origen"
+                            :value="origen"
+                            @input="getLabelAddressO"
+                            :component-item="templateAddress"
+                            @update-items="buscaDireccion"
+                            :auto-select-one-item="false"
+                            return-object
+                          >
+                          </v-autocomplete>
+                        </template>
+                      </div>
+                    </div>
+                    <!--div class="XnAvZ8kiGXiCA_sHNJc-d" @click="cambioDirecciones()">
+                      <svg class="_19dtdOQCfyXKmKkLtvaUkM _2zAD7s046Fl3mpYGfgpZjK" width="13" height="7" viewBox="0 0 13 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 4V6L0 3L3 0V2H13V4H3Z"></path>
+                      </svg>
+                      <svg class="_19dtdOQCfyXKmKkLtvaUkM zcj_unEFDHcra9DrUB7t7" width="13" height="7" viewBox="0 0 13 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 4V6L0 3L3 0V2H13V4H3Z"></path>
+                      </svg>
+                    </div-->
+                    
+                    <div class="_3vCdC7UlpoMI8zyS9070Tm">
+                      <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                        <i class="fas fa-map-marker-alt"></i>
+                      </div>
+                      <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                        <template>
+                          <v-autocomplete
+                            :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',  disabled:true}"
+                            input-class="_1igQJzeY95hxUNao_yIXrr"
+                            :items="dates_search_address"
+                            :v-model="destino"
+                            :value="destino"
+                            @input="getLabelAddressD"
+                            :component-item="templateAddress"
+                            @update-items="buscaDireccion"
+                            :auto-select-one-item="false"
+                            return-object
+                          >
+                            <i class="fas fa-map-marker-alt" />
+                          </v-autocomplete>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="_3Oe9vKBrFi5RVwWEswymkl">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Fecha estimada de Carga
+                  </div>
+                  <div class="_2Fk1Z0nKP1T6a1dr9C1FP_">
+                    <b-form-input
+                      border-color="primary"
+                      class="fecha"
+                      type="date"
+                      id="terfecha"
+                      v-b-tooltip.hover="{ variant: 'success' }"
+                      :min="dateNow"
+                      :value="dateNow"
+                      v-model.trim="terfecha"
+                    ></b-form-input>
+                  </div>
+                </div>
+                
+                <div class="_3QlnruSL5VqOlp6mJEr4-Z">
+                  <!--button class="zTDkSCFjS5VtNrkEzKtJ5" style="background-color: #2aab5c; box-shadow: rgba(4, 114, 235, 0.5) 0px 0px 3px;"></button-->
+                  <!--b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="generateCotizacion(1)" style="height: 100%">
+                    <i class="fe-search"></i>
+                  </b-button-->
+                  <b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="inicio()" style="height: 100%">
+                    <i class="fe-refresh-ccw"></i>
+                  </b-button>
+                </div>
+              </div>
+              <div class="_1n4EOSyAk1BfVWnF_adPB9" v-show="termodalidad == 'FTL'">
+                <div class="YkNOjSwN0S7IrLX5OK2Hc">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Transporte
+                  </div>
+                  <div class="GDwblpm-PHJsqhSUenve5">
+                    <div class="_3wHay473hXYPOlphbqvMW6 _1pk_-C20zpknwxqZLn_t9z" ref="uno">
+                      <button style=" display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB1" @click="showOpcion(1)" title="Maritimo" disabled>
+                        <i class="bx bxs-ship fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB1">Maritimo</span>
+                    </div>
+                    <div class="_3wHay473hXYPOlphbqvMW6" ref="dos">
+                      <button style="display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB2" @click="showOpcion(2)" title="Terrestre">
+                        <i class="bx bxs-truck fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB2">Terrestre</span>
+                    </div>
+                    <div class="_3wHay473hXYPOlphbqvMW6" ref="tres">
+                      <button style="display: inline-block; background-color: #ffffff; color: #5a6268; height: 100%; border: 1px solid rgba(0, 0, 0, 0);" ref="fondoB3" @click="showOpcion(3)" title="Aereo" disabled>
+                        <i class="bx bxs-plane-alt fa-3x"></i>
+                      </button>
+                      <span class="BzbyxjDnil5GvbUe8_1qF" ref="textB3">Aereo</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="_2FJfSi7htM3gHGbKFfAiX6">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Modalidad
+                  </div>
+                  <div class="_3vjMsFU0d1YJalV9Qbqq" tabindex="1">
+                    <div class="E5e3waHARVCVMF2JA93PS">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            <img v-if="termodalidadImg != ''" :src="termodalidadImg" width="25" height="25"/>
+                          </span>
+                        </div>
+                        <b-form-select id="cargas" class="fecha" @change="selectModalidad($event)" v-model="termodalidad" disabled>
+                          <option v-for="option in optionsItemModalidad" :key="option.value" v-bind:value="option.value">
+                            {{ option.text }}
+                          </option>
+                        </b-form-select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--div class="_23ovY8N9sx2ExP0NvytcpI">
+                  <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                    <div class="_2tU2wKoG7YY564aace37OF">
+                      <b style="color: red">*</b>Origen/es
+                    </div>
+                    <div class="_2tU2wKoG7YY564aace37OF">
+                      <b style="color: red">*</b>Destino/s
+                    </div>
+                  </div>
+                  <div class="_12VTCAtCmgnF7JdGljsEap">
+                    <div class="_3vCdC7UlpoMI8zyS9070Tm">
+                      <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                        <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenesLTLTag" @input="generateCotizacionFTL(1)"></multiselect>
+                      </div>
+                    </div>
+                    
+                    <div class="_3vCdC7UlpoMI8zyS9070Tm">
+                      <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                        <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinosLTLTag" @input="generateCotizacionFTL(1)"></multiselect>
+                      </div>
+                    </div>
+                  </div>
+                </div-->
+
+                <div class="_3Oe9vKBrFi5RVwWEswymkl">
+                  <div class="_2tU2wKoG7YY564aace37OF">
+                    <b style="color: red">*</b>Fecha estimada de Carga
+                  </div>
+                  <div class="_2Fk1Z0nKP1T6a1dr9C1FP_">
+                    <b-form-input
+                      border-color="primary"
+                      class="fecha"
+                      type="date"
+                      id="terfecha"
+                      v-b-tooltip.hover="{ variant: 'success' }"
+                      :min="dateNow"
+                      :value="dateNow"
+                      v-model.trim="terfecha"
+                    ></b-form-input>
+                  </div>
+                </div>
+                
+                <div class="_3QlnruSL5VqOlp6mJEr4-Z">
+                  <!--button class="zTDkSCFjS5VtNrkEzKtJ5" style="background-color: #2aab5c; box-shadow: rgba(4, 114, 235, 0.5) 0px 0px 3px;"></button-->
+                  <!--b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="generateCotizacion(1)" style="height: 100%">
+                    <i class="fe-search"></i>
+                  </b-button-->
+                  <b-button class="zTDkSCFjS5VtNrkEzKtJ5" v-b-tooltip.hover="{ variant: 'success' }" variant="secondary" @click="inicio()" style="height: 100%">
+                    <i class="fe-refresh-ccw"></i>
+                  </b-button>
+                </div>
+              </div>
+            </div>
+            <div id="terra" v-show="opcion == 2" style="padding-top: 10px">
+              <div class="row _2ka8NZmhs89Mkk9ABZSXJM" id="formOperaciones">
+                <!--INICIA CODIGO PARA MOSTRAR POPUP DE ORIGEN-->
+                <b-col cols="12" v-if="arrayOrigen.length > 0">
+                  <b-popover custom-class="popover-add" target="origenAdicional" triggers="hover" placement="top">
+                    <template #title class="bg-secondary">
+                      <b-button @click="onClose" class="close" aria-label="Close">
+                        <span class="d-inline-block text-white" aria-hidden="true">&times;</span>
+                      </b-button>
+                      Datos adicionales de dirección - Origen
+                    </template>
+                    <b-row>
+                      <b-col md="4">
+                        <label for="calleOrigen" class="form-label">
+                          <b style="color: red">*</b>Calle</label>
+                        <input class="form-control form-control-sm" v-model.trim="calleOrigen" type="text"/>
+                      </b-col>
+                      <b-col md="4">
+                        <label for="numeroExtOrigen" class="form-label">
+                          <b style="color: red">*</b>Numero Exterior</label>
+                        <input class="form-control form-control-sm" v-model.trim="numExtOrigen" type="text"/>
+                      </b-col>
+                      <b-col md="4">
+                        <label for="numIntOrigen" class="form-label">Numero Interior</label>
+                        <input class="form-control form-control-sm" v-model.trim="numIntOrigen" type="text"/>
+                      </b-col>
+                    </b-row>
+                    <!--b-row>
+                      <b-col md="4" style="display: grid; place-items: center;">
+                        <label for="calleDestino" class="form-label"><b style="color: red">*</b>OCURRE: </label>&nbsp;&nbsp;&nbsp;
+                          <b-form-checkbox switch v-model="ocurreO" @change="selectOcurreO($event)"></b-form-checkbox>
+                      </b-col>
+                      <b-col md="8">
+                        <label for="numeroExtDestino" class="form-label">
+                          <b style="color: red">*</b>Almacenes</label>
+                          <b-form-select v-model.trim="almacenO" id="ocurreO" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success'}" @change="selectAlmOcurreO($event)" :disabled="!ocurreO">
+                            <option value="TULTITLAN">TULTITLAN</option>
+                            <option value="VALLEJO">VALLEJO</option>
+                            <option value="QUERETARO">QUERETARO</option>
+                            <option value="MANZANILLO">MANZANILLO</option>204.33
+                            <option value="VERACRUZ">VERACRUZ</option>
+                          </b-form-select>
+                      </b-col>
+                    </b-row-->
+                  </b-popover>
+                </b-col>
+                <!--TERMINA CODIGO PARA MOSTRAR POPUP DE ORIGEN-->
+
+                <!--INICIA CODIGO PARA MOSTRAR POPUP DE DESTINO-->
+                <b-col cols="12" v-if="arrayDestino.length > 0">
+                  <b-popover custom-class="popover-add" target="destinoAdicional" triggers="hover" placement="top">
+                    <template #title>
+                      <b-button @click="onClose" class="close" aria-label="Close">
+                        <span class="d-inline-block text-white" aria-hidden="true">&times;</span>
+                      </b-button>
+                      Datos adicionales de dirección - Destino
+                    </template>
+                    <b-row>
+                      <b-col md="4">
+                        <label for="calleDestino" class="form-label">
+                          <b style="color: red">*</b>Calle</label>
+                        <input class="form-control form-control-sm" v-model.trim="calleDestino" type="text"/>
+                      </b-col>
+                      <b-col md="4">
+                        <label for="numeroExtDestino" class="form-label">
+                          <b style="color: red">*</b>Numero Exterior</label>
+                        <input class="form-control form-control-sm" v-model.trim="numExtDestino" type="text"/>
+                      </b-col>
+                      <b-col md="4">
+                        <label for="numIntDestino" class="form-label">Numero Interior</label>
+                        <input class="form-control form-control-sm" v-model.trim="numIntDestino" type="text"/>
+                      </b-col>
+                    </b-row>
+                    <!--b-row>
+                      <b-col md="4" style="display: grid; place-items: center;">
+                        <label for="calleDestino" class="form-label"><b style="color: red">*</b>OCURRE: </label>&nbsp;&nbsp;&nbsp;
+                          <b-form-checkbox switch v-model="ocurreD" @change="selectOcurreD"></b-form-checkbox>
+                      </b-col>
+                      <b-col md="8">
+                        <label for="numeroExtDestino" class="form-label">
+                          <b style="color: red">*</b>Almacenes</label>
+                          <b-form-select v-model.trim="almacenD" id="ocurreO" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success'}" @change="selectAlmOcurreD($event)" :disabled="!ocurreD">
+                            <option value="TULTITLAN">TULTITLAN</option>
+                            <option value="VALLEJO">VALLEJO</option>
+                            <option value="QUERETARO">QUERETARO</option>
+                            <option value="MANZANILLO">MANZANILLO</option>204.33
+                            <option value="VERACRUZ">VERACRUZ</option>
+                          </b-form-select>
+                      </b-col>
+                      <b-col md="4"></b-col>
+                    </b-row-->
+                  </b-popover>
+                </b-col>
+                <!--TERMINA CODIGO PARA MOSTRAR POPUP DE DESTINO-->
+
+                <!--INICIA CODIGO PARA MOSTRAR POPUP DE FCL-->
+                <b-col cols="12" v-if="termodalidad == 'FCL'">
+                  <b-popover target="cargas" triggers="hover" placement="bottom">
+                    <template #title>
+                      <b-button @click="onClose" class="close" aria-label="Close">
+                        <span class="d-inline-block text-white" aria-hidden="true">&times;</span>
+                      </b-button>
+                      Modalidad FCL
+                    </template>
+
+                    <div class="container">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label for="descripcion" class="form-label">
+                              <b style="color: red">*</b>Ingresa Volumen Total <label style="font-size:20px;" v-if="nomUnidadModalidad != ''"> - <b-badge style="background-color:#2aab5c;"> {{ nomUnidadModalidad }}</b-badge></label>
+                            </label>
+                            <div class="input-group">
+                              
+                              <input v-model="volumenMax" type="range" min="0" :max="maxRange" step="0.1" @change="validaVolumen()" class="form-control col-md-10" style="height: 33px"/>
+                              <input v-model="volumenMax" type="number" @change="validaVolumen()" class="form-control col-md-2" style="height: 39px;"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </b-popover>
+                </b-col>
+                <!--TERMINA CODIGO PARA MOSTRAR POPUP DE FCL-->
+
+                <!--INICIA CODIGO PARA MOSTRAR POPUP DE MERCANCIAS LTL-->
+                <!--b-col cols="12" v-if="termodalidad == 'LTL' && mercancias != '' || termodalidad == 'FTL' && volumenMax > 0 "-->
+                <b-col cols="12" v-if="termodalidad == 'LTL' || termodalidad == 'FTL'">
+                  <b-popover target="cargas" triggers="hover" :show.sync="popoverShow" placement="bottom" container="my-container" ref="popover">
+                    <template #title>
+                      <b-row>
+                        <b-col md="4">
+                          {{ mercancias ? mercancias : "Mercancía" }}
+                        </b-col>
+                        <!--b-col md="7" class="text-right">
+                          {{ nombreTipoUnidad ? "Unidad asignada: "+nombreTipoUnidad : "" }}
+                        </b-col-->
+                        <b-col md="7" class="text-right">
+                        </b-col>
+                        <b-col md="1">
+                          <b-button @click="onClose" class="close" aria-label="Close">
+                            <span class="d-inline-block" aria-hidden="true">&times;</span>
+                          </b-button>
+                        </b-col>
+                      </b-row>
+                    </template>
+                    <div>
+                      <b-row>
+                        <!--b-col md="4">
+                          <label class="form-label">
+                            <b style="color: red">*</b>Tipo de Carga
+                          </label>
+                          <b-form-select v-model.trim="tertipocarga" id="cargas" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success'}" @change="selectTipoUnidad($event)">
+                            <option value="g">General</option>
+                            <option value="h">Peligrosa</option>
+                            <option value="r">Refrigerada</option>
+                          </b-form-select>
+                        </b-col-->
+                        <b-col>
+                          <label for="clasifica" class="form-label">
+                            <b style="color: red">*</b>Clasificación</label>
+                          <b-form-group id="clasifica" v-model.trim="clasifica">
+                            <v-autocomplete
+                              :input-attrs="{autocomplete: 'off', placeholder: 'Ingresa una clasificación', id: 'clasificacion',}"
+                              input-class="form-control form-control-sm"
+                              :items="dates_search_proser"
+                              :v-model="clasificaText"
+                              :value="clasificaText"
+                              @input="getLabelProd"
+                              :component-item="templateProvServ"
+                              @update-items="clasificaciones"
+                              :auto-select-one-item="false"
+                              return-object
+                              
+                            >
+                            </v-autocomplete>
+                          </b-form-group>
+                        </b-col>
+                        <b-col>
+                          <label for="estibable" class="form-label">
+                            <b style="color: red">*</b>Unidad de Medida</label>
+                          <b-form-select id="unidaMedidaMerc" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaMedidaMerc" @change="selectUniMedMerc">
+                            <option value="cm">Centírmetros</option>
+                            <option value="mt">Metros</option>
+                            <option value="pl">Pulgadas</option>
+                          </b-form-select>
+                        </b-col>
+                        <b-col>
+                          <label for="descripcion" class="form-label">
+                            <b style="color: red">*</b>Descripción</label>
+                          <textarea class="form-control form-control-sm" style="height: 33px" v-model.trim="descripMerc" type="text"/>
+                        </b-col>
+                        <!--b-col v-if="termodalidad == 'LTL'">
+                          <label for="descripcion" class="form-label">
+                            <b style="color: red">*</b>Ingresa Volumen Total  <label style="font-size:20px;" v-if="nomUnidadModalidad != ''"> - <b-badge style="background-color:#2aab5c;"> {{ nomUnidadModalidad }}</b-badge></label>
+                          </label>
+                          <div class="container row">
+                            <input v-model="volumenMax" type="range" min="0" :max="maxRange" step="0.1" @change="validaVolumen()" class="form-control col-9" style="height: 33px"/>
+                            <input v-model="volumenMax" type="number" @change="validaVolumen()" class="form-control form-control-sm col-3" style="height: 33px;"/>
+                          </div>
+                        </b-col-->
+                      </b-row>
+                      <div class="container-fluid">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead class="text-white" style="background-color: #2aab5c">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Embalaje</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Estibable</th>
+                                <th scope="col">Largo</th>
+                                <th scope="col">Ancho</th>
+                                <th scope="col">Alto</th>
+                                <th scope="col">Peso</th>
+                                <th scope="col">Peso Real {{ leyendaPeso }}</th>
+                                <!--th scope="col">Unidad</th>
+                                <th scope="col">Volumen(m3)</th-->
+                                <th scope="col">Peso Volumetrico</th>
+                                <th scope="col">Volumen Real(m3)</th>
+                                <th scope="col">Peso Facturado {{ leyendaVolumen }}</th>
+                                <th scope="col">Acción</th>
+                              </tr>
+                            </thead>
+                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                              <tr v-for="(paq, i) in agregarMercancias">
+                                <th scope="row">{{ i + 1 }}</th>
+                                <td>{{ paq.embalaje }}</td>
+                                <td>{{ paq.cantidad }}</td>
+                                <td>{{ paq.estibable }}</td>
+                                <td>{{ paq.largo }}</td>
+                                <td>{{ paq.ancho }}</td>
+                                <td>{{ paq.alto }}</td>
+                                <td>{{ paq.peso }}<sub>kg</sub></td>
+                                <td>{{ paq.pesoTotal }}<sub>kg</sub></td>
+                                <!--td>{{ paq.upeso.toUpperCase() }}</td>
+                                <td>{{ paq.volumen }}</td-->
+                                <!--td>{{ paq.pesoVolumetrico }}<sub>kg</sub></td-->
+                                <td>{{ formatMoney(paq.pesoTotal / 350) }}<sub>kg</sub></td>
+                                <td>{{ paq.volumenTotal }}<sub>m<sup>3</sup></sub></td>
+                                <td>{{ paq.pesoVolumetricoTotal }}<sub>kg</sub></td>
+                                <td>
+                                  <b-button class="btn btn-danger" title="Eliminar Paquete" @click="eliminaPaquete(paq.idPaq)"><i class="fas fa-trash"></i></b-button>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th style="border: 1px solid #edeff1; border-collapse: collapse;">-</th>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="embalaje" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terembalaje" @change="selectEmbalaje($event)">
+                                    <option v-for="emb in embalajes" :key="emb.idEmbalaje" v-bind:value="emb.idEmbalaje">
+                                      {{ emb.nombre.toUpperCase() }}
+                                    </option>
+                                  </b-form-select>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model.trim="cantMerc" type="number" @change="validaCantidad()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="estibable" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terestibable" @change="selectEstibable">
+                                    <option value="si">Si</option>
+                                    <option value="no">No</option>
+                                  </b-form-select>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="largoMerc" type="number" @change="validaLargo()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="anchoMerc" type="number" @change="validaAncho()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input v-if="terestibable == 'si'" class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()"/>
+                                  <input v-else class="form-control form-control-sm" v-model="altoMerc" type="number" @input="change()" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm col" v-model.trim="pesTMerc" type="number" @change="validaPeso()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm col" v-model.trim="pesoTotal" type="number" disabled/>
+                                </td>
+                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                 {{ unidaPesoMerc }} 
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="unidaPesoMerc" class="form-control custom-select-sm col" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaPesoMerc" @change="selectUniPesMerc">
+                                    <option value="kg">Kg</option>
+                                    <option value="lb">Lb</option>
+                                  </b-form-select>
+                                </td-->
+                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="volMerc" type="number" disabled/>
+                                </td-->
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="pesoVol" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="volMercTot" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="pesoVolTot" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-button v-if="termodalidad != 'LTL'" class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetes()"><i class="fas fa-plus"></i></b-button>
+                                  <b-button v-else class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetesLTL()"><i class="fas fa-plus"></i></b-button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <b-row>
+                        <b-col md="6" v-if="this.tertipocarga === 'h'">
+                          <label for="unMerc" class="form-label">
+                            <b style="color: red">*</b>UN</label>
+                          <input class="form-control form-control-sm" v-model.trim="unMerc" type="text"/>
+                        </b-col>
+                        <b-col cols="6" v-if="this.tertipocarga === 'h'">
+                          <label for="classMerc" class="form-label">
+                            <b style="color: red">*</b>CLASS</label>
+                          <input class="form-control form-control-sm" v-model.trim="classMerc" type="text"/>
+                        </b-col>
+                        <b-col v-if="this.tertipocarga === 'r'">
+                          <label for="gradosMerc" class="form-label">
+                            <b style="color: red">*</b>Grados</label>
+                          <input class="form-control form-control-sm" v-model.trim="gradosMerc" type="text"/>
+                        </b-col>
+                        <b-col v-if="this.tertipocarga === 'r'">
+                          <label for="tUnidadMerc" class="form-label">
+                            <b style="color: red">*</b>Tipo de Unidad</label>
+                          <input class="form-control form-control-sm" v-model.trim="tUnidadMerc" type="text"/>
+                        </b-col>
+                      </b-row>
+                      <br />
+                    </div>
+                  </b-popover>
+                </b-col>
+                <!--TERMINA CODIGO PARA MOSTRAR POPUP DE MERCANCIAS LTL-->
+
+                <!-- <div class="text-center" v-show="tercotizacion == 0">
+                <b-spinner label="Text Centered"></b-spinner>
+                </div>-->
+                <div v-if="termodalidad =='LTL'" class="row">
+                  <div class="col-2" v-show="tercotizacion != 0">
+                    <b-card class="rounded" v-if="termodalidad == 'FTL' || termodalidad == 'FCL'">
+                      <div class="row">   
+                        <div class="col-sm-12">
+                          <b-form-group>
+                            <label for="" style="font-size: 12px; font-weight: bold">UNIDAD</label>
+                            <b-form-radio v-model="tipoUnidad" v-for="unidad in units" :key="unidad.id" v-bind:value="unidad.id" @change="cambioUnidad(unidad.code_name, unidad.id)" style="font-size: 12px">
+                              <label v-bind:id="'unidad-'+unidad.id" >
+                                {{ unidad.code_name }}
+                              </label>
+                            </b-form-radio>
+                          </b-form-group>
+                        </div>
+                        <!--div v-if="tertipocarga != ''">
+                          <b-popover v-for="unidad in units" custom-class="popover-add" :target="'unidad-'+unidad.id" :title="unidad.code_name" triggers="hover" placement="righttop">
+                            <template #title class="bg-secondary">
+                              <b-button @click="onClose" class="close" aria-label="Close">
+                                <span class="d-inline-block text-white" aria-hidden="true">&times;</span>
+                              </b-button>
+                              {{ unidad.code_name }}
+                            </template>
+                            <div>
+                              <b-img center :src="unidad.imagen" alt="Center image"></b-img>
+                            </div>
+                          </b-popover>
+                        </div-->
+                      </div>
+                    </b-card>
+                    <b-card class="rounded">
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <label for="" style="font-size: 12px; font-weight: bold">SERVICIOS</label>
+                          <b-form-checkbox
+                            name="listadoServicios"
+                            v-bind:id="serv.id + 'cheServicios'"
+                            v-model="selectServices"
+                            v-for="serv in services"
+                            :key="serv.id"
+                            v-bind:value="serv.id"
+                            :disabled="serv.nameproduct == 'FLETE NACIONAL'"
+                            @change="addServicios(serv.id, serv.nameproduct)"
+                            style="font-size: 12px"
+                            :checked="serv.nameproduct == 'RECOLECCION' || serv.nameproduct == 'ENTREGA'"
+                            >
+                            <b style="font-weight: bold">{{ serv.nameproduct }}</b>
+                          </b-form-checkbox>
+                        </div>
+                      </div>
+                    </b-card>
+                  </div>
+                  
+                  <div class="col-7" v-show="tercotizacion != 0" style="margin-bottom: 6px">
+                    <!-- Inicia else -->
+                    <div class="row">
+                      <!--div class="col-12">
+                        <b-card class="rounded">
+                          <b-tabs justified nav-class="nav-tabs nav-bordered" style="margin-top: -24px; margin-bottom: -36px">
+                            <b-tab title="Optimo" active @click="aumentaOptimo(1)"></b-tab>
+                            <b-tab title="Express" @click="aumentaExpress(1)"></b-tab>
+                          </b-tabs>
+                        </b-card>
+                      </div-->
+                      <div class="col-12">
+                        <b-card no-body>
+                          <b-card-body class="py-2">
+                            <div class="row" style="border-bottom: 2px solid #f5f4f4; margin-top: -12px;">
+                              
+                              <div class="col-md-4 text-left mt-2 mb-2">
+                                  <b-button pill v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: USD</b></b-button>
+                                  <b-button pill v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: MXN</b></b-button>
+                              </div>
+                              <div class="col-md-4 text-center mt-2 mb-2">
+                                <i class="fe-truck" style="color: #2aab5c; font-size: 38px"></i>
+                              </div>
+                              <div class="col-md-4 text-right mt-2 mb-2">
+                                <b-button pill style="background-color: #2aab5c" :disabled="isActive" v-b-modal.resumen-modal title="Resumen General de Cotizacion" v-b-tooltip.hover="{ variant: 'success' }" data-toggle="modal" data-target="#resumen-modal">
+                                  <b v-show="divisa == '1'">
+                                    <u>
+                                      <i class="fas fa-shopping-cart"></i>
+                                      ${{ formatMoney(parseFloat(totalGlobal)) }} USD
+                                    </u>
+                                  </b>
+                                  <b v-show="divisa == '2'">
+                                    <u>
+                                      <i class="fas fa-shopping-cart"></i>
+                                      ${{ formatMoney(parseFloat(totalGlobal)) }} MXN
+                                    </u>
+                                  </b>
+                                </b-button>
+                              </div>
+                            </div>
+                            
+                            <!--Marcar Botones -->
+                            <b-row>
+                              <div class="col-md-12 cards">
+                                    <div class="">
+                                      <div class="row py-2" style="margin-bottom: -20px" v-if=" arrayOrigen.length > 0 && arrayDestino.length > 0">
+                                        <div class="col-md-4">
+                                          <p class="text-left" style="font-size: 12px; font-weight: bold">
+                                            {{ arrayOrigen[0].estadoo.toUpperCase() }},
+                                            {{ arrayOrigen[0].ciudado.toUpperCase() }}
+                                          </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                          <p v-if="termodalidad != 'LTL'" class="text-center" style="font-size: 12px; font-weight: bold">
+                                            {{ tiempoEstimado }}
+                                          </p>
+                                        </div>
+                                        <div class="col-md-4">
+                                          <p class="text-right" style="font-size: 12px; font-weight: bold">
+                                            {{ arrayDestino[0].estadod.toUpperCase() }},
+                                            {{ arrayDestino[0].ciudadd.toUpperCase() }}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <!-- Dias de Transito -->
+                                      <div class="row mb-2">
+                                        <div class="col-md-12 text-center">
+                                          <label for="" class="text-center" v-if="kilometraje > 0">{{ kilometraje }} km</label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="row justify-content-between top">
+                                        <!--div class="row d-flex icon-content">
+                                            <img class="icon" src="https://i.imgur.com/9nnc9Et.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Order<br>Processed</p>
+                                            </div>
+                                        </div-->
+                                        <div v-if="progresbarRecoleccion" class="row d-flex icon-content">
+                                            <img class="icon" src="img/activoRecoleccion.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Recolección de <br>Mercancías</p>
+                                            </div>
+                                        </div>
+                                        <div v-else class="row d-flex icon-content">
+                                            <img class="icon" src="img/noActivoRecoleccion.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Recolección de <br>Mercancías</p>
+                                            </div>
+                                        </div>
+
+
+                                        <div v-if="progresbarFlete" class="row d-flex icon-content">
+                                            <img class="icon" src="img/activoFlete.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Flete<br>Nacional</p>
+                                            </div>
+                                        </div>
+                                        <div v-else class="row d-flex icon-content">
+                                            <img class="icon" src="img/noActivoFlete.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Flete<br>Nacional</p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="tipoEnvioDetalleSi">
+                                          <div v-if="progresbarIngreso " class="row d-flex icon-content">
+                                            <img class="icon" src="img/activoEntrega.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Ingreso a <br>Aduana</p>
+                                            </div>
+                                          </div>
+                                          <div v-else class="row d-flex icon-content">
+                                              <img class="icon" src="img/noActivoEntrega.png">
+                                              <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Ingreso a <br>Aduana</p>
+                                              </div>
+                                          </div>
+                                        
+                                        </div>
+                                        <div v-else>
+                                          <div v-if="progresbarEntrega " class="row d-flex icon-content">
+                                            <img class="icon" src="img/activoEntrega.png">
+                                            <div class="d-flex flex-column">
+                                                <p class="font-weight-bold">Entrega de <br>Mercancías</p>
+                                            </div>
+                                          </div>
+                                          <div v-else class="row d-flex icon-content">
+                                              <img class="icon" src="img/noActivoEntrega.png">
+                                              <div class="d-flex flex-column">
+                                                  <p class="font-weight-bold">Entrega de <br>Mercancías</p>
+                                              </div>
+                                          </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <!-- Add class 'active' to progress -->
+                                    <div class="row d-flex justify-content-center">
+                                        <div class="col-12">
+                                        <ul id="progressbar" class="text-center">
+                                            <!--li class="active step0"></li>
+                                            <li class="active step0"></li>
+                                            <li class="active step0"></li>
+                                            <li class="step0"></li>
+                                            <li v-if="progresbarRecoleccion" class="active step0"></li>
+                                            <li v-else class="step0"></li-->
+
+                                            <li v-if="progresbarRecoleccion" class="active step0"></li>
+                                            <li v-else class="step0"></li>
+
+                                            <li v-if="progresbarFlete" class="active step0"></li>
+                                            <li v-else class="step0"></li>
+
+                                            <li v-if="tipoEnvioDetalleSi && progresbarIngreso || tipoEnvioDetalleNo && progresbarEntrega" class="active step0"></li>
+                                            <li v-else-if="!tipoEnvioDetalleSi && !progresbarIngreso || !tipoEnvioDetalleNo && !progresbarEntrega" class="step0"></li>
+
+                                        </ul>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </b-row>
+                            <!--div class="row">
+                              <div class="col-md-1">
+                                <b-button variant="outline-success" class="btn btn-circle"></b-button>
+                              </div>
+                              <div class="col-md-10">
+                                <div class="row" style="margin-top: -18px; margin-bottom: -20px">
+                                  <div class="col-md-12 text-center">
+                                    <p>
+                                      <i class="fe-truck jejeje" style="color: #2aab5c"></i>
+                                    </p>
+                                  </div>
+                                </div>
+                                <div class="row mt-2">
+                                  <div class="col-md-12">
+                                    <p style=" border-bottom: 2px solid #2aab5c; margin-left: -22px; margin-right: -20px;"></p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-md-1">
+                                <b-button variant="outline-success" class="btn btn-circle"></b-button>
+                              </div>
+                            </div-->
+                            <!--Optimo-->
+                            <div class="row">
+                              <div class="col-12">
+                                <div class="justify-content-center row">
+                                  <b-button variant="link" size="sm" @click="showDetails()"><b>Detalles</b></b-button>
+                                </div>
+                                <div class="row mb-1" style="border-top: 2px solid #f5f4f4" v-show="details == 1" v-for="servic in confirmarServices" :key="servic.idService" v-bind:value="servic.idService">
+                                  <div class="col-md-6 text-left">
+                                    {{ servic.nombreSer }}
+                                  </div>
+                                  <div class="col-md-6 text-right" v-if="divisa == 2">
+                                    <b>
+                                      $ {{ formatMoney(servic.totalServicio) }} MXN 
+                                    </b>
+                                  </div>
+                                  <div class="col-md-6 text-right" v-else>
+                                    <b>$ {{formatMoney(servic.totalServicio / valorDolar)}} USD</b>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </b-card-body>
+                        </b-card>
+                      </div>
+
+                      <div class="col-12" hidden>
+                        <b-card class="rounded">
+                          <div class="row">
+                            <div class="col-sm-12" style="text-align: center">
+                              <h1>Mapa</h1>
+                            </div>
+                          </div>
+                        </b-card>
+                      </div>
+
+                      <div class="col-12" hidden>
+                        <b-card class="rounded">
+                          <div class="row">
+                            <div class="col-sm-12" style="text-align: center;">
+                            </div>
+                          </div>
+                        </b-card>
+                      </div>
+                    </div>
+                    <!-- Fin else -->
+                    <!-- <p class="text-center" style="margin-top: 110px; font-size: 20px;" v-else>No hay resultados...</p> -->
+                  </div>
+                  <div class="col-3" v-show="tercotizacion != 0">
+                    <b-card class="rounded">
+                      <template>
+                        <div class="row">
+                          <div class="col-sm-12">
+                            <div>
+                              <label for="" style="font-size: 15px; font-weight: bold">NOTIFICACIONES</label>
+                              <div class="row" v-if="resClasificaZona != '' && zonaValidaCo == 0">
+                                <div class="col-sm-12">
+                                  <b-alert show dismissible v-bind:variant="notColorZona">
+                                    <h4 class="alert-heading">Zona de Servicio</h4>
+                                    <p v-html="notTextoZona"></p>
+                                  </b-alert>
+                                </div>
+                              </div>
+                              <div class="row" v-else>
+                                <div class="col-sm-12">
+                                  <b-alert show dismissible variant="secondary">
+                                    <h4 class="alert-heading">Aviso de Ruta</h4>
+                                    <p v-html="notTextoZona"></p>
+                                  </b-alert>
+                                </div>
+                              </div>
+                              <!--div v-if="all_ofertas.length > 0">
+                                <h4 class="alert-heading">Ofertas del día</h4>
+                                <section>
+                                  <div v-for="(ofe, i) in all_ofertas">
+                                    <img v-if="ofe.delDia == 1" :src="ofe.rutaImg" alt="Oferta del día">
+                                  </div>
+                                </section>
+                              </div-->
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </b-card>
+
+                    <div v-show="estadoCotiza">
+                      <b-card class="rounded">
+                        <template>
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <b-alert show variant="success">
+                                <h4 class="alert-heading">Muy bien!</h4>
+                                <p>
+                                  La cotización quedó registrada correctamente y se envio a validación, espere respuesta por correo.
+                                </p>
+                                <hr />
+                                <p class="mb-0 text-center">
+                                  <b-button variant="outline-success" @click="reloadPage"><i class="fas fa-plus-circle"></i> Nueva Cotización</b-button>
+                                </p>
+                              </b-alert>
+                            </div>
+                          </div>
+                        </template>
+                      </b-card>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="termodalidad =='FTL'" class="col-md-12">
+                  <b-card class="rounded">
+                    <b-row>
+                      <b-col md="6">
+                        <label>Selecciona Origen/es</label>
+                        <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenesLTLTag" @input="generateCotizacionFTL(1)"></multiselect>
+                      </b-col>
+                      <b-col md="6">
+                        <label>Selecciona Destino/s</label>
+                        <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinosLTLTag" @input="generateCotizacionFTL(1)"></multiselect>
+                      </b-col>
+                    </b-row>
+                      <div class="row">
+                        <b-col md="10">
+                          <br>
+                          <template>
+                            <div >
+                                <div class="table-responsive">
+                                  <table class="table table-hover" id="tarifario">
+                                    <thead class="text-white" style="background-color: #2aab5c">
+                                      <tr>
+                                        <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
+                                        <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
+                                      </tr>
+                                      <tr>
+                                        <td style="text-align: center;"><b>Origen</b></td>
+                                        <td style="text-align: center;"><b>Destino</b></td>
+                                        <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index"><b>{{ generarTituloColumna(unidad) }}</b></td>
+                                      </tr>
+                                    </thead>
+                                    <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                      <template v-for="(origen, origenIndex) in datosOrigenesFTLOcupar">
+                                        <template v-for="(destino, destinoIndex) in datosDestinosFTLOcupar">
+                                          <tr>
+                                            <td style="text-align: center;"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
+                                            <td style="text-align: center;"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
+                                            <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" style="text-align:center;">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
+                                          </tr>
+                                        </template>
+                                      </template>
+                                      
+                                    </tbody>
+                                  </table>
+                                </div>
+                            </div>
+                          </template>
+                        </b-col>
+                        <b-col md="2" class="text-center">
+                          <label>Selecciona Unidad/es</label>
+                          <multiselect v-model="unidadesLTL" tag-placeholder="Selecciona una o mas unidades" placeholder="Selecciona una o mas unidades" label="nombreUnidad" track-by="idUnidad" :options="options_unit" :multiple="true" :taggable="true" :close-on-select="false" @tag="addUnidadLTLTag" @input="generateCotizacionFTL(1)"></multiselect>
+                          <br>
+                          <div class="col-sm-12">
+                          <label for="" style="font-size: 12px; font-weight: bold">SERVICIOS</label>
+                          <b-form-checkbox
+                            name="listadoServiciosFTL"
+                            v-bind:id="serv.id + 'cheServiciosFTL'"
+                            v-model="selectServices"
+                            v-for="serv in services"
+                            :key="serv.id"
+                            v-bind:value="serv.id"
+                            :disabled="serv.nameproduct == 'FLETE NACIONAL'"
+                            @change="addServiciosFTL(serv.id, serv.nameproduct)"
+                            style="font-size: 12px; text-align: left;"
+                            :checked="serv.nameproduct == 'RECOLECCION' || serv.nameproduct == 'ENTREGA'"
+                            >
+                            <b style="font-weight: bold">{{ serv.nameproduct }}</b>
+                          </b-form-checkbox>
+                        </div>
+                          <br>
+                          <b-button class="width-md ml-1" size="sm" variant="primary" @click="verResumenFTL"><b><i class="fas fa-file"></i> Ver Resumen</b></b-button>
+                          <!--b-button class="width-md ml-1" size="sm" variant="primary" @click="generarPDFLTL()"><b><i class="fas fa-file"></i> PDF</b></b-button-->
+                        </b-col>
+                      </div>
+                      <!--b-row>
+                        <b-col md="12">
+                          <div id="mapLTL" v-show="mostrarMapaLTL"></div>
+                        </b-col>
+                      </b-row-->
+                    </b-card>
+                </div>
+                
+
+                <!--INICIA MODALS CONFIRMACION-->
+
+                <b-modal id="validaConfirmacionOrigen"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Origen</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Origen
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="origen"
+                                        :value="origen"
+                                        @input="getLabelAddressO"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleOrigen" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtOrigen" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntOrigen" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                          <br>
+                          <b-row>
+                            <b-col md="12">
+                              
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionOrigen()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionOrigen()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="validaConfirmacionDestino"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Destino</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Destino
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="destino"
+                                        :value="destino"
+                                        @input="getLabelAddressD"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                        <i class="fas fa-map-marker-alt" />
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleDestino" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtDestino" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntDestino" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionDestino()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionDestino"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="datosContacto"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Contacto</b>
+                  </template>
+
+                  <div class="form-group text-center">
+                    <div class="card-body" style="padding: 10px; ">
+                      <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Nombre Completo
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-user"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacName" @input="contacName = contacName.toUpperCase()" placeholder="ESPINOSA UGALDE PABLO"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> E-mail
+                                </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="far fa-envelope"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacEmail" placeholder="pablo@gmail.com"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                        <br>
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Teléfono
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <select class="_1igQJzeY95hxUNao_yIXrr col-md-4" id="lada" v-model="contacLada" style="padding: 0px;">
+                                    <option v-for="marcado in ladas" :key="marcado.id" v-bind:value="marcado.id">
+                                      {{ marcado.alias }} + {{ marcado.code }}
+                                    </option>
+                                  </select>
+                                  <input class="_1igQJzeY95hxUNao_yIXrr col-md-8" style="padding: 0px;" type="number" v-model="contacTelefono" />
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <!--b style="color: red">*</b--> Notas
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-textarea class="_1igQJzeY95hxUNao_yIXrr" v-model="contacDescription" @input="contacDescription = contacDescription.toUpperCase()" placeholder="DESCRIPCION DEL PRODUCTO"></b-textarea>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                      </div>
+                    </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                  </div>
+                </b-modal>
+
+                <b-modal id="datosContactoFTL"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Confirma los datos de Contacto</b>
+                  </template>
+
+                  <div class="form-group text-center">
+                    <div class="card-body" style="padding: 10px; ">
+                      <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Nombre Completo
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-user"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacName" @input="contacName = contacName.toUpperCase()" placeholder="ESPINOSA UGALDE PABLO"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> E-mail
+                                </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="far fa-envelope"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="contacEmail" placeholder="pablo@gmail.com"></b-input>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                        <br>
+                        <b-row>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> Teléfono
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <select class="_1igQJzeY95hxUNao_yIXrr col-md-4" id="lada" v-model="contacLada" style="padding: 0px;">
+                                    <option v-for="marcado in ladas" :key="marcado.id" v-bind:value="marcado.id">
+                                      {{ marcado.alias }} + {{ marcado.code }}
+                                    </option>
+                                  </select>
+                                  <input class="_1igQJzeY95hxUNao_yIXrr col-md-8" style="padding: 0px;" type="number" v-model="contacTelefono" />
+                                </div>
+                              </div>
+                            </div>  
+                          </b-col>
+                          <b-col md="6">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <!--b style="color: red">*</b--> Notas
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                              <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                  <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                  <template>
+                                    <b-textarea class="_1igQJzeY95hxUNao_yIXrr" v-model="contacDescription" @input="contacDescription = contacDescription.toUpperCase()" placeholder="DESCRIPCION DEL PRODUCTO"></b-textarea>
+                                  </template>
+                                </div>
+                              </div>
+                            </div>
+                          </b-col>
+                        </b-row>
+                      </div>
+                    </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                  </div>
+                </b-modal>
+
+                <b-modal id="validaConfirmacionCliente"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Cliente</b>
+                  </template>
+
+                  <div class="form-group text-center">
+                    <div class="card-body" style="padding: 10px; ">
+                      <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                        <b-row>
+                          <b-col md="12">
+                            <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                              <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                <b style="color: red">*</b> ¿Eres cliente registrado?
+                              </div>
+                            </div>
+                            <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-user-check"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <b-input class="_1igQJzeY95hxUNao_yIXrr" v-model="rfcClienteInterland" @input="rfcClienteInterland = rfcClienteInterland.toUpperCase()"></b-input>
+                                      <sub>*Si eres Cliente registrado Interland, ingresa tu RFC.</sub>
+                                      <div id="resultadoRFC"></div>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                          </b-col>
+                        </b-row>
+                        <br>
+                      </div>
+                    </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionCliente()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaRFCUsuario()"> <b>Cotizar Ahora!</b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                  </div>
+                </b-modal>
+
+                <!--TERMINA MODALS CONFIRMACION-->
+
+                <b-modal id="valorDeclaradoMercancia" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close>
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Aviso Mercancia</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <label for="gradosMerc" class="form-label">Valor declarado de la mercancía</label>
+                    <input class="form-control form-control-sm" v-model.trim="valorMercancia" type="number" @change="validaValorMercancia($event)"/>
+                    <br />
+                    <b-button class="width-md ml-1" variant="secondary" @click="cierraModal(2)"><b><i class="fe-x"></i>Cancelar</b></b-button>
+                    <b-button v-if="termodalidad == 'LTL'" class="width-md ml-1" style="background-color: #2aab5c" @click="addServicios(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
+                    <b-button v-if="termodalidad == 'FTL'" class="width-md ml-1" style="background-color: #2aab5c" @click="addServiciosFTL(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="valorDeclaradoMercanciaInfo" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close>
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Aviso Mercancia</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <label for="gradosMerc" class="form-label">Toma en cuenta que el valor declarado de la mercancia puede ser en USD o en MXN.</label>
+                    <br />
+                    <b-button class="width-md ml-1" variant="secondary" @click="cierraModalSeguro()"><b><i class="fe-x"></i>Cancelar</b></b-button>
+                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="cierraModalSeguro()"><b><i class="fe-check"></i> Aceptar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="maniobrasInfo" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close>
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Aviso Maniobras</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <label for="gradosMerc" class="form-label">Este servicio requiere ser revisado por un agente, enseguida lo enlazamos.</label>
+                    <br />
+                    <b-button class="width-md ml-1" variant="secondary" @click="cierraModalManiobras()"><b><i class="fe-x"></i>Cancelar</b></b-button>
+                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="cierraModalManiobras()"><b><i class="fe-check"></i> Aceptar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="recoleccion" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close>
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Aviso</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <label for="gradosMerc" class="form-label" style="font-size: x-large;">¿Deseas agregar algún servicio?</label>
+                    <br>
+                    <div class="form-check-inline">
+                      <b-form-checkbox v-if="requiereRecoleccion" switch  v-bind:id="10+'-recoleccion'" v-model="requiereRecoleccion">
+                        <h4 style="margin:0px;;"><b-badge variant="success">Recolección</b-badge></h4>
+                      </b-form-checkbox>
+                      <b-form-checkbox v-else switch v-bind:id="10+'-recoleccion'" v-model="requiereRecoleccion">
+                        <h4 style="margin:0px;;"><b-badge variant="danger">Recolección</b-badge></h4>
+                      </b-form-checkbox>
+                    </div>
+                    <div class="form-check-inline">
+                      <b-form-checkbox v-if="requiereEntrega" switch v-bind:id="11+'-entrega'" v-model="requiereEntrega">
+                        <h4 style="margin:0px;"><b-badge variant="success">Entrega</b-badge></h4>
+                      </b-form-checkbox>
+                      <b-form-checkbox v-else switch v-bind:id="11+'-entrega'" v-model="requiereEntrega">
+                        <h4 style="margin:0px;;"><b-badge variant="danger">Entrega</b-badge></h4>
+                      </b-form-checkbox>
+                    </div>
+                    <br />
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="closeValidaServicios()"><b><i class="fe-x"></i>Omitir</b></b-button>
+                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-else disabled class="width-md ml-1" size="sm" style="background-color: #2aab5c"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="recoleccionFTL" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Aviso</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Se detectaron <b>{{ leyendaServicios }}</b> cerca de las ubicaciones de origen y destino proporcionadas.</p>
+                    <h4 for="gradosMerc" class="form-label" style="font-size: x-large;">¿Deseas agregar algún servicio?</h4>
+                    <br>
+                    <div class="form-check-inline">
+                      <b-form-checkbox v-if="requiereRecoleccion" switch  v-bind:id="10+'-recoleccion'" v-model="requiereRecoleccion">
+                        <h4 style="margin:0px;;"><b-badge variant="success">Recolección</b-badge></h4>
+                      </b-form-checkbox>
+                      <b-form-checkbox v-else switch v-bind:id="10+'-recoleccion'" v-model="requiereRecoleccion">
+                        <h4 style="margin:0px;;"><b-badge variant="danger">Recolección</b-badge></h4>
+                      </b-form-checkbox>
+                      
+                    </div>
+                    <div class="form-check-inline">
+                      <b-form-checkbox v-if="requiereEntrega" switch v-bind:id="11+'-entrega'" v-model="requiereEntrega">
+                        <h4 style="margin:0px;"><b-badge variant="success">Entrega</b-badge></h4>
+                      </b-form-checkbox>
+                      <b-form-checkbox v-else switch v-bind:id="11+'-entrega'" v-model="requiereEntrega">
+                        <h4 style="margin:0px;;"><b-badge variant="danger">Entrega</b-badge></h4>
+                      </b-form-checkbox>
+                    </div>
+                    <div class="form-check-inline">
+                      <b-form-checkbox v-if="requiereCruce" switch  v-bind:id="9+'-cruce'" v-model="requiereCruce">
+                        <h4 style="margin:0px;"><b-badge variant="success">Cruce de Frontera</b-badge></h4>
+                      </b-form-checkbox>
+                      <b-form-checkbox v-else switch v-bind:id="9+'-cruce'" v-model="requiereCruce">
+                        <h4 style="margin:0px;"><b-badge variant="danger">Cruce Frontera</b-badge></h4>
+                      </b-form-checkbox>
+                      
+                    </div>
+                    <br />
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="closeRecoleccion()"><b><i class="fe-x"></i>Omitir</b></b-button>
+                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-else disabled class="width-md ml-1" size="sm" style="background-color: #2aab5c"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <!-- SECUENCIA INICIO FCL -->
+                <b-modal id="inicio-transporte"  hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Bienvenido!</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Para inciar una cotización, porfavor selecciona una opción:</p>
+                    <br>
+                    <b-row class="text-center">
+                      <!--b-col md="4" style="border: 2px solid #e7eaed;"-->
+                      <b-col md="4">
+                        <div class="ocean" @click="validaTransporte(1)" style="cursor:pointer;">
+                          <i class="fas fa-ship"></i>
+                        </div>
+                        <h4 style="margin:0px;"><b-badge variant="success">Maritimo</b-badge></h4>
+                      </b-col>
+                      <!--b-col md="4" style="border: 2px solid #e7eaed;"-->
+                      <b-col md="4">
+                        <div class="road" @click="validaTransporte(2)" style="cursor:pointer;">
+                          <div class="loop-wrapper">
+                            <div class="mountain"></div>
+                            <div class="hill"></div>
+                            <div class="tree"></div>
+                            <div class="tree"></div>
+                            <div class="tree"></div>
+                            <div class="rock"></div>
+                            <div class="truck"></div>
+                            <div class="wheels"></div>
+                          </div> 
+                        </div>
+                        <h4 style="margin:0px;"><b-badge variant="success">Terrestre</b-badge></h4>
+                      </b-col>
+                      <!--b-col md="4" style="border: 2px solid #e7eaed;"-->
+                      <b-col md="4">
+                        <div class="sky" @click="validaTransporte(3)" style="cursor:pointer;">
+                          <div class="clouds">
+                            <div class="cloud x1"></div>
+                            <div class="cloud x2"></div>
+                            <div class="cloud x3"></div>
+                          </div>
+                          <div class="airplane">
+                            <i class="fas fa-plane"></i>
+                          </div>
+                        </div>
+                        <h4 style="margin:0px;"><b-badge variant="success">Aereo</b-badge></h4>
+                      </b-col>
+                      <!--b-col md="12">
+                        <b-button class="width-md ml-1" size="sm" variant="secondary" @click="pruebaCotizacionTel()"><b><i class="fe-x"></i>prueb</b></b-button>
+                      </b-col-->
+                    </b-row>
+                    <br />
+                    <br />
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-carga" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Tipo de Envio</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Selecciona una opción:</p>
+                    <b-row>
+                      
+                      <b-col md="3"></b-col>
+                      <b-col md="3">
+                        <b-card @click="validaCarga(1)" style="cursor:pointer;">
+                          <b-card-text>
+                            <b><i class="fe-truck" style="color:#2aab5c; font-size: 30px !important;"></i> Nacional</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3">
+                        <b-card @click="validaCarga(2)" style="cursor:pointer;">
+                          <b-card-text>
+                            <b><i class="fe-globe" style="color:#2aab5c; font-size: 30px;"></i> Internacional</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3"></b-col>
+                      
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarTransporte()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-detalle-envio" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Detalle de Envio</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">¿Ingresa a un puerto o aeropuerto?</p>
+                    <b-row>
+                      <b-col md="3"></b-col>
+                      <b-col md="3">
+                        <b-card @click="clickDetalleEnvio(1)" style="cursor:pointer;">
+                          <b-card-text>
+                            <b><i class="fe-check" style="color:#2aab5c; font-size: 30px;"></i> Si</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3">
+                        <b-card @click="clickDetalleEnvio(2)" style="cursor:pointer;">
+                          <b-card-text>
+                            <b><i class="fe-x" style="color:#2aab5c; font-size: 30px;"></i> No</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3"></b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col md="2"></b-col>
+                      <b-col md="8">
+                        <div v-if="tipoEnvioDetalleSi">
+                          <b-dropdown id="dropdown-grouped" text="Selecciona una opción" class="m-2" menu-class="w-100" block>
+                            <b-dropdown-group id="dropdown-group-1" header="Aduana Aerea" style="font-weight: bold;">
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de la Ciudad de México (AICM)')">Aduana Aeropuerto Internacional de la Ciudad de México (AICM)</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional Felipe Angeles (AIFA)')">Aduana Aeropuerto Internacional Felipe Angeles (AIFA)</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de Toluca')">Aduana Aeropuerto Internacional de Toluca</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Aduana Aeropuerto Internacional de Querétaro')">Aduana Aeropuerto Internacional de Querétaro</b-dropdown-item-button>
+                            </b-dropdown-group>
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-group id="dropdown-group-2" header="Puertos" style="font-weight: bold;">
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Puerto de Veracruz')">Puerto de Veracruz</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Puerto de Manzanillo')">Puerto de Manzanillo</b-dropdown-item-button>
+                              <b-dropdown-item-button @click="validaDetalleEnvio('Puerto Lázaro Cárdenas')">Puerto Lázaro Cárdenas</b-dropdown-item-button>
+                            </b-dropdown-group>
+                          </b-dropdown>
+                        </div>
+                      </b-col>
+                      <b-col md="2"></b-col>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarDetalleEnvio()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-modalidad" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Modalidad</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Selecciona una opción:</p>
+                    <b-row>
+                      
+                      <b-col md="4" v-for="option in optionsItemModalidad" @click="validaModalidad(option.value)">
+                        <b-card style="cursor:pointer;">
+                          <b-card-img  style="width:50px" :src="option.src" alt="Image" bottom></b-card-img>
+                          <b-card-text>
+                            <b>{{ option.text }}</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                    </b-row>
+                    <br />
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarModalidad()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-comercio" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Comercio</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Selecciona una opción:</p>
+                    <b-row>
+                      
+                      <b-col md="4">
+                        <b-card @click="validaComercio(1)" style="cursor:pointer;">
+                          <img src="../../../assets/images/import.svg">
+                          <b-card-text>
+                            <b>Impo</b>
+                            <br>
+                            <sub style="font-size: 9px;"><b>International Freight</b></sub>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="4">
+                        <b-card @click="validaComercio(2)" style="cursor:pointer;">
+                          <img src="../../../assets/images/export.svg">
+                          <b-card-text>
+                            <b>Expo</b>
+                            <br>
+                            <sub style="font-size: 9px;"><b>Exportación</b></sub>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="4">
+                        <b-card @click="validaComercio(3)" style="cursor:pointer;">
+                          <img src="../../../assets/images/road.svg">
+                          <b-card-text>
+                            <b>IF</b>
+                            <br>
+                            <sub style="font-size: 9px;"><b>International Freight</b></sub>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarComercio()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-ubicacion" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Envio de Mercancía</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Selecciona una opción:</p>
+                    <b-row>
+                      <b-col md="3"></b-col>
+                      <b-col md="3">
+                        <b-card @click="validaUbicacion(1)" style="cursor:pointer;">
+                          <img src="../../../assets/images/norteamerica.png" style="width:100%;">
+                          <br>
+                          <b-card-text>
+                            <b>USA</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3">
+                        <b-card @click="validaUbicacion(2)" style="cursor:pointer;">
+                          <img src="../../../assets/images/cenam.png" style="width:100%;">
+                          <br>
+                          <b-card-text>
+                            <b>Centro América</b>
+                          </b-card-text>
+                        </b-card>
+                      </b-col>
+                      <b-col md="3"></b-col>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarUbicacion()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-origen" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Origen</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Origen
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="origen"
+                                        :value="origen"
+                                        @input="getLabelAddressO"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <!--b style="color: red">*</b--> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleOrigen" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <!--b style="color: red">*</b--> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtOrigen" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntOrigen" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                          <br>
+                          <!--b-row>
+                            <b-col md="4" style="display: table-column-group; place-items: center;">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> ocurre
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div style="position: absolute; padding: 13.5px; left: 12%;">
+                                    <template>
+                                      <b-form-checkbox switch v-model="ocurreO" class="_1igQJzeY95hxUNao_yIXrr" @change="selectOcurreO($event)"></b-form-checkbox>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="8">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Almacenes
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <template>
+                                        <b-form-select v-model.trim="almacenO" id="ocurreO" class="_1igQJzeY95hxUNao_yIXrr" v-b-tooltip.hover="{ variant: 'success'}" @change="selectAlmOcurreO($event)" :disabled="!ocurreO" placeholder="OCURRE">
+                                          <option value="TULTITLAN">TULTITLAN</option>
+                                          <option value="VALLEJO">VALLEJO</option>
+                                          <option value="QUERETARO">QUERETARO</option>
+                                          <option value="MANZANILLO">MANZANILLO</option>
+                                          <option value="VERACRUZ">VERACRUZ</option>
+                                        </b-form-select>    
+                                      </template>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                          </b-row-->
+                          <b-row>
+                            <b-col md="12">
+                              <div id="mapaOrigen" style="height: 100%; width:100%"></div>
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                        
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarO()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaO()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-origen-destino-ltl" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Informacion de Origen y Destino</b>
+                  </template>
+                  <div class="form-group text-center">  
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="6" sm="12">
+                              <label>Selecciona Origen/es</label>
+                              <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenesLTLTag" @input="muestraMapaLTL"></multiselect>
+                            </b-col>
+                            <b-col md="6" sm="12">
+                              <label>Selecciona Destino/s</label>
+                              <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinosLTLTag" @input="muestraMapaLTL"></multiselect>
+                            </b-col>
+                          </b-row>
+                          <b-row>
+                            <b-col md="12" sm="12">
+                              <br>
+                              <div id="mapLTL" v-show="mostrarMapaLTL"></div>
+                            </b-col>
+                          </b-row>
+                          <!--b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleOrigen" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtOrigen" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntOrigen" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row-->
+                          <br>
+                          <!--b-row>
+                            <b-col md="4" style="display: table-column-group; place-items: center;">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> ocurre
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div style="position: absolute; padding: 13.5px; left: 12%;">
+                                    <template>
+                                      <b-form-checkbox switch v-model="ocurreO" class="_1igQJzeY95hxUNao_yIXrr" @change="selectOcurreO($event)"></b-form-checkbox>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="8">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Almacenes
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <template>
+                                        <b-form-select v-model.trim="almacenO" id="ocurreO" class="_1igQJzeY95hxUNao_yIXrr" v-b-tooltip.hover="{ variant: 'success'}" @change="selectAlmOcurreO($event)" :disabled="!ocurreO" placeholder="OCURRE">
+                                          <option value="TULTITLAN">TULTITLAN</option>
+                                          <option value="VALLEJO">VALLEJO</option>
+                                          <option value="QUERETARO">QUERETARO</option>
+                                          <option value="MANZANILLO">MANZANILLO</option>
+                                          <option value="VERACRUZ">VERACRUZ</option>
+                                        </b-form-select>    
+                                      </template>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                          </b-row-->
+                        </div>
+                        <!--Fin Terrestre-->
+                        
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarO()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaOD()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-destino" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Destino</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <b-row>
+                      <div class="card-body" style="padding: 10px; ">
+                        <!-- <h4 class="header-title">Informacion</h4> -->
+                        <div class="_2ka8NZmhs89Mkk9ABZSXJM">
+                          <div class="_1n4EOSyAk1BfVWnF_adPB9">
+                            <div class="_23ovY8N9sx2ExP0NvytcpI">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Ingresa el Destino
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <v-autocomplete
+                                        :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',}"
+                                        input-class="_1igQJzeY95hxUNao_yIXrr"
+                                        :items="dates_search_address"
+                                        :v-model="destino"
+                                        :value="destino"
+                                        @input="getLabelAddressD"
+                                        :component-item="templateAddress"
+                                        @update-items="buscaDireccion"
+                                        :auto-select-one-item="false"
+                                        return-object
+                                      >
+                                        <i class="fas fa-map-marker-alt" />
+                                      </v-autocomplete>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <br>
+                          <b-row>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Calle
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-road"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="calleDestino" type="text" placeholder="Calle"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Número Exterior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numExtDestino" type="text" placeholder="Número Exterior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="4">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  Número Interior
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="fas fa-hashtag"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <input class="_1igQJzeY95hxUNao_yIXrr" v-model.trim="numIntDestino" type="text" placeholder="Número Interior"/>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </b-row>
+                          <br>
+                          <!--b-row>
+                            <b-col md="4" style="display: table-column-group; place-items: center;">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> ocurre
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div style="position: absolute; padding: 13.5px; left: 12%;">
+                                    <template>
+                                      <b-form-checkbox switch v-model="ocurreD" class="_1igQJzeY95hxUNao_yIXrr" @change="selectOcurreD($event)"></b-form-checkbox>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                            <b-col md="8">
+                              <div class="_1cwBgi06GP5eqlDlfhrE9A">
+                                <div class="_2tU2wKoG7YY564aace37OF" style="text-align:left; font-size:15px;">
+                                  <b style="color: red">*</b> Almacenes
+                                </div>
+                              </div>
+                              <div class="_12VTCAtCmgnF7JdGljsEapdo">
+                                <div class="_3vCdC7UlpoMI8zyS9070Tm" style="width: 100% !important; border-radius: 10px !important;">
+                                  <div class="_2OKKnWa2I26FDFjQGrMlTi" style="color: #2aab5c">
+                                    <i class="ri-home-7-line"></i>
+                                  </div>
+                                  <div class="_1AsJdz8ef0grzhKgIpVifh _3GaS1vq0RCqjdAKKZ5HaLJ">
+                                    <template>
+                                      <template>
+                                        <b-form-select v-model.trim="almacenD" id="ocurreO" class="_1igQJzeY95hxUNao_yIXrr" v-b-tooltip.hover="{ variant: 'success'}" @change="selectAlmOcurreD($event)" :disabled="!ocurreD" placeholder="OCURRE">
+                                          <option value="TULTITLAN">TULTITLAN</option>
+                                          <option value="VALLEJO">VALLEJO</option>
+                                          <option value="QUERETARO">QUERETARO</option>
+                                          <option value="MANZANILLO">MANZANILLO</option>
+                                          <option value="VERACRUZ">VERACRUZ</option>
+                                        </b-form-select>    
+                                      </template>
+                                    </template>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </b-col>
+                          </b-row-->
+                          <b-row>
+                            <b-col md="12">
+                              <div id="mapaDestino" style="height: 100%; width:100%"></div>
+                            </b-col>
+                          </b-row>
+                        </div>
+                        <!--Fin Terrestre-->
+                      </div>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarD()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaD()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-unidades" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="lg">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Unidades</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <p for="gradosMerc" class="form-label" style="font-size: x-large;">Selecciona una unidad:</p>
+                    <b-row>
+                      <b-col v-for="(unit, index) in units" md="4" v-bind:id="'card_unit_'+unit.id">
+                        <div class="card ribbon-box" @click="validaUnidades(unit.id, unit.name)" style="cursor:pointer;">
+                          <div class="card-body">
+                            <div v-bind:id="'select_card_view_'+unit.id" class="ribbon ribbon-success float-left" style="display:none;">
+                              <i class="fas fa-check"></i> Unidad Seleccionada
+                            </div>
+                            <div class="ribbon-content">
+                              <img src="../../../assets/images/unidades/tautliner.svg" style="width:100%;">
+                              <b>{{ unit.name }}</b>
+                              <div style="font-size: 10px;">Tonelada Max.: {{ (unit.peso_bruto_total / 1000) }}, Volumen Max.: {{ (unit.capacidad_vol) }}<sup>m3</sup></div>
+                              <div style="font-size: 10px;">Largo: {{ (unit.long) }}<sub>m</sub>, Ancho: {{ unit.width }}<sub>m</sub>, Alto: {{ unit.high }}<sub>m</sub></div>
+                            </div>
+                          </div>
+                        </div>
+                      </b-col>
+                    </b-row>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarUnidades()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaU()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
+                  </div>
+                </b-modal>
+
+                <b-modal id="inicio-mercancias" no-close-on-esc no-close-on-backdrop hide-footer centered hide-close size="xl">
+                  <template #modal-title>
+                    <b><i class="fe-info"></i> Mercancias</b>
+                  </template>
+                  <div class="form-group text-center">
+                    <b-row>
+                        <!--b-col md="4">
+                          <label class="form-label">
+                            <b style="color: red">*</b>Tipo de Carga
+                          </label>
+                          <b-form-select v-model.trim="tertipocarga" id="cargas" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success'}" @change="selectTipoUnidad($event)">
+                            <option value="g">General</option>
+                            <option value="h">Peligrosa</option>
+                            <option value="r">Refrigerada</option>
+                          </b-form-select>
+                        </b-col-->
+                        <b-col>
+                          <label for="clasifica" class="form-label">
+                            <b style="color: red">*</b>Clasificación SAT<i class="fe-info" title="Esta clasificación es de acuerdo al catalogo de productos del SAT, si tiene el id o el nombre del producto ingreselo."></i></label>
+                          <b-form-group id="clasifica" v-model.trim="clasifica">
+                            <v-autocomplete
+                              :input-attrs="{autocomplete: 'off', placeholder: 'Ingresa una clasificación', id: 'clasificacion',}"
+                              input-class="form-control form-control-sm"
+                              :items="dates_search_proser"
+                              :v-model="clasificaText"
+                              :value="clasificaText"
+                              @input="getLabelProd"
+                              :component-item="templateProvServ"
+                              @update-items="clasificaciones"
+                              :auto-select-one-item="false"                              
+                              return-object
+                            >
+                            </v-autocomplete>
+                          </b-form-group>
+                        </b-col>
+                        <b-col>
+                          <label for="descripcion" class="form-label">
+                            <b style="color: red">*</b>Descripción Personalizada<i class="fe-info" title="Este apartado es para dar más detalles del prducto seleccionado del catalogo del SAT."></i></label>
+                          <textarea class="form-control form-control-sm" style="height: 33px" v-model.trim="descripMerc" type="text"/>
+                        </b-col>
+                        <b-col>
+                          <label for="estibable" class="form-label">
+                            <b style="color: red">*</b>Unidad de Medida</label>
+                          <b-form-select id="unidaMedidaMerc" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaMedidaMerc" @change="selectUniMedMerc">
+                            <option value="cm">Centírmetros</option>
+                            <option value="mt">Metros</option>
+                            <option value="pl">Pulgadas</option>
+                          </b-form-select>
+                        </b-col>
+                        <!--b-col v-if="termodalidad == 'LTL'">
+                          <label for="descripcion" class="form-label">
+                            <b style="color: red">*</b>Ingresa Volumen Total  <label style="font-size:20px;" v-if="nomUnidadModalidad != ''"> - <b-badge style="background-color:#2aab5c;"> {{ nomUnidadModalidad }}</b-badge></label>
+                          </label>
+                          <div class="container row">
+                            <input v-model="volumenMax" type="range" min="0" :max="maxRange" step="0.1" @change="validaVolumen()" class="form-control col-9" style="height: 33px"/>
+                            <input v-model="volumenMax" type="number" @change="validaVolumen()" class="form-control form-control-sm col-3" style="height: 33px;"/>
+                          </div>
+                        </b-col-->
+                      </b-row>
+                      <b-row>
+                        <b-col md="6" v-if="this.tertipocarga === 'h'">
+                          <label for="unMerc" class="form-label">
+                            <b style="color: red">*</b>UN</label>
+                          <input class="form-control form-control-sm" v-model.trim="unMerc" type="text"/>
+                        </b-col>
+                        <b-col cols="6" v-if="this.tertipocarga === 'h'">
+                          <label for="classMerc" class="form-label">
+                            <b style="color: red">*</b>CLASS</label>
+                          <input class="form-control form-control-sm" v-model.trim="classMerc" type="text"/>
+                        </b-col>
+                        <b-col v-if="this.tertipocarga === 'r'">
+                          <label for="gradosMerc" class="form-label">
+                            <b style="color: red">*</b>Grados</label>
+                          <input class="form-control form-control-sm" v-model.trim="gradosMerc" type="text"/>
+                        </b-col>
+                        <b-col v-if="this.tertipocarga === 'r'">
+                          <label for="tUnidadMerc" class="form-label">
+                            <b style="color: red">*</b>Especificaciones</label>
+                          <input class="form-control form-control-sm" v-model.trim="tUnidadMerc" type="text"/>
+                        </b-col>
+                      </b-row>
+                      <br>
+                      <div class="container-fluid">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead class="text-white" style="background-color: #2aab5c">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Embalaje</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Estibable</th>
+                                <th scope="col">Largo</th>
+                                <th scope="col">Ancho</th>
+                                <th scope="col">Alto</th>
+                                <th scope="col">Peso</th>
+                                <th scope="col">Peso Real {{ leyendaPeso }}</th>
+                                <!--th scope="col">Unidad</th>
+                                <th scope="col">Volumen(m3)</th-->
+                                <th scope="col">Peso Volumetrico</th>
+                                <th scope="col">Volumen Real(m3)</th>
+                                <th scope="col">Peso Facturado {{ leyendaVolumen }}</th>
+                                <th scope="col">Acción</th>
+                              </tr>
+                            </thead>
+                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                              <tr v-for="(paq, i) in agregarMercancias">
+                                <th scope="row">{{ i + 1 }}</th>
+                                <td>{{ paq.embalaje }}</td>
+                                <td>{{ paq.cantidad }}</td>
+                                <td>{{ paq.estibable }}</td>
+                                <td>{{ paq.largo }}</td>
+                                <td>{{ paq.ancho }}</td>
+                                <td>{{ paq.alto }}</td>
+                                <td>{{ paq.peso }}<sub>kg</sub></td>
+                                <td>{{ paq.pesoTotal }}<sub>kg</sub></td>
+                                <!--td>{{ paq.upeso.toUpperCase() }}</td>
+                                <td>{{ paq.volumen }}</td-->
+                                <!--td>{{ paq.pesoVolumetrico }}<sub>kg</sub></td-->
+                                <td>{{ formatMoney(paq.pesoTotal / 350) }}<sub>kg</sub></td>
+                                <td>{{ paq.volumenTotal }}<sub>m<sup>3</sup></sub></td>
+                                <td>{{ paq.pesoVolumetricoTotal }}<sub>kg</sub></td>
+                                <td>
+                                  <b-button class="btn btn-danger" title="Eliminar Paquete" @click="eliminaPaquete(paq.idPaq)"><i class="fas fa-trash"></i></b-button>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th style="border: 1px solid #edeff1; border-collapse: collapse;">-</th>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="embalaje" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terembalaje" @change="selectEmbalaje($event)">
+                                    <option v-for="emb in embalajes" :key="emb.idEmbalaje" v-bind:value="emb.idEmbalaje">
+                                      {{ emb.nombre.toUpperCase() }}
+                                    </option>
+                                  </b-form-select>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model.trim="cantMerc" type="number" @change="validaCantidad()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="estibable" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terestibable" @change="selectEstibable">
+                                    <option value="si">Si</option>
+                                    <option value="no">No</option>
+                                  </b-form-select>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="largoMerc" type="number" @change="validaLargo()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="anchoMerc" type="number" @change="validaAncho()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input v-if="terestibable == 'si'" class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()"/>
+                                  <input v-else class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm col" v-model.trim="pesTMerc" type="number" @change="validaPeso()"/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm col" v-model.trim="pesoTotal" type="number" disabled/>
+                                </td>
+                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                 {{ unidaPesoMerc }} 
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-form-select id="unidaPesoMerc" class="form-control custom-select-sm col" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaPesoMerc" @change="selectUniPesMerc">
+                                    <option value="kg">Kg</option>
+                                    <option value="lb">Lb</option>
+                                  </b-form-select>
+                                </td-->
+                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="volMerc" type="number" disabled/>
+                                </td-->
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="pesoVol" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="volMercTot" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <input class="form-control form-control-sm" v-model="pesoVolTot" type="number" disabled/>
+                                </td>
+                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                  <b-button v-if="termodalidad != 'LTL'" class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetes()"><i class="fas fa-plus"></i></b-button>
+                                  <b-button v-else class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetesLTL()"><i class="fas fa-plus"></i></b-button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    <br />
+                    <b-button class="width-md ml-1" size="sm" variant="secondary" @click="regresarMercancias()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
+                    <b-button class="width-md ml-1" size="sm" @click="validaMercancias()" style="background-color: #2aab5c;"><b><i class="bx bx-list-plus" style="font-size: 15px;"></i> Cotizar</b></b-button>
+                  </div>
+                </b-modal>
+                <!--INICIA MODAL-->
+
+                <div v-if="termodalidad == 'LTL'" class="row">
+                  <div class="col-1"></div>
+
+                  <div class="col-md-10">
+                    <div class="row">
+                      <b-modal id="resumen-modal" hide-header hide-footer title="INFORMACION GENERAL" title-class="font-18" dialog-class="modal-xl" no-close-on-esc no-close-on-backdrop>
+                        <div class="container">
+                          <div class="row">
+                            <div class="col-md-12">
+                              <b-container class="bv-example-row" style="background-color: #ffffff">
+                                <b-row style=" border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;">
+                                  <b-col cols="2" style="border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;">
+                                    <div class="" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" style="width: 135%"/>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="7">
+                                    <div style=" align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;">
+                                      <div style="color: #000000">
+                                        <b>INTERLAND TRANSPORT SA DE CV</b>
+                                      </div>
+                                      <div>
+                                        Jaime Balmes 11 Edificio C Piso 7 Of.
+                                        701B Col. Los Morales Polanco Del.
+                                        Miguel Hidalgo, Ciudad de Mexico, C.P.
+                                        11510, Mexico.
+                                      </div>
+                                      <div>RFC: ITR071117UD1</div>
+                                      <div>
+                                        Regimen: 601 - General de Ley Personas
+                                        Morales.
+                                      </div>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <div style="display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;">
+                                      <b style="font-weight: bold; color: #2aab5c;">COTIZACIÓN</b>
+                                      <br />
+                                      <b style="font-weight: bold; color: #000000;">FOLIO ID:</b>
+                                      <br />
+                                      <b style=" font-weight: bold; color: #000000;">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
+                                    </div>
+                                  </b-col>
+                                </b-row>
+                                <!--b-row class="text-center rounded-right" style="background-color: #2aab5c;">
+                                      <b-col>
+                                        <h2 style="text-align: center; color:white;">Detalle del Servicio</h2>
+                                      </b-col>
+                                    </b-row-->
+                                <br />
+                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">INFORMACIÓN GENERAL</label>
+                                  </b-col>
+                                  <b-col class="text-right"
+                                    >Ciudad de México a
+                                    {{ fechaFormato }}</b-col
+                                  >
+                                </b-row>
+                                <b-row class="text-left p-2" style="font-size: 12px;">
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">ORIGEN: </label> {{ terorigen.toUpperCase() }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">DESTINO:</label> {{ terdestino.toUpperCase() }}
+                                  </b-col>
+                                  <b-col md="6" v-if="ocurreO">
+                                    <label style="font-size: 11px">OFICINA ORIGEN: </label> {{ almacenO }}
+                                  </b-col>
+                                  <b-col md="6" v-if="ocurreD">
+                                    <label style="font-size: 11px">OFICINA DESTINO:</label> {{ almacenD }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> RECOLECCIÓN
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> ENTREGRA
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">SERVICIO: </label> {{ tipoOpcion }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE ENVIO: </label> {{ tipoEnvio }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">USUARIO QUE GENERA: </label> {{ username }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FRECUENCIAS: </label>
+                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                      <tbody>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        </tr>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FRECUENCIAS: </label>
+                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                      <tbody>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        </tr>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <div class="col-md-12 text-center">
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                    </div>
+                                  </b-col>
+                                </b-row>
+                                <!--b-row class="text-left p-2" style="font-size: 12px;">
+                                  <b-col>
+                                    <div role="group">
+                                      <label style="font-size: 11px">FOLIO DE COTIZACIÓN:</label>
+                                      <br />
+                                      <p><b>{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0")}}</b></p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">FECHA DE COTIZACIÓN:</label>
+                                      <br />
+                                      <p> {{ terfecha }} </p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">TIPO DE SERVICIO:</label>
+                                      <br />
+                                      <p> {{ tipoOpcion }} </p>
+                                    </div>
+                                  </b-col>
+                                  <b-col>
+                                    <div role="group">
+                                      <label style="font-size: 11px">ORIGEN:</label>
+                                      <br />
+                                      <p class="" style="font-size: 12px">
+                                        {{ terorigen.toUpperCase() }}
+                                      </p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">TIPO DE OPERACIÓN:</label>
+                                      <br />
+                                      <p class="" style="font-size: 12px">
+                                        {{ termodalidad.toUpperCase() }}
+                                      </p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">TIPO DE ENVIO:</label>
+                                      <br />
+                                      <p>{{ tipoEnvio }}</p>
+                                    </div>
+                                  </b-col>
+                                  <b-col>
+                                    <div role="group">
+                                      <label style="font-size: 11px">DESTINO:</label>
+                                      <br />
+                                      <p class="" style="font-size: 12px">
+                                        {{ terdestino.toUpperCase() }}
+                                      </p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">TIPO DE CARGA:</label>
+                                      <br />
+                                      <p class="" style="font-size: 12px">
+                                        {{ carga.toUpperCase() }}
+                                      </p>
+                                    </div>
+                                    <div role="group">
+                                      <label style="font-size: 11px">USUARIO QUE GENERA:</label>
+                                      <br />
+                                      <p>{{ username }}</p>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="2 text-center">
+
+                                    <div class="col-md-12 text-center">
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="12">
+                                    <div class="row" v-if="resClasificaZona != ''">
+                                      <div class="col-sm-12">
+                                        <b-alert show v-bind:variant="notColorZona">
+                                          <h4 class="alert-heading">
+                                            Aviso de Ruta
+                                          </h4>
+                                          <p v-html="notTextoZona"></p>
+                                        </b-alert>
+                                      </div>
+                                    </div>
+                                  </b-col>
+                                </b-row-->
+                                <b-row class="p-1" style="background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">MERCANCIAS</label>
+                                  </b-col>
+                                </b-row>
+                                <div class="col-md-12" style="font-size: 12px;">
+                                  <b-row class="alert alert-light">
+                                    <b-col sm="3"><b>CANTIDAD PIEZAS:</b> {{ totalCantidad }}</b-col>
+                                    <b-col sm="3"><b>VOLUMEN:</b> {{ totalVolumen }}<sub>m<sup>3</sup></sub></b-col>
+                                    <b-col sm="3"><b>PESO REAL:</b> {{ totalPesoReal }}<sub>kg</sub></b-col>
+                                    <b-col sm="3"><b>PESO FACTURADO:</b> {{ totalPesoFaturado }}<sub>kg</sub></b-col>
+                                  </b-row>
+                                </div>
+                                <div class="col-md-12">
+                                  <div class="form-group row mb-0">
+                                    <div class="table-responsive">
+                                      <table class="table table-sm mb-0" width="100%" v-if="agregarMercancias.length > 0">
+                                        <thead>
+                                          <tr>
+                                            <th style="text-align: center;">CANTIDAD</th>
+                                            <th style="text-align: center;">EMBALAJE</th>
+                                            <!--th>ESTIBABLE</th-->
+                                            <th style="text-align: center;">LARGO</th>
+                                            <th style="text-align: center;">ANCHO</th>
+                                            <th style="text-align: center;">ALTO</th>
+                                            <th style="text-align: center;">PESO </th>
+                                            <!--th>PESO REAL</th-->
+                                            <!--th>VOLUMEN</th-->
+                                            <!--th>PESO VOLUMETRICO</th>
+                                            <th>VOLUMEN REAL </th>
+                                            <th>PESO FACTURADO</th-->
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr v-for="merc in agregarMercancias" v-bind:key="merc.idPaq" >
+                                            <td style="text-align: center;">
+                                              {{ merc.cantidad }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.embalaje }}
+                                            </td>
+                                            <!--td style="text-align: center;">
+                                              {{ merc.estibable.toUpperCase() }}
+                                            </td-->
+                                            <td style="text-align: center;">
+                                              {{ merc.largo }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.ancho }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.alto }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.peso }}<sub>{{ merc.upeso }}</sub>
+                                            </td>
+                                            <!--td style="text-align: center;">
+                                              {{ merc.pesoTotal }}<sub>{{ merc.upeso }}</sub>
+                                            </td-->
+                                            <!--td style="text-align: center;">
+                                              {{ merc.volumen }}<sub>m<sup>3</sup></sub>
+                                            </td-->
+                                            <!--td style="text-align: center;">
+                                              {{ merc.pesoVolumetrico }}<sub>{{ merc.upeso }}</sub>
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.volumenTotal }}<sub>m<sup>3</sup></sub>
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.pesoVolumetricoTotal }}<sub>{{ merc.upeso }}</sub>
+                                            </td-->
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                      <p v-else>Sin Mercancias</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <!--div v-if="this.tertipocarga == 'r'">
+                                  <b-row class="p-2">
+                                    <b-col cols="6">
+                                      <label style="font-size: 11px">GRADOS:</label>
+                                      <p style="font-size: 12px">
+                                        {{ gradosMerc.toUpperCase() }}
+                                      </p>
+                                    </b-col>
+                                    <b-col cols="6">
+                                      <label style="font-size: 11px">TIPO DE UNIDAD:</label>
+                                      <p style="font-size: 12px">
+                                        {{ tUnidadMerc.toUpperCase() }}
+                                      </p>
+                                    </b-col>
+                                  </b-row>
+                                </div>
+                                <div v-if="this.tertipocarga == 'h'">
+                                  <b-row class="p-2">
+                                    <b-col cols="6">
+                                      <label style="font-size: 11px">UN:</label>
+                                      <p style="font-size: 12px">
+                                        {{ unMerc.toUpperCase() }}
+                                      </p>
+                                    </b-col>
+                                    <b-col cols="6">
+                                      <label style="font-size: 11px">CLASS:</label>
+                                      <p style="font-size: 12px">
+                                        {{ classMerc.toUpperCase() }}
+                                      </p>
+                                    </b-col>
+                                  </b-row>
+                                </div>
+                                <b-row class="p-2">
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">ENVIO:</label>
+                                    <p style="font-size: 12px">
+                                      {{ velocidadEnvio.toUpperCase() }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">EMBALAJE:</label>
+                                    <p style="font-size: 12px">
+                                      {{ /*terembalaje.toUpperCase()*/ terDescEmbalaje.toUpperCase() }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">ESTIBABLE:</label>
+                                    <p style="font-size: 12px">
+                                      {{ terestibable.toUpperCase() }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">CLASIFICACIÓN:</label>
+                                    <p style="font-size: 12px">
+                                      {{ clasificaText ? clasificaText : "" }}
+                                    </p>
+                                  </b-col>
+                                </b-row>
+                                <b-row class="p-2">
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">CANTIDAD:</label>
+                                    <p style="font-size: 12px">
+                                      {{ cantMerc }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">VOLUMEN (m3):</label>
+                                    <p style="font-size: 12px">
+                                      {{ volMerc }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">PESO TOTAL:</label>
+                                    <p style="font-size: 12px">
+                                      {{ pesTMerc + unidaPesoMerc.toUpperCase() }}
+                                    </p>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <label style="font-size: 11px">DESCRIPCIÓN:</label>
+                                    <p style="font-size: 12px">
+                                      {{ descripMerc.trim() }}
+                                    </p>
+                                  </b-col>
+                                </b-row-->
+                                
+                                <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">PAQUETES</label>
+                                  </b-col>
+                                  <b-col></b-col>
+                                  <b-col></b-col>
+                                </b-row>
+                                <div>
+                                  <div class="row my-3" style="font-size: 12px;">
+                                    <div v-for="price in pricingData" :key="price.title" class="col-xl-4 col-md-6">
+                                      <div class="card card-pricing" :class="{ 'ribbon-box': `${price.ribbon}` === 'Más Vendido' }">
+                                        <div v-if="price.ribbon === 'Más Vendido'" class="ribbon-two ribbon-two-danger">
+                                          <span>Más Vendido</span>
+                                        </div>
+                                        <div class="card-body text-center">
+                                          <p class="card-pricing-plan-name font-weight-bold text-uppercase">
+                                            {{ price.title }}
+                                          </p>
+                                          <span class="card-pricing-icon" :class="{'bg-danger': `${price.ribbon}` === 'Más Vendido', 'text-secondary': `${price.ribbon}` !== 'Más Vendido', 'text-white': `${price.ribbon}` === 'Más Vendido',}">
+                                            <i :class="`${price.icon}`"></i>
+                                          </span>
+                                          <h2 class="card-pricing-price">
+                                            {{ price.price.toFixed(2) }}
+                                            <span>/ {{ price.divisa }}</span>
+                                          </h2>
+                                          <ul class="card-pricing-features">
+                                            <li>INCLUYE: {{ price.services }}</li>
+                                            <li>{{ price.bandwidth }}</li>
+                                            <li>{{ price.domain }}</li>
+                                            <li>{{ price.user }}</li>
+                                            <li>Soporte vía Correo</li>
+                                            <li>Monitoreo de unidades 24 horas, los 7 días de la semana.</li>
+                                          </ul>
+                                          <button v-if="price.seleccionado == 1" class="btn mt-4 btn-block btn-secondary" :class="{ 'btn-danger': `${price.ribbon}` === 'Más Vendido' }">
+                                            <i class="fe-check"></i>
+                                            Servicio Cotizado
+                                          </button>
+                                          <button v-else class="btn mt-4 btn-block btn-secondary" :class="{ 'btn-danger': `${price.ribbon}` === 'Más Vendido' }" @click="elegirPaquete(price.idPlan)">
+                                            Elegir Paquete
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <!-- end Pricing_card -->
+                                    </div>
+                                    <!-- end col -->
+                                  </div>
+                                </div>
+                              
+                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">SERVICIOS</label>
+                                  </b-col>
+                                  <b-col cols="5"></b-col>
+                                  <b-col></b-col>
+                                </b-row>
+                                <!-- Inicio else -->
+                                <div class="col-md-12" style="font-size: 12px;">
+                                  <div class="form-group row mb-0">
+                                    <div class="table-responsive">
+                                      <table class="table table-sm mb-0" width="100%" v-if="confirmarServices.length > 0">
+                                        <thead>
+                                          <tr>
+                                            <th>CONCEPTO</th>
+                                            <!--th>KILOMETROS</th>
+                                                <th>TARIFA</th-->
+                                            <th>SUBTOTAL</th>
+                                            <th>IVA</th>
+                                            <!--th v-if="totalPesoVolTot > totalKilo && termodalidad == 'LTL'">VOLUMEN FACTURADO</th>
+                                            <th v-else>PESO FACTURAO</th-->
+                                            <!--th>ZONA PELIGROSA</th>
+                                            <th>ZONA NO COMERCIAL</th>
+                                            <th>SOBREPESO</th>
+                                            <th>SUSCEPTIBLE A ROBOS</th-->
+                                            <th>TOTAL</th>
+                                            <th v-if="admin">AJUSTE DE VENTA</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody v-if="divisa == 2">
+                                          <tr v-for="servicios in confirmarServices" v-bind:key="servicios.idService" >
+                                            <td style="text-right">
+                                              {{ servicios.nombreSer }}
+                                            </td>
+                                            <!--td  style="text-right"> {{ formatMoney(servicios.kilometraje) }} </td>
+                                                <td  style="text-right"> {{ formatMoney(servicios.tarifaK) }} x kilometro</td-->
+                                            <td style="text-right">
+                                              ${{ formatMoney(servicios.subtotal + servicios.porcAumento) }}<sub>MXN</sub>
+                                            </td>
+                                            <td style="text-right">
+                                              ${{ formatMoney(servicios.porcIva) }}<sub>MXN</sub>
+                                            </td>
+                                            <!--td v-if="totalPesoVolTot > totalKilo && termodalidad == 'LTL'">
+                                              {{ formatMoney(totalPesoVolTot) }}
+                                            </td>
+                                            <td v-else>
+                                              {{ formatMoney(totalKilo) }}
+                                            </td-->
+                                            <!--td style="text-right">
+                                              {{ formatMoney(servicios.porcZPeligrosa) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcNComercial) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcSobrepeso) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcSusceptible) }}
+                                            </td-->
+                                            <td style="text-right">
+                                              ${{ formatMoney(servicios.totalServicio + servicios.porcAumento) }}<sub>MXN</sub>
+                                            </td>
+                                            <td align="center" v-if="servicios.subtotal != 0 && admin">
+                                              <b-form-checkbox
+                                                name="listadoServicios"
+                                                v-bind:id="servicios.idService + 'check'"
+                                                v-model="serviciosResumen"
+                                                :key="servicios.idService"
+                                                v-bind:value="servicios.idService"
+                                                @change="mostrarImpuesto(servicios.idService)"
+                                                style="font-size: 12px;"
+                                                >
+                                              </b-form-checkbox>
+                                            </td>
+                                            <td align="center" v-else>
+                                              <p>En Proceso de Cotización</p>
+                                            </td>
+                                            <td v-if="admin">
+                                              <select hidden v-bind:id="servicios.idService + 'seleccionImpuesto'" class="form-control-sm" @change="sumaImpuesto($event,servicios.idService)">
+                                                <option v-for="opc in options" :key="opc.id" v-bind:value="opc.id" :selected="opc.id === 0">
+                                                  {{ opc.value }}%
+                                                </option>
+                                              </select>
+                                              <input hidden value="0" v-bind:id=" servicios.idService + 'escondeImpuesto'"/>
+                                            </td>
+                                            <td v-if="admin">
+                                              <input hidden placeholder="Total" class="form-control text-center" type="text" value="0" v-bind:id="servicios.idService + 'sumaTotal'" readonly/>
+                                              <input hidden value="0" v-bind:id=" servicios.idService + 'impuestoOculto'"/>
+                                              <input hidden value="0" v-bind:id="servicios.idService + 'ocultarSumaTotal'"/>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                        <tbody v-else>
+                                          <tr v-for="servicios in confirmarServices" v-bind:key="servicios.idService">
+                                            <td style="text-right">
+                                              {{ servicios.nombreSer }}
+                                            </td>
+                                            <!--td  style="text-right"> {{ formatMoney(servicios.kilometraje) }} </td>
+                                                <td  style="text-right"> {{ formatMoney(servicios.tarifaK) }} x kilometro</td-->
+                                            <td style="text-right">
+                                              ${{ formatMoney((servicios.subtotal + servicios.porcAumento) / valorDolar) }}<sub>USD</sub>
+                                            </td>
+                                            <td style="text-right">
+                                              ${{ formatMoney(servicios.porcIva / valorDolar) }}<sub>USD</sub>
+                                            </td>
+                                            <!--td style="text-right">
+                                              {{ formatMoney(servicios.porcZPeligrosa / valorDolar) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcNComercial / valorDolar) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcSobrepeso / valorDolar) }}
+                                            </td>
+                                            <td style="text-right">
+                                              {{ formatMoney(servicios.porcSusceptible / valorDolar) }}
+                                            </td-->
+                                            <td style="text-right">
+                                              ${{ formatMoney((servicios.totalServicio + servicios.porcAumento) / valorDolar) }}<sub>USD</sub>
+                                            </td>
+                                            <td align="center" v-if="servicios.subtotal != 0 && admin">
+                                              <input class="form-control-input" type="checkbox" v-bind:id="servicios.idService + 'check'" :key="servicios.idService" v-model="serviciosResumen" v-bind:value="servicios.idService" @change="mostrarImpuesto(servicios.idService)"/>
+                                            </td>
+                                            <td align="center" v-else>
+                                              <p>En Proceso de Cotización</p>
+                                            </td>
+                                            <td v-if="admin">
+                                              <select hidden v-bind:id="servicios.idService + 'seleccionImpuesto'" class="form-control-sm" @change="sumaImpuesto($event, servicios.idService)">
+                                                <option v-for="opc in options" :key="opc.id" v-bind:value="opc.id" :selected="opc.id === 0">
+                                                  {{ opc.value }}%
+                                                </option>
+                                              </select>
+                                              <input hidden value="0" v-bind:id="servicios.idService + 'escondeImpuesto'"/>
+                                            </td>
+                                            <td v-if="admin">
+                                              <input hidden placeholder="Total" class="form-control text-center" type="text" value="0" v-bind:id="servicios.idService + 'sumaTotal'" readonly/>
+                                              <input hidden value="0" v-bind:id="servicios.idService + 'impuestoOculto'"/>
+                                              <input hidden value="0" v-bind:id="servicios.idService + 'ocultarSumaTotal'"/>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                        <tfoot>
+                                          <tr>
+                                            <td></td>
+                                            <!--td></td>
+                                                <td></td-->
+                                            <td v-if="admin"></td>
+                                            <td v-if="admin"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td colspan="2" style="text-align: right;">
+                                              <p v-if="divisa == 2">
+                                                <b>SUBTOTAL:</b>
+                                                ${{ formatMoney(parseFloat(totalSubtotalGlobal)) }}<sub>MXN</sub>
+                                              </p>
+                                              <p v-else>
+                                                <b>SUBTOTAL:</b>
+                                                ${{ formatMoney(parseFloat(totalSubtotalGlobal)) }}<sub>USD</sub>
+                                              </p>
+                                              <p v-if="divisa == 2">
+                                                <b>I.V.A.:</b>
+                                                ${{ formatMoney(parseFloat(totalIvaGlobal)) }}<sub>MXN</sub>
+                                              </p>
+                                              <p v-else>
+                                                <b>I.V.A.:</b>
+                                                ${{ formatMoney(parseFloat(totalIvaGlobal)) }}<sub>USD</sub>
+                                              </p>
+                                              <!--p>
+                                                <b>ZONA PELIGROSA:</b>
+                                                {{ formatMoney(parseFloat(totalZonaPeligrosa)) }}
+                                              </p>
+                                              <p>
+                                                <b>ZONA NO COMERCIAL:</b>
+                                                {{ formatMoney(parseFloat(totalZonaNoComercial)) }}
+                                              </p>
+                                              <p>
+                                                <b>SOBREPESO:</b>
+                                                {{ formatMoney(parseFloat(totalSobrepesoGlobal)) }}
+                                              </p>
+                                              <p>
+                                                <b>SUSCEPTIBLE A ROBOS:</b>
+                                                {{ formatMoney(parseFloat(totalRobosGlobal)) }}
+                                              </p-->
+
+                                              <!--p><b>RETENCIONES:</b> {{ formatMoney(parseFloat(totalRetExp)) }}</p-->
+                                              <p v-if="divisa == 2">
+                                                <b>TOTAL:</b>
+                                                ${{ formatMoney(parseFloat(totalGlobal)) }}<sub>MXN</sub>
+                                              </p>
+                                              <p v-else>
+                                                <b>TOTAL:</b>
+                                                ${{ formatMoney(parseFloat(totalGlobal)) }}<sub>USD</sub>
+                                              </p>
+                                            </td>
+                                          </tr>
+                                        </tfoot>
+                                      </table>
+                                      <p v-else>Sin Servicios</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <!-- Fin else -->
+                              </b-container>
+                              <!--b-container>
+                                <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
+                                  <b-col class="text-left" style="font-size: 12px;">
+                                    <label style="color: #ffffff">INFORMACIÓN DE CONTACTO</label>
+                                  </b-col>
+                                  <b-col></b-col>
+                                  <b-col></b-col>
+                                </b-row>
+                                <b-row class="p-2">
+                                  <b-col md="6">
+                                    <label for="" style="font-size: 12px; font-weight: bold">NOMBRE COMPLETO</label>
+                                    <b-input v-model="contacName" @input="contacName = contacName.toUpperCase()" placeholder="ESPINOSA UGALDE PABLO"></b-input>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label for="" style="font-size: 12px; font-weight: bold">E-MAIL</label>
+                                    <b-input v-model="contacEmail" placeholder="pablo@gmail.com"></b-input>
+                                  </b-col>
+                                </b-row>
+
+                                <b-row class="p-2">
+                                  <b-col md="6">
+                                    <label for="" style="font-size: 12px; font-weight: bold">TELEFONO</label>
+                                    <div class="input-group">
+                                      <select id="lada" class="form-control col-md-3" v-model="contacLada">
+                                        <option v-for="marcado in ladas" :key="marcado.id" v-bind:value="marcado.id">
+                                          {{ marcado.alias }} + {{ marcado.code }}
+                                        </option>
+                                      </select>
+                                      <b-form-input class="col-md-9" placeholder="" type="number" v-model="contacTelefono"></b-form-input>
+                                    </div>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label for="">NOTA</label>
+                                    <b-textarea v-model="contacDescription" @input="contacDescription = contacDescription.toUpperCase()" placeholder="DESCRIPCION DEL PRODUCTO"></b-textarea>
+                                  </b-col>
+                                </b-row>
+                              </b-container>
+
+                              <b-container>
+                                <b-row class="p-2">
+                                  <div class="row mt-2" style="border-top: 1px #ccc">
+                                    <p style="color: #2aab5c; font-weight: bold">
+                                      La siguiente cotizacion se enviara para su
+                                      validacion si desea continuar favor
+                                      presione en Confirmar
+                                    </p>
+                                  </div>
+                                </b-row>
+                              </b-container-->
+                            </div>
+                          </div>
+                        </div>
+
+                        <!--div class="form-group text-right mt-3">
+                          <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
+                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="Save2()">Confirmar</b-button>
+                        </div-->
+
+                        <div class="form-group text-right mt-3">
+                          <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
+                        </div>
+                      </b-modal>
+                    </div>
+                  </div>
+
+                  <div class="col-1"></div>
+                </div>
+                <div v-if="termodalidad == 'FTL'" class="row">
+                  <div class="col-1"></div>
+
+                  <div class="col-md-10">
+                    <div class="row">
+                      <b-modal id="resumen-modal-ftl" hide-header hide-footer title="INFORMACION GENERAL" title-class="font-18" dialog-class="modal-xl" no-close-on-esc no-close-on-backdrop>
+                        <div class="container">
+                          <div class="row">
+                            <div class="col-md-12">
+                              <b-container class="bv-example-row" style="background-color: #ffffff">
+                                <b-row style=" border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;">
+                                  <b-col cols="2" style="border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;">
+                                    <div class="" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" style="width: 135%"/>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="7">
+                                    <div style=" align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;">
+                                      <div style="color: #000000">
+                                        <b>INTERLAND TRANSPORT SA DE CV</b>
+                                      </div>
+                                      <div>
+                                        Jaime Balmes 11 Edificio C Piso 7 Of.
+                                        701B Col. Los Morales Polanco Del.
+                                        Miguel Hidalgo, Ciudad de Mexico, C.P.
+                                        11510, Mexico.
+                                      </div>
+                                      <div>RFC: ITR071117UD1</div>
+                                      <div>
+                                        Regimen: 601 - General de Ley Personas
+                                        Morales.
+                                      </div>
+                                    </div>
+                                  </b-col>
+                                  <b-col cols="3">
+                                    <div style="display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;">
+                                      <b style="font-weight: bold; color: #2aab5c;">COTIZACIÓN</b>
+                                      <br />
+                                      <b style="font-weight: bold; color: #000000;">FOLIO ID:</b>
+                                      <br />
+                                      <b style=" font-weight: bold; color: #000000;">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
+                                    </div>
+                                  </b-col>
+                                </b-row>
+                                <!--b-row class="text-center rounded-right" style="background-color: #2aab5c;">
+                                      <b-col>
+                                        <h2 style="text-align: center; color:white;">Detalle del Servicio</h2>
+                                      </b-col>
+                                    </b-row-->
+                                <br />
+                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">INFORMACIÓN GENERAL</label>
+                                  </b-col>
+                                  <b-col class="text-right"
+                                    >Ciudad de México a
+                                    {{ fechaFormato }}</b-col
+                                  >
+                                </b-row>
+                                <b-row class="text-left p-2" style="font-size: 12px;">
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">ORIGEN: </label> <p v-for="(origen, origenIndex) in datosOrigenesFTLOcupar"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b></p>
+                                                
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">DESTINO:</label> <p v-for="(destino, destinoIndex) in datosDestinosFTLOcupar"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }} </b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b></p>
+                                  </b-col>
+                                  <b-col md="6" v-if="ocurreO">
+                                    <label style="font-size: 11px">OFICINA ORIGEN: </label> {{ almacenO }}
+                                  </b-col>
+                                  <b-col md="6" v-if="ocurreD">
+                                    <label style="font-size: 11px">OFICINA DESTINO:</label> {{ almacenD }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> RECOLECCIÓN
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> ENTREGRA
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">SERVICIO: </label> {{ tipoOpcion }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">TIPO DE ENVIO: </label> {{ tipoEnvio }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">USUARIO QUE GENERA: </label> {{ username }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FRECUENCIAS: </label>
+                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                      <tbody>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        </tr>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FRECUENCIAS: </label>
+                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                      <tbody>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        </tr>
+                                        <tr style="border-style: double;">
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </b-col>
+                                  <b-col md="6">
+                                    <label style="font-size: 11px">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
+                                  </b-col>
+                                  <b-col md="6">
+                                    <div class="col-md-12 text-center">
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                    </div>
+                                  </b-col>
+                                </b-row>
+                                <b-row class="p-1" style="background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">MERCANCIAS</label>
+                                  </b-col>
+                                </b-row>
+                                <!--div class="col-md-12" style="font-size: 12px;">
+                                  <b-row class="alert alert-light">
+                                    <b-col sm="3"><b>CANTIDAD PIEZAS:</b> {{ totalCantidad }}</b-col>
+                                    <b-col sm="3"><b>VOLUMEN:</b> {{ totalVolumen }}<sub>m<sup>3</sup></sub></b-col>
+                                    <b-col sm="3"><b>PESO REAL:</b> {{ totalPesoReal }}<sub>kg</sub></b-col>
+                                    <b-col sm="3"><b>PESO FACTURADO:</b> {{ totalPesoFaturado }}<sub>kg</sub></b-col>
+                                  </b-row>
+                                </div-->
+                                <div class="col-md-12">
+                                  <div class="form-group row mb-0">
+                                    <div class="table-responsive">
+                                      <table class="table table-sm mb-0" width="100%" v-if="agregarMercancias.length > 0">
+                                        <thead>
+                                          <tr>
+                                            <th style="text-align: center;">CANTIDAD</th>
+                                            <th style="text-align: center;">EMBALAJE</th>
+                                            <!--th>ESTIBABLE</th-->
+                                            <th style="text-align: center;">LARGO</th>
+                                            <th style="text-align: center;">ANCHO</th>
+                                            <th style="text-align: center;">ALTO</th>
+                                            <th style="text-align: center;">PESO </th>
+                                            <!--th>PESO REAL</th-->
+                                            <!--th>VOLUMEN</th-->
+                                            <!--th>PESO VOLUMETRICO</th>
+                                            <th>VOLUMEN REAL </th>
+                                            <th>PESO FACTURADO</th-->
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr v-for="merc in agregarMercancias" v-bind:key="merc.idPaq" >
+                                            <td style="text-align: center;">
+                                              {{ merc.cantidad }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.embalaje }}
+                                            </td>
+                                            <!--td style="text-align: center;">
+                                              {{ merc.estibable.toUpperCase() }}
+                                            </td-->
+                                            <td style="text-align: center;">
+                                              {{ merc.largo }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.ancho }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.alto }}
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.peso }}<sub>{{ merc.upeso }}</sub>
+                                            </td>
+                                            <!--td style="text-align: center;">
+                                              {{ merc.pesoTotal }}<sub>{{ merc.upeso }}</sub>
+                                            </td-->
+                                            <!--td style="text-align: center;">
+                                              {{ merc.volumen }}<sub>m<sup>3</sup></sub>
+                                            </td-->
+                                            <!--td style="text-align: center;">
+                                              {{ merc.pesoVolumetrico }}<sub>{{ merc.upeso }}</sub>
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.volumenTotal }}<sub>m<sup>3</sup></sub>
+                                            </td>
+                                            <td style="text-align: center;">
+                                              {{ merc.pesoVolumetricoTotal }}<sub>{{ merc.upeso }}</sub>
+                                            </td-->
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                      <p v-else>Sin Mercancias</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              
+                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">SERVICIOS</label>
+                                  </b-col>
+                                  <b-col cols="5"></b-col>
+                                  <b-col></b-col>
+                                </b-row>
+                                <!-- Inicio else -->
+                                <br>
+                                <b-row>
+                                  <div class="col-md-12" style="font-size: 12px;">
+                                    <div class="form-group row mb-0">
+                                      <template>
+                                        <div class="table-responsive">
+                                          <table class="table table-hover" id="tarifario">
+                                            <thead class="text-white" style="background-color: #2aab5c">
+                                              <tr>
+                                                <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
+                                                <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
+                                              </tr>
+                                              <tr>
+                                                <td style="text-align: center;"><b>Origen</b></td>
+                                                <td style="text-align: center;"><b>Destino</b></td>
+                                                <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index"><b>{{ generarTituloColumna(unidad) }}</b></td>
+                                              </tr>
+                                            </thead>
+                                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                              <template v-for="(origen, origenIndex) in datosOrigenesFTLOcupar">
+                                                <template v-for="(destino, destinoIndex) in datosDestinosFTLOcupar">
+                                                  <tr>
+                                                    <td style="text-align: center;"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
+                                                    <td style="text-align: center;"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
+                                                    <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" style="text-align:center;">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
+                                                  </tr>
+                                                </template>
+                                              </template>  
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </template>
+                                    </div>
+                                  </div>
+                                </b-row>
+
+                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                  <b-col class="text-left">
+                                    <label style="color: #ffffff">SERVICIOS ADICIONALES</label>
+                                  </b-col>
+                                  <b-col cols="5"></b-col>
+                                  <b-col></b-col>
+                                </b-row>
+                                <b-row>
+                                  <b-col md="12">
+                                    <table class="table table-sm mb-0" width="100%" v-if="adicionalesFTL.length > 0">
+                                      <thead>
+                                        <tr>
+                                          <th style="text-align: center;">Servicio</th>
+                                          <th style="text-align: center;">Detalle</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr v-for="serv in adicionalesFTL" v-bind:key="serv.idServicio" >
+                                          <td style="text-align: center;">
+                                            {{ serv.nombreServicio }}
+                                          </td>
+                                          <td style="text-align: center;">
+                                            El precio del servicio adicional ya va incluido en precio mostrado en la seccion de Servicios.
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                    <p v-else>Sin servicios adicionales</p>
+                                  </b-col>
+                                </b-row>
+                                <!-- Fin else -->
+                              </b-container>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!--div class="form-group text-right mt-3">
+                          <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
+                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="Save2()">Confirmar</b-button>
+                        </div-->
+
+                        <div class="form-group text-right mt-3">
+                          <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="contactoFTL()">Quiero el Servicio!</b-button>
+                        </div>
+                      </b-modal>
+                    </div>
+                  </div>
+
+                  <div class="col-1"></div>
+                </div>
+              </div>
+              <!--Fin Formulario Terrestre-->
+            </div>
+            <br/>
+            <!-- div class="_2ka8NZmhs89Mkk9ABZSXJM">
+              <template>
+                <div>
+                  <b-carousel
+                    id="carousel-1"
+                    v-model="slide"
+                    :interval="19000"
+                    controls
+                    indicators                    
+                    @sliding-start="onSlideStart"
+                    @sliding-end="onSlideEnd"
+                    <b-carousel-slide>
+                      <b-row class="text-center">
+                        <b-col cols="6">
+                          <div>
+                            <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+                              <b-row no-gutters style="height: 200px;">
+                                <b-col md="6">
+                                  <b-card-img src="https://picsum.photos/400/400/?image=20" alt="Image" class="rounded-0"></b-card-img>
+                                </b-col>
+                                <b-col md="6">
+                                  <b-card-body title="Oferta 1">
+                                    <b-card-text>
+                                      Detalle de la oferta uno.
+                                    </b-card-text>
+                                  </b-card-body>
+                                </b-col>
+                              </b-row>
+                            </b-card>
+                          </div>
+                        </b-col>
+                        <b-col cols="6">
+                          <div>
+                            <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+                              <b-row no-gutters style="height: 200px;">
+                                <b-col md="6">
+                                  <b-card-body title="Oferta 2">
+                                    <b-card-text>
+                                      Detalle d ela oferta 2
+                                      <b-button>Obtener Oferta</b-button>
+                                    </b-card-text>
+                                  </b-card-body>
+                                </b-col>
+                                <b-col md="6">
+                                  <b-card-img src="https://picsum.photos/400/400/?image=20" alt="Image" class="rounded-0"></b-card-img>
+                                </b-col>
+                              </b-row>
+                            </b-card>
+                          </div>
+                        </b-col>
+                      </b-row>
+                    </b-carousel-slide>
+                    <b-carousel-slide>
+                      <b-row class="text-center">
+                        <b-col cols="6">
+                          <div>
+                            <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+                              <b-row no-gutters style="height: 200px;">
+                                <b-col md="6">
+                                  <b-card-img src="https://picsum.photos/400/400/?image=20" alt="Image" class="rounded-0"></b-card-img>
+                                </b-col>
+                                <b-col md="6">
+                                  <b-card-body title="Oferta 3">
+                                    <b-card-text>
+                                      Detalle de oferta tres
+                                      <br/>
+                                      <b-button>Detalle</b-button>
+                                    </b-card-text>
+                                  </b-card-body>
+                                </b-col>
+                              </b-row>
+                            </b-card>
+                          </div>
+                        </b-col>
+                        <b-col cols="6">
+                          <div>
+                            <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+                              <b-row no-gutters style="height: 200px;">
+                                <b-col md="6">
+                                  <b-card-img src="https://picsum.photos/400/400/?image=20" alt="Image" class="rounded-0"></b-card-img>
+                                </b-col>
+                                <b-col md="6">
+                                  <b-card-body title="Oferta 4">
+                                    <b-card-text>
+                                        Detalle de oferta cuatro
+                                      </b-card-text>
+                                  </b-card-body>
+                                </b-col>
+                              </b-row>
+                            </b-card>
+                          </div>
+                        </b-col>
+                      </b-row>
+                    </b-carousel-slide>
+                  </b-carousel>
+                </div>
+              </template>
+            </div-->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end card -->
+
+    <!--- end row -->
+  </Layout>
+</template>
+
+<style>
+
+#mapLTL {
+  height: 400px;
+  width: 100%;
+  border-radius: 20px;
+}
+
+#inicio-mercancias .modal-dialog.modal-xl {
+  max-width: 95%;
+}
+
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #2aab5c; /* Cambia este valor para el color deseado */
+  border-color: #2aab5c;
+}
+
+.custom-checkbox .custom-control-input:checked:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 1px #2aab5c, 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
+}
+
+.custom-checkbox .custom-control-input:disabled ~ .custom-control-label {
+  opacity: 0.65; /* Cambia este valor para el nivel de opacidad deseado */
+}
+
+.custom-checkbox .custom-control-input:disabled ~ .custom-control-label::before {
+  background-color: #2aab5c; /* Cambia este valor para el color deseado */
+  border-color: #2aab5c;
+}
+
+.v-autocomplete-list {
+  position: relative;
+  padding: 5px;
+  max-height: 300px;
+  height: auto;
+  overflow-y: auto;
+  font-weight: bold;
+  width: 100%;
+  font-size: 15px;
+  background-color: #056736;
+  text-overflow: ellipsis;
+  box-shadow: none;
+  outline: 0;
+  transition: all 0.2s;
+  z-index: 1051;
+  border-radius: 0;
+}
+
+/* Personalizar el fondo de la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 10px; /* Ancho de la barra de desplazamiento */
+  background-color: #ffffff; /* Color de fondo de la barra de desplazamiento */
+}
+
+/* Personalizar el color del thumb o agarre de la barra de desplazamiento */
+::-webkit-scrollbar-thumb {
+  background-color: #056736; /* Color del thumb de la barra de desplazamiento */
+}
+
+/* Opcional: Personalizar el fondo del área de la barra de desplazamiento que no está ocupada por el thumb */
+::-webkit-scrollbar-track {
+  background-color: #eaeaea; /* Color del fondo de la barra de desplazamiento sin ocupar */
+}
+
+.boton-circle {
+  width: 50px;
+  height: 50px;
+  margin: 10px;
+  padding: 0px;
+  border-radius: 50px;
+  font-size: 27px;
+  line-height: 51px;
+  color: white;
+  text-align: center;
+}
+
+.boton-circle :hover {
+  opacity: 0.5;
+  -moz-opacity: 0.5;
+  filter: alpha (opacity=50);
+}
+
+.boton-circle a {
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 5px 5px 0;
+}
+
+.btn-circle {
+  width: 14px;
+  height: 12px;
+  padding: 6px 0px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.42857;
+}
+
+.popover {
+  max-width: 90% !important;
+  left: 8% !important;
+  width: 100%;
+  will-change: auto !important;
+}
+
+.popover-add {
+  max-width: 30% !important;
+  left: 0% !important;
+  width: 100%;
+}
+
+.popover-header {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+@media only screen and (max-width: 991px) {
+  .popover-add {
+    max-width: 50% !important;
+    left: 4% !important;
+    width: 100%;
+  }
+}
+
+.text-white {
+  color: #fff;
+}
+
+input[type="range"] {
+  display: block;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"], input[type="range"]::-webkit-slider-runnable-track, input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  background-color: #777;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #333;
+  border-radius: 50%;
+  margin-top: -9px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background-color: #777;
+  width: 15px;
+  height: 15px;
+  border: 3px solid #333;
+  border-radius: 50%;
+}
+
+input[type="range"]::-ms-thumb {
+  background-color: #777;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #333;
+  border-radius: 50%;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: #777;
+  height: 3px;
+}
+
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  outline: none;
+}
+
+input[type="range"]::-moz-range-track {
+  background-color: #777;
+  height: 3px;
+}
+
+input[type="range"]::-ms-track {
+  background-color: #777;
+  height: 3px;
+}
+
+input[type="range"]::-ms-fill-lower {
+  background-color: HotPink;
+}
+
+input[type="range"]::-ms-fill-upper {
+  background-color: black;
+}
+
+.modal-header .close {
+  display: none;
+}
+
+/*ESTILO PRESTADOS */
+
+body ._2ka8NZmhs89Mkk9ABZSXJM {
+  margin: 0 auto;
+  width: 100%;
+  /*max-width: 1180px;*/
+  border-radius: 10px;
+  /*background-color: #e9f0f7;*/
+  background-color: #eeeff3;
+  padding: 10px 20px 16px 20px;
+  animation: _37voVng3nKHA4uc-Tzq1vG 0.2s ease;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._2ka8NZmhs89Mkk9ABZSXJM {
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
+
+body ._1n4EOSyAk1BfVWnF_adPB9 {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center !important;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._1n4EOSyAk1BfVWnF_adPB9 {
+    flex-wrap: wrap;
+  }
+}
+
+body .YkNOjSwN0S7IrLX5OK2Hc {
+  width: 24%;
+  max-width: 192px;
+}
+
+@media only screen and (max-width: 991px) {
+  body .YkNOjSwN0S7IrLX5OK2Hc {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 8px;
+    border-radius: 5px;
+  }
+}
+
+body .YkNOjSwN0S7IrLX5OK2Hc svg {
+  width: 41px;
+  height: 41px;
+}
+
+body .YkNOjSwN0S7IrLX5OK2Hc svg path {
+  transition: color 0.2s ease 0.08s;
+}
+
+body ._1cwBgi06GP5eqlDlfhrE9A ._2tU2wKoG7YY564aace37OF {
+  flex: 1;
+}
+
+body ._2tU2wKoG7YY564aace37OF {
+  font-size: 10px;
+  line-height: 14px;
+  color: #9fb1c1;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0 0 6px 0;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._2tU2wKoG7YY564aace37OF {
+    display: none;
+  }
+}
+
+body .GDwblpm-PHJsqhSUenve5 {
+  display: flex;
+  position: relative;
+  background-color: #fff;
+  border-radius: 5px 0 0 5px;
+}
+
+@media only screen and (max-width: 991px) {
+  body .GDwblpm-PHJsqhSUenve5 {
+    border-radius: 5px;
+    justify-content: center;
+  }
+}
+
+body ._3wHay473hXYPOlphbqvMW6 {
+  position: relative;
+  display: flex;
+  height: 60px;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  color: #9fb1c1;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  z-index: 1;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3wHay473hXYPOlphbqvMW6:nth-child(3)::after {
+    display: none;
+  }
+}
+
+body ._3wHay473hXYPOlphbqvMW6::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 2px;
+  border-radius: 10px;
+  height: 80%;
+  background-color: #e9f0f7;
+  transform: translate3d(0, -50%, 0);
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3wHay473hXYPOlphbqvMW6::after::after {
+    display: none;
+  }
+}
+
+body ._3wHay473hXYPOlphbqvMW6._1pk_-C20zpknwxqZLn_t9z svg path {
+  stroke: #fff;
+  transition: stroke 0.2s ease 0.08s;
+}
+
+body ._3wHay473hXYPOlphbqvMW6._1pk_-C20zpknwxqZLn_t9z svg + span {
+  color: #fff;
+  transition: color 0.2s ease 0.08s;
+}
+
+body .BzbyxjDnil5GvbUe8_1qF {
+  color: #9fb1c1;
+  margin-top: -10px;
+  transition: color 0.2s ease 0.08s;
+}
+
+body .v-KSWjML0QpV66JYLjTgR {
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  width: 84.4%;
+  height: 84%;
+  border-radius: 5px;
+  z-index: -1;
+  transform: translate3d(0, -50%, 0);
+  transition: all 0.18s ease;
+}
+
+@media only screen and (max-width: 991px) {
+  body .v-KSWjML0QpV66JYLjTgR {
+    left: 2%;
+    width: 96%;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  body .v-KSWjML0QpV66JYLjTgR {
+    left: 5%;
+    width: 90%;
+  }
+}
+
+body ._23ovY8N9sx2ExP0NvytcpI {
+  flex-grow: 1;
+  width: calc(50% - 10px);
+}
+
+@media only screen and (max-width: 991px) {
+  body ._23ovY8N9sx2ExP0NvytcpI {
+    width: 100%;
+  }
+}
+
+body ._1cwBgi06GP5eqlDlfhrE9A {
+  display: flex;
+  flex-direction: row;
+}
+
+body ._12VTCAtCmgnF7JdGljsEap {
+  position: relative;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._12VTCAtCmgnF7JdGljsEap {
+    flex-wrap: wrap;
+  }
+}
+
+body ._12VTCAtCmgnF7JdGljsEap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  border-radius: 10px;
+  height: 80%;
+  background-color: #e9f0f7;
+  transform: translate(-50%, -50%);
+}
+
+@media only screen and (max-width: 991px) {
+  body ._12VTCAtCmgnF7JdGljsEap::after {
+    display: none;
+  }
+}
+
+/* SEGUNDO */
+
+body ._12VTCAtCmgnF7JdGljsEapdo {
+  position: relative;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._12VTCAtCmgnF7JdGljsEapdo {
+    flex-wrap: wrap;
+  }
+}
+
+body ._12VTCAtCmgnF7JdGljsEapdo::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  border-radius: 10px;
+  height: 80%;
+  background-color: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+@media only screen and (max-width: 991px) {
+  body ._12VTCAtCmgnF7JdGljsEapdo::after {
+    display: none;
+  }
+}
+
+body ._3vCdC7UlpoMI8zyS9070Tm {
+  position: relative;
+  width: 50%;
+  height: 60px;
+  background: #fff;
+  padding: 4px 6px;
+  border-radius: 0px;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3vCdC7UlpoMI8zyS9070Tm {
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    padding: 4px;
+  }
+}
+
+body ._2OKKnWa2I26FDFjQGrMlTi {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0);
+  color: #0078e1;
+  font-weight: 600;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  z-index: 2;
+  transform: translate(0, -50%);
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+._1AsJdz8ef0grzhKgIpVifh {
+  position: relative;
+}
+
+body ._1igQJzeY95hxUNao_yIXrr {
+  font-weight: 500;
+  padding: 0 10px 0 45px;
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0);
+  color: #15354e;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  box-shadow: none;
+  outline: 0;
+  transition: all 0.2s;
+}
+
+body ._1igQJzeY95hxUNao_yIXrr:focus {
+  text-overflow: unset;
+  padding-right: 0;
+  box-shadow: 0 0 0 2px #b7c6d3, 0 1px 8px 0 #b7c6d3;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+body ._1igQJzeY95hxUNao_yIXrr::-moz-placeholder {
+  color: #a0b1be;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+body ._1igQJzeY95hxUNao_yIXrr::placeholder {
+  color: #a0b1be;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+body ._3Oe9vKBrFi5RVwWEswymkl {
+  width: 14%;
+  min-width: 150px;
+  font-weight: 500;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3Oe9vKBrFi5RVwWEswymkl {
+    width: 50%;
+    margin-bottom: 8px;
+  }
+}
+
+body ._2Fk1Z0nKP1T6a1dr9C1FP_ {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: #fff;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._2Fk1Z0nKP1T6a1dr9C1FP_ {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+}
+
+body ._2Fk1Z0nKP1T6a1dr9C1FP_::after {
+  left: -1px;
+  right: auto;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._2Fk1Z0nKP1T6a1dr9C1FP_::after {
+    display: none;
+  }
+}
+
+body ._1Fv_I7ZFjrmFXYr-smGZqG {
+  width: 25px;
+  height: 18px;
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+body ._2FJfSi7htM3gHGbKFfAiX6 {
+  width: 20%;
+  min-width: 120px;
+  max-width: 250px;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._2FJfSi7htM3gHGbKFfAiX6 {
+    flex-grow: 1;
+    margin-bottom: 8px;
+    max-width: 100%;
+  }
+}
+
+body ._3vjMsFU0d1YJalV9Qbqq {
+  position: relative;
+  background-color: #fff;
+  width: 100%;
+  height: 60px;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3vjMsFU0d1YJalV9Qbqq {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+}
+
+body ._3vjMsFU0d1YJalV9Qbqq::after {
+  left: -1px;
+  right: auto;
+}
+
+body .E5e3waHARVCVMF2JA93PS {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+body ._1N3bJ6D4JU95-nlvwuLuUG {
+  margin-left: 10px;
+  margin-right: 8px;
+}
+
+body ._3Asrt4xgZfhRSiH37EDtn4 {
+  display: inline-block;
+  font-size: 18px;
+  text-transform: uppercase;
+  color: #15354e;
+  font-weight: 500;
+}
+
+body ._2-eTx56Mxj8udiynBFhn-1 {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-left: 2px solid #c7d3de;
+  border-bottom: 2px solid #c7d3de;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+body ._3QlnruSL5VqOlp6mJEr4-Z {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  background: #fff;
+  height: 60px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+@media only screen and (max-width: 991px) {
+  body ._3QlnruSL5VqOlp6mJEr4-Z {
+    border-radius: 5px;
+    width: 100%;
+  }
+}
+
+body .zTDkSCFjS5VtNrkEzKtJ5 {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 54px;
+  height: 100%;
+  border-radius: 5px;
+  border: none;
+  background-color: #5a6268;
+  box-shadow: none;
+  
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+@media only screen and (max-width: 991px) {
+  body .zTDkSCFjS5VtNrkEzKtJ5 {
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  body .zTDkSCFjS5VtNrkEzKtJ5 {
+    max-width: 100%;
+  }
+}
+
+body .zTDkSCFjS5VtNrkEzKtJ5:active {
+  box-shadow: 0 0 0 rgba(105, 126, 157, 0.3);
+  transition: all 0.2s ease;
+}
+
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  body .zTDkSCFjS5VtNrkEzKtJ5:hover {
+    opacity: 0.9;
+    transition: all 0.2s ease;
+  }
+}
+
+body ._3GaS1vq0RCqjdAKKZ5HaLJ {
+  height: 100%;
+}
+
+body .XnAvZ8kiGXiCA_sHNJc-d {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: #fff;
+  border-radius: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  transform: translate3d(-50%, -50%, 0) scale(1);
+  transition: all 0.2s ease;
+}
+
+@media only screen and (max-width: 991px) {
+  body .XnAvZ8kiGXiCA_sHNJc-d {
+    position: absolute;
+    right: 20px;
+    left: auto;
+    transform: translate3d(0%, -60%, 0) scale(1.5);
+  }
+}
+
+@media only screen and (max-width: 560px) {
+  body .XnAvZ8kiGXiCA_sHNJc-d {
+    transform: translate3d(0%, -65%, 0) scale(1.5);
+    right: 10px;
+  }
+}
+
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  body .XnAvZ8kiGXiCA_sHNJc-d:hover {
+    transform: translate3d(-50%, -50%, 0) scale(1.1);
+    transition: all 0.2s ease;
+  }
+}
+
+@media only screen and (hover: hover) and (max-width: 991px), only screen and (-ms-high-contrast: none) and (max-width: 991px), only screen and (-ms-high-contrast: active) and (max-width: 991px) {
+  body .XnAvZ8kiGXiCA_sHNJc-d:hover {
+    transform: translate3d(0%, -60%, 0) scale(1.6);
+  }
+}
+
+@media (hover: hover), all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  body .XnAvZ8kiGXiCA_sHNJc-d:hover ._19dtdOQCfyXKmKkLtvaUkM {
+    transition: all 0.2s ease;
+  }
+
+  body .XnAvZ8kiGXiCA_sHNJc-d:hover ._2zAD7s046Fl3mpYGfgpZjK {
+    transform: translateX(2px) scaleX(-1);
+  }
+
+  body .XnAvZ8kiGXiCA_sHNJc-d:hover .zcj_unEFDHcra9DrUB7t7 {
+    transform: translateX(-2px) scale(1);
+  }
+}
+
+body .fecha {
+  font-weight: 500;
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid rgba(0, 0, 0, 0);
+  color: #15354e;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  box-shadow: none;
+  outline: 0;
+  transition: all 0.2s;
+}
+
+body .fecha:focus {
+  text-overflow: unset;
+  padding-right: 0;
+  box-shadow: 0 0 0 2px #b7c6d3, 0 1px 8px 0 #b7c6d3;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+body .fecha::-moz-placeholder {
+  color: #a0b1be;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+body .fecha::placeholder {
+  color: #a0b1be;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.input-group-prepend .input-group-text {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+body ._19dtdOQCfyXKmKkLtvaUkM {
+  fill: #5a6268;
+  width: 13px;
+  transition: all 0.2s ease;
+}
+
+body ._2zAD7s046Fl3mpYGfgpZjK {
+  transform: translateX(0) scaleX(-1);
+}
+
+body .zcj_unEFDHcra9DrUB7t7 {
+  transform: translateX(0) scale(1);
+}
+
+/* STYLE SLIDER */
+
+.carousel-item {
+  height: 300px; /* Ajusta la altura según tus necesidades */
+}
+
+.carousel-item img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-inner{
+  height: 300px;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232aab5c' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232aab5c' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-indicators li {
+  border-color: #9fb1c1;
+  border-width: 12px;
+  border-style: none solid none solid;
+  background-color: #9fb1c1;
+  height: 2px;
+  margin: 0 16px;
+  opacity: 1;
+  padding: 1px;
+  position: relative;
+}
+  
+.carousel-indicators li::after {
+  bottom: -7px;
+  content: none;
+  left: -7px;
+  padding: 1px;
+  position: absolute;
+  right: -7px;
+  top: -7px;
+}
+
+.carousel-indicators li.active {
+  background-color: #2aab5c;
+  border-color: #2aab5c;
+  border-width: 12px;
+  border-style: none solid none solid;
+}
+
+section{
+  display: flex;
+  width: 100%;
+  height: 430px;
+}
+
+section img{
+  width: 0px;
+  flex-grow: 1;
+  object-fit: cover;
+  opacity: .8;
+
+}
+
+section img:hover{
+  cursor: crosshair;
+  width: 300px;
+  opacity: 1;
+  filter: contrast(120%);
+  transition-duration: 1.5s;
+}
+
+/* BARCO */
+
+.ocean {
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff; /* Color del mar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: waveAnimation 4s ease-in-out infinite alternate;
+}
+
+@keyframes waveAnimation {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.fas.fa-ship {
+  font-size: 50px;
+  color: #5a6268; /* Color del barco */
+  animation: swingAnimation 2s ease-in-out infinite alternate;
+}
+
+@keyframes swingAnimation {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* CAMION */
+
+.road {
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff; /* Color de la carretera */
+  position: relative;
+  overflow: hidden;
+}
+
+/*.truck {
+  width: 80px;
+  height: 60px;
+  position: absolute;
+  bottom: 0;
+  left: 90px;
+  display: flex;
+  align-items: center;
+  animation: bounceTruck 1.5s ease-in-out infinite alternate;
+}
+
+.fas.fa-truck {
+  font-size: 50px;
+  color: #5a6268; 
+  margin-right: 10px;
+}
+
+@keyframes moveTruck {
+  0% {
+    left: -80px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes bounceTruck {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}*/
+
+.loop-wrapper {
+  margin: 0 auto;
+  position: relative;
+  display: block;
+  width: 600px;
+  height: 100%;
+  overflow: hidden;
+  border-bottom: 3px solid #5a6268;
+  color: #5a6268;
+}
+
+.mountain {
+  position: absolute;
+  right: -900px;
+  bottom: -20px;
+  width: 2px;
+  height: 2px;
+  box-shadow: 
+    0 0 0 50px #2aab5c,
+    60px 50px 0 70px #2aab5c,
+    90px 90px 0 50px #2aab5c,
+    250px 250px 0 50px #2aab5c,
+    290px 320px 0 50px #2aab5c,
+    320px 400px 0 50px #2aab5c
+    ;
+  transform: rotate(130deg);
+  animation: mtn 20s linear infinite;
+}
+
+.hill {
+  position: absolute;
+  right: -900px;
+  bottom: -50px;
+  width: 400px;
+  border-radius: 50%;
+  height: 20px;
+  box-shadow: 
+    0 0 0 50px #2aab5c,
+    -20px 0 0 20px #2aab5c,
+    -90px 0 0 50px #2aab5c,
+    250px 0 0 50px #2aab5c,
+    290px 0 0 50px #2aab5c,
+    620px 0 0 50px #2aab5c;
+  animation: hill 4s 2s linear infinite;
+}
+
+.tree, .tree:nth-child(2), .tree:nth-child(3) {
+  position: absolute;
+  height: 90px; 
+  width: 100%;
+  bottom: 0;
+  background: url(../../../assets/images/tree.svg) no-repeat;
+}
+
+.rock {
+  margin-top: -17%;
+  height: 2%; 
+  width: 2%;
+  bottom: -2px;
+  border-radius: 20px;
+  position: absolute;
+  background: #ddd;
+}
+
+.truck, .wheels {
+  transition: all ease;
+  width: 85px;
+  margin-right: -60px;
+  bottom: 0px;
+  left: 13%;
+  position: absolute;
+  background: #eee;
+}
+
+.truck {
+  background: url(../../../assets/images/truck.svg) no-repeat;
+  background-size: contain;
+  height: 60px;
+}
+
+.truck:before {
+  content: " ";
+  position: absolute;
+  width: 25px;
+  box-shadow:
+    -30px 28px 0 1.5px #fff,
+     -35px 18px 0 1.5px #fff;
+}
+
+.wheels {
+  background: url(../../../assets/images/wheels.svg) no-repeat;
+  height: 15px;
+  margin-bottom: 0;
+}
+
+.tree  { animation: tree 3s 0.000s linear infinite; }
+.tree:nth-child(2)  { animation: tree2 2s 0.150s linear infinite; }
+.tree:nth-child(3)  { animation: tree3 8s 0.050s linear infinite; }
+.rock  { animation: rock 4s   -0.530s linear infinite; }
+.truck  { animation: truck 4s   0.080s ease infinite; }
+.wheels  { animation: truck 4s   0.001s ease infinite; }
+.truck:before { animation: wind 1.5s   0.000s ease infinite; }
+
+
+@keyframes tree {
+  0%   { transform: translate(1350px); }
+  50% {}
+  100% { transform: translate(-50px); }
+}
+
+@keyframes tree2 {
+  0%   { transform: translate(650px); }
+  50% {}
+  100% { transform: translate(-50px); }
+}
+
+@keyframes tree3 {
+  0%   { transform: translate(2750px); }
+  50% {}
+  100% { transform: translate(-50px); }
+}
+
+@keyframes rock {
+  0%   { right: -200px; }
+  100% { right: 2000px; }
+}
+
+@keyframes truck {
+  0%   { }
+  6%   { transform: translateY(0px); }
+  7%   { transform: translateY(-6px); }
+  9%   { transform: translateY(0px); }
+  10%   { transform: translateY(-1px); }
+  11%   { transform: translateY(0px); }
+  100%   { }
+}
+
+@keyframes wind {
+  0%   {  }
+  50%   { transform: translateY(3px) }
+  100%   { }
+}
+
+@keyframes mtn {
+  100% {
+    transform: translateX(-2000px) rotate(130deg);
+  }
+}
+
+@keyframes hill {
+  100% {
+    transform: translateX(-2000px);
+  }
+}
+
+/* AVION */
+
+.sky {
+  height: 100%;
+  width: 100%;
+  background-color: #fff; /* Color del cielo */
+  position: relative;
+  overflow: hidden;
+}
+
+/*.clouds {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  animation: moveClouds 20s linear infinite;
+}
+
+.cloud {
+  width: 100px;
+  height: 50px;
+  background-color: #5c808e;
+  border-radius: 50px;
+  opacity: 0.8;
+  margin: 0 10px;
+}*/
+
+.clouds{
+	position: absolute;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+}
+
+/*Time to finalise the cloud shape*/
+.cloud {
+	width: 200px; height: 60px;
+	background: #e2dfdf;
+	
+	border-radius: 200px;
+	-moz-border-radius: 200px;
+	-webkit-border-radius: 200px;
+	
+	position: relative; 
+}
+
+.cloud:before, .cloud:after {
+	content: '';
+	position: absolute; 
+	background: #e2dfdf;
+	width: 100px; height: 80px;
+	position: absolute; top: -15px; left: 10px;
+	
+	border-radius: 100px;
+	-moz-border-radius: 100px;
+	-webkit-border-radius: 100px;
+	
+	-webkit-transform: rotate(30deg);
+	transform: rotate(30deg);
+	-moz-transform: rotate(30deg);
+}
+
+.cloud:after {
+	width: 120px; height: 120px;
+	top: -55px; left: auto; right: 15px;
+}
+
+/*Time to animate*/
+.x1 {
+	animation: moveClouds 15s linear infinite;
+	animation: moveClouds 15s linear infinite;
+	animation: moveClouds 15s linear infinite;
+}
+
+/*variable speed, opacity, and position of clouds for realistic effect*/
+.x2 {
+	left: 200px;
+	
+	-webkit-transform: scale(0.6);
+	-moz-transform: scale(0.6);
+	transform: scale(0.6);
+	opacity: 0.6; /*opacity proportional to the size*/
+	
+	/*Speed will also be proportional to the size and opacity*/
+	/*More the speed. Less the time in 's' = seconds*/
+	animation: moveClouds 25s linear infinite;
+	animation: moveClouds 25s linear infinite;
+	animation: moveClouds 25s linear infinite;
+}
+
+.x3 {
+	left: -250px; top: -200px;
+	
+	-webkit-transform: scale(0.8);
+	-moz-transform: scale(0.8);
+	transform: scale(0.8);
+	opacity: 0.8; /*opacity proportional to the size*/
+	
+	animation: moveClouds 20s linear infinite;
+	animation: moveClouds 20s linear infinite;
+	animation: moveClouds 20s linear infinite;
+}
+
+
+.airplane {
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  top: 10px;
+  left: 90px;
+  display: flex;
+  align-items: center;
+  
+}
+
+.fas.fa-plane {
+  font-size: 50px;
+  color: #5a6268; /* Color del avión */
+}
+
+@keyframes moveClouds {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes flyAirplane {
+  0% {
+    left: -60px;
+    transform: rotate(0deg);
+  }
+  100% {
+    left: 100%;
+    transform: rotate(0deg);
+  }
+}
+
+/* LINE PROCESS */
+
+.cards {
+    z-index: 0;
+    background-color: #ffffff;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 10px;
+}
+
+.top {
+    padding-top: 40px;
+    padding-left: 13% !important;
+    padding-right: 13% !important;
+}
+
+/*Icon progressbar*/
+#progressbar {
+    margin-bottom: 30px;
+    overflow: hidden;
+    color: #455A64;
+    padding-left: 0px;
+    margin-top: 30px;
+    width: 135%;
+} 
+
+#progressbar li {
+    list-style-type: none;
+    font-size: 13px;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+}
+
+#progressbar .step0:before {
+    font-family: FontAwesome;
+    content: "\f10c";
+    color: #fff;
+}
+
+#progressbar li:before {
+    width: 40px;
+    height: 40px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    background: #6C757D;
+    border-radius: 50%;
+    margin: auto;
+    padding: 0px;
+}
+
+/*ProgressBar connectors*/
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 12px;
+    background: #6C757D;
+    position: absolute;
+    left: 0;
+    top: 16px;
+    z-index: -1;
+}
+
+#progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    position: absolute;
+    left: -50%;
+}
+
+#progressbar li:nth-child(2):after, #progressbar li:nth-child(3):after {
+    left: -50%;
+}
+
+#progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    position: absolute;
+    left: 50%;
+}
+
+#progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+/*Color number of the step and the connector before it*/
+#progressbar li.active:before, #progressbar li.active:after {
+    background: #056736;
+}
+
+#progressbar li.active:before {
+    font-family: FontAwesome;
+    content: "\f00c";
+}
+
+.icon {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+}
+
+.icon-content { 
+    padding-bottom: 20px;
+}
+
+@media screen and (max-width: 992px) {
+    .icon-content {
+        width: 50%;
+    }
+}
+
+#dropdown-grouped__BV_toggle_{
+  background-color: #056736;
+  color: #ffffff;
+}
+
+#resultado {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+
+#resultado.ok {
+    background-color: green;
+}
+
+
+@media (max-width: 576px) {
+
+
+  .sky {
+    height: 90px;
+    width: 100%;
+    background-color: #fff; /* Color del cielo */
+    position: relative;
+    overflow: hidden;
+  }
+  .road {
+    height: 90px;
+    width: 100%;
+    background-color: #ffffff; /* Color de la carretera */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ocean {
+    height: 90px;
+    width: 100%;
+    background-color: #ffffff; /* Color del mar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: waveAnimation 4s ease-in-out infinite alternate;
+  }
+}
+</style>

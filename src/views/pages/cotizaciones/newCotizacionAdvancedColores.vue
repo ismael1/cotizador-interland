@@ -1714,60 +1714,59 @@ export default {
         vcoloniaDestino = this.arrayDestino[d].colonia;
       }
 
-      //this.obtenerZona(vcpOrigen, vcpDestino);
+      this.obtenerZona(vcpOrigen, vcpDestino);
 
-      
-        axios({
-          method: "post",
-          url: "/api/v1/list-tarifas-coincidencia/",
-          data: {
-            paisOrigen: vpaisOrigen,
-            estadoOrigen: vestadoOrigen,
-            ciudadOrigen: vciudadOrigen,
-            cpOrigen: vcpOrigen,
-            coloniaOrigen: vcoloniaOrigen,
-            paisDestino: vpaisDestino,
-            estadoDestino: vestadoDestino,
-            ciudadDestino: vciudadDestino,
-            cpDestino: vcpDestino,
-            coloniaDestino: vcoloniaDestino,
-            dateFin: this.fechaCoincidencia,
-            unidaModality: this.tertipocarga,
-            tipoUnidad_id: this.tipoUnidad,
-            modalidad: this.termodalidad,
-          },
-        }).then((response) => {
-          let cadena = JSON.stringify(response.data[0]);
-          let termino = "idTarifa";
-          let posicion = cadena.indexOf(termino);
+      axios({
+        method: "post",
+        url: "/api/v1/list-tarifas-coincidencia/",
+        data: {
+          paisOrigen: vpaisOrigen,
+          estadoOrigen: vestadoOrigen,
+          ciudadOrigen: vciudadOrigen,
+          cpOrigen: vcpOrigen,
+          coloniaOrigen: vcoloniaOrigen,
+          paisDestino: vpaisDestino,
+          estadoDestino: vestadoDestino,
+          ciudadDestino: vciudadDestino,
+          cpDestino: vcpDestino,
+          coloniaDestino: vcoloniaDestino,
+          dateFin: this.fechaCoincidencia,
+          unidaModality: this.tertipocarga,
+          tipoUnidad_id: this.tipoUnidad,
+          modalidad: this.termodalidad,
+        },
+      }).then((response) => {
+        let cadena = JSON.stringify(response.data[0]);
+        let termino = "idTarifa";
+        let posicion = cadena.indexOf(termino);
 
-          if (response.data.length > 0) {
-            this.estatus = parseInt(response.data[0].estatus);
-            this.idTarifa = parseInt(response.data[0].id_Tarifa);
-            this.paisTarifaOrigen = response.data[0].pais_origen;
-            this.estadoTarifaOrigen = response.data[0].estado_origen;
-            this.ciudadTarifaOrigen = response.data[0].ciudad_origen;
-            this.cpTarifaOrigen = response.data[0].cp_origen;
-            this.paisTarifaDestino = response.data[0].pais_destino;
-            this.estadoTarifaDestino = response.data[0].estado_destino;
-            this.ciudadTarifaDestino = response.data[0].ciudad_destino;
-            this.cpTarifaDestino = response.data[0].cp_destino;
-            this.tarifaKilometro = parseFloat(response.data[0].tarifa_kilometro);
-          } else {
-            this.estatus = 0;
-            this.idTarifa = 0;
-            this.estadoTarifaOrigen = '';
-            this.ciudadTarifaOrigen = '';
-            this.cpTarifaOrigen = '';
-            this.paisTarifaDestino = '';
-            this.estadoTarifaDestino = '';
-            this.ciudadTarifaDestino = '';
-            this.cpTarifaDestino = '';
-            this.tarifaKilometro = 0;
-          }
-        }).catch((error) => {
-          console.log(error);
-        });
+        if (response.data.length > 0) {
+          this.estatus = parseInt(response.data[0].estatus);
+          this.idTarifa = parseInt(response.data[0].id_Tarifa);
+          this.paisTarifaOrigen = response.data[0].pais_origen;
+          this.estadoTarifaOrigen = response.data[0].estado_origen;
+          this.ciudadTarifaOrigen = response.data[0].ciudad_origen;
+          this.cpTarifaOrigen = response.data[0].cp_origen;
+          this.paisTarifaDestino = response.data[0].pais_destino;
+          this.estadoTarifaDestino = response.data[0].estado_destino;
+          this.ciudadTarifaDestino = response.data[0].ciudad_destino;
+          this.cpTarifaDestino = response.data[0].cp_destino;
+          this.tarifaKilometro = parseFloat(response.data[0].tarifa_kilometro);
+        } else {
+          this.estatus = 0;
+          this.idTarifa = 0;
+          this.estadoTarifaOrigen = '';
+          this.ciudadTarifaOrigen = '';
+          this.cpTarifaOrigen = '';
+          this.paisTarifaDestino = '';
+          this.estadoTarifaDestino = '';
+          this.ciudadTarifaDestino = '';
+          this.cpTarifaDestino = '';
+          this.tarifaKilometro = 0;
+        }
+      }).catch((error) => {
+        console.log(error);
+      });
 
       if(this.termodalidad == 'FTL'){
         this.getKilometraje();
@@ -2443,6 +2442,84 @@ export default {
     },
 
     obtenerZona(cpO, cpD) {
+
+      let v1 = cpO;
+      let v2 = cpD;
+
+      if (v1 != "" && v2 != "") {
+        axios({
+          method: "post",
+          url: "/api/v1/valida-cp-geocerca/",
+          data: {
+            codPosO: v1,
+            codPosD: v2,
+          },
+          auth: {
+            username: "admin",
+            password: "123",
+          },
+        }).then((response) => {
+
+          if (response.data.origen.length > 0) {
+            this.clasificacionZonaO = response.data.origen[0].estatus;
+          } else {
+            this.clasificacionZonaO = "";
+          }
+
+          if (response.data.destino.length > 0) {
+            this.clasificacionZonaD = response.data.destino[0].estatus;
+          } else {
+            this.clasificacionZonaD = "";
+          }
+
+          if (this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "COMERCIAL") {
+            this.resClasificaZona = "COMERCIAL";
+            this.notColorZona = "success";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Comercial</b>.";
+          } else if (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") {
+            this.resClasificaZona = "NO COMERCIAL";
+            this.notColorZona = "warning";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "PELIGROSA") {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "NO COMERCIAL") || (this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "NO COMERCIAL";
+            this.notColorZona = "warning";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>No Comercial</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta posibles cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "PELIGROSA") || (this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "NO COMERCIAL")) {
+            this.resClasificaZona = "PELIGROSA";
+            this.notColorZona = "danger";
+            this.notTextoZona = "Se detecto que el servicio es para una zona <b>Peligrosa</b>, tenga en cuenta cambios en las tarifas.";
+          } else if ((this.clasificacionZonaO == "COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "COMERCIAL")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "NO COMERCIAL" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "NO COMERCIAL")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "PELIGROSA" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "PELIGROSA")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          } else if ((this.clasificacionZonaO == "" && this.clasificacionZonaD == "") || (this.clasificacionZonaO == "" && this.clasificacionZonaD == "")) {
+            this.resClasificaZona = "NO ZONA";
+            this.notColorZona = "primary";
+            this.notTextoZona = "No existe Zona configurada para este servicio, <b>favor de realizar asignación</b>.";
+          }
+
+        }).catch((error) => {
+          console.log(error);
+        });
+
+      }
+
       /*let v1 = cpO;
       let v2 = cpD;
 
@@ -2458,8 +2535,7 @@ export default {
             username: "admin",
             password: "123",
           },
-        })
-          .then((response) => {
+        }).then((response) => {
             if (response.data.origen.length > 0) {
               this.clasificacionZonaO = response.data.origen[0].clasificacion;
             } else {
@@ -2944,7 +3020,7 @@ export default {
         vcoloniaDestino = this.arrayDestino[d].colonia;
       }
 
-      //this.obtenerZona(vcpOrigen, vcpDestino);
+      this.obtenerZona(vcpOrigen, vcpDestino);
 
       if (this.termodalidad == "FTL") {
         //this.buscaUnidad();
@@ -3213,8 +3289,10 @@ export default {
 
         this.tercotizacion = val;
 
-        this.validaServicios();
-        this.validaServicios();
+        if(this.termodalidad == 'LTL'){
+          this.validaServicios();
+          this.validaServicios();
+        }
 
         this.getTarifario();
 
@@ -7877,7 +7955,7 @@ export default {
                         <input class="form-control form-control-sm" v-model.trim="numIntOrigen" type="text"/>
                       </b-col>
                     </b-row>
-                    <b-row>
+                    <!--b-row>
                       <b-col md="4" style="display: grid; place-items: center;">
                         <label for="calleDestino" class="form-label"><b style="color: red">*</b>OCURRE: </label>&nbsp;&nbsp;&nbsp;
                           <b-form-checkbox switch v-model="ocurreO" @change="selectOcurreO($event)"></b-form-checkbox>
@@ -7893,8 +7971,7 @@ export default {
                             <option value="VERACRUZ">VERACRUZ</option>
                           </b-form-select>
                       </b-col>
-                      <!--b-col md="4"></b-col-->
-                    </b-row>
+                    </b-row-->
                   </b-popover>
                 </b-col>
                 <!--TERMINA CODIGO PARA MOSTRAR POPUP DE ORIGEN-->
@@ -7924,7 +8001,7 @@ export default {
                         <input class="form-control form-control-sm" v-model.trim="numIntDestino" type="text"/>
                       </b-col>
                     </b-row>
-                    <b-row>
+                    <!--b-row>
                       <b-col md="4" style="display: grid; place-items: center;">
                         <label for="calleDestino" class="form-label"><b style="color: red">*</b>OCURRE: </label>&nbsp;&nbsp;&nbsp;
                           <b-form-checkbox switch v-model="ocurreD" @change="selectOcurreD"></b-form-checkbox>
@@ -7941,7 +8018,7 @@ export default {
                           </b-form-select>
                       </b-col>
                       <b-col md="4"></b-col>
-                    </b-row>
+                    </b-row-->
                   </b-popover>
                 </b-col>
                 <!--TERMINA CODIGO PARA MOSTRAR POPUP DE DESTINO-->

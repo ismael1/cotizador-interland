@@ -6,9 +6,6 @@ import appConfig from "../../../../app.config";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-import ItemTemplateProSer from '@/components/ItemTemplateSearchProSer'
-import ItemTemplateUnidad from '@/components/ItemTemplateSearchUnidad'
-
 export default {
   page: {
     title: "Editar Unidad",
@@ -52,6 +49,7 @@ export default {
       orderg: "",
       orderp: "",
       modalidad: "",
+      precio_kilometraje: 0.0,
       mostrarLista: 0,
       mostrarListas: [
         { value: 0, text: "Inactiva" },
@@ -94,6 +92,7 @@ export default {
         this.width = parseFloat(response.data.width)
         this.capaciadad_vol = parseFloat(response.data.capacidad_vol)
         this.capacidadMaxima = parseInt(response.data.capacidadMaxima)
+        this.precio_kilometraje = parseFloat(response.data.precio_kilometraje)
 
       })
       .catch((error) => {
@@ -164,6 +163,7 @@ export default {
           width: this.width,
           capacidad_vol: this.capaciadad_vol,
           capacidadMaxima: this.capacidadMaxima,
+          precio_kilometraje: this.precio_kilometraje,
 
         },
         auth: {
@@ -260,7 +260,11 @@ export default {
                         <b-form-input id="capacidadMaxima" v-model="capacidadMaxima" type="number" placeholder="" required></b-form-input>
                       </b-form-group>
                     </b-col>
-                    <b-col md="4" sm="12"></b-col>
+                    <b-col md="4" sm="12">
+                      <b-form-group label="Precio por Kilometro" label-for="precioKilometro" description="">
+                        <b-form-input id="precioKilometro" v-model="precio_kilometraje" type="number" placeholder="" required></b-form-input>
+                      </b-form-group>
+                    </b-col>
                   </b-row>
                 </b-tab>
                 <b-tab title="Pesos">

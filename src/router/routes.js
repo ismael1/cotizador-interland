@@ -93,7 +93,15 @@ export default [
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/cotizaciones/newCotizacionAdvancedColores')
+        component: () => import('../views/pages/cotizaciones/generateCotizacion')
+    },
+    {
+        path: '/cotizaciones/',
+        name: 'cotizacion',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/cotizaciones/cotizacion')
     },
     {
         path: '/dashboard/crm',
@@ -902,11 +910,11 @@ export default [
     },
     {
         path: '/new-cotizacion',
-        name: 'newCotizacion',
+        name: 'newCotizacionN',
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/cotizaciones/newCotizacionAdvancedColores')
+        component: () => import('../views/pages/cotizaciones/generateCotizacion')
     },
     {
         path: '/cotizaciones/new-cotizacion',
@@ -1499,7 +1507,7 @@ export default [
 
     {
         path: '/users/listCotizacion',
-        name: 'listCotizacion',
+        name: 'listCotizacionU',
         meta: {
             authRequired: true,
         },
@@ -1539,7 +1547,7 @@ export default [
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/administracion/geocercas')
+        component: () => import('../views/pages/administracion/geocercas-km')
     },
     {
         path: '/administracion/geocercas-new',
@@ -1547,7 +1555,81 @@ export default [
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/administracion/geocercas-new')
+        component: () => import('../views/pages/administracion/geocercas-new-km')
+    },
+
+    {
+        path: '/boot/:data/',
+        name: 'boot',
+        meta: {
+            beforeResolve(routeTo, routeFrom, next) {
+                // If the user is already logged in
+                if (store.getters['auth/loggedIn']) {
+                    // Redirect to the home page instead
+                    next({ name: 'home' })
+                } else {
+                    // Continue to the login page
+                    next()
+                }
+            },
+        },
+        component: () => import('../views/pages/account/login-boot'),
+    },
+    {
+        path: '/administracion/listRangoKilometrajes',
+        name: 'list-rango-kilometrajes',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/listRangoKilometrajes')
+    },
+    {
+        path: '/administracion/new-rango',
+        name: 'Nuevo Rango',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/newRango')
+    },
+    {
+        path: '/administracion/list-incrementos',
+        name: 'Lista Incrementos',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/listIncrementos')
+    },
+    {
+        path: '/administracion/new-incremento',
+        name: 'Nuevo Incremento',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/newIncremento')
+    },
+    {
+        path: '/edit-incremento/:pkIncremento/',
+        name: 'Editar Incremento',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/editIncremento')
+    },
+    {
+        path: '/catalogo/listZonasTarifas',
+        name: 'Lista de Zonas para Tarifarios',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/catalogo/listZonasTarifas')
+    },
+    {
+        path: '/newZonasTarifas',
+        name: 'Nueva Zonas para Tarifarios',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/catalogo/newZonasTarifas')
     },
 
     // {

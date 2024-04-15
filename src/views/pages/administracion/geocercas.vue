@@ -99,14 +99,14 @@ export default {
       map: null,
       marker: null,
       editing: false,
+      tipoGeocerca: 0,
     };
   },
   created: function (){
     this.dataSess();
-    this.get_oferta(1);
     //this.guardaGeocercaManual();
     //this.getGeocercas();
-    this.getEstados();
+    this.getEstados(1);
   },
   methods: {
 
@@ -153,41 +153,6 @@ export default {
         this.permisos_usuarioAsigna = response.data[0].permisos_usuarioAsigna
       }).catch((error) => {
         console.log(error);
-      });
-    },
-
-    get_oferta(mypage) {
-
-      let caracter = ''
-      if (this.buscador == "") {
-        caracter = ''
-      } else {
-        caracter = this.buscador
-      }
-
-      axios.get('/api/v1/list-oferta-filtro/', {
-        params: {
-          page: mypage,
-          size: this.size,
-          palabra: caracter,
-          usuario: this.username
-        }
-      }).then(res => {
-        this.all_data = res.data.data;
-        this.total = res.data.total
-
-        //Judging the previous page
-        if (mypage == 1) {
-          this.lastpage = 0;
-        } else {
-          this.lastpage = mypage - 1
-        }
-        this.all = Math.ceil(res.data.total / this.size);
-        if (mypage == this.all) {
-          this.nextpage = 0
-        } else {
-          this.nextpage = mypage + 1
-        }
       });
     },
 
@@ -279,6 +244,7 @@ export default {
     },
 
     initMap() {
+      let color = "";
       const map = new google.maps.Map(this.$el.querySelector("#map"), {
         zoom: 13,
         center: { lat: this.lat_centro, lng: this.lng_centro },
@@ -293,6 +259,24 @@ export default {
         },
       ];
 
+      switch (this.tipoGeocerca) {
+        case 1:
+          color = "#2aab5b";
+        break;
+        case 2:
+          color = "#856404";
+        break;
+        case 3:
+          color = "#721c24";
+        break;
+        case 4:
+          color = "#6c757d";
+        break;
+        default:
+          color = "#2aab5b";
+        break;
+      }
+
       // Aplica los estilos al mapa
       map.setOptions({ styles: mapStyles });
 
@@ -300,10 +284,10 @@ export default {
 
       const interland = new google.maps.Polygon({
         paths: interlandService,
-        strokeColor: "#2aab5b",
+        strokeColor: color,
         strokeOpacity: 0.8,
         strokeWeight: 2,
-        fillColor: "#2aab5b",
+        fillColor: color,
         fillOpacity: 0.35,
       });
       // Agregar evento de clic al polígono
@@ -313,11 +297,13 @@ export default {
       interland.setMap(map);
     },
 
-    getEstados(){
-      this.options_estado = []
+    getEstados(d){
+      this.options_estado = [];
+      const dato = d;
+      this.tipoGeocerca = d;
       axios.get('/api/v1/geocercas-estados/', {
         params: {
-          
+          dato: dato,
         }
       }).then(res => {
         for (let i = 0; i < res.data.data.length; i++) {
@@ -331,9 +317,11 @@ export default {
     getCp(){
       this.options_cp = []
       let estado = this.estado
+      let estatus = this.tipoGeocerca
       axios.get('/api/v1/geocercas-cp/', {
         params: {
           estado:estado,
+          estatus: estatus,
         }
       }).then(res => {
         for (let i = 0; i < res.data.data.length; i++) {
@@ -391,6 +379,7 @@ export default {
         this.map.addListener('click', this.handleMapClick);
       }
     },
+
     handleMapClick() {
       if (this.editing) {
         // Finalizar modo de edición
@@ -403,6 +392,7 @@ export default {
         // Por ejemplo, puedes enviar los cambios a tu backend para guardarlos en la base de datos.
       }
     },
+
     /* EL SIGUIENTE CODIGO SE USA PARA CARGAR GEOCERCAS DE MANERA MANUAL */
     /* LOS ELEMENTOS A USAR SON LATITUD Y LONGITUD, EXTRAIDOS DE UN ARCHIVO KML, ESTE SE PUEDE DESCARGAR DE LA PAGINA DE CORREOS DE MEXICO */
     /* async guardaGeocercaManual(){
@@ -450,36 +440,95 @@ export default {
 
               <!-- Search -->
               <div class="col-lg-4">
-                <!-- <form> -->
-                <b-input-group v-if="permisos_lectura == 1" v-for="size in ['sm']" :key="size" :size="size" class="mb-2">
-                  <b-form-input placeholder="buscar..." v-model="buscador" @keyup.enter="get_customers(1)"></b-form-input>
-                  <b-input-group-append>
-                    <b-button size="sm" text="Button" variant="secondary" @click="get_customers(1)"><i class="fa fa-search"></i> Buscar</b-button>
-                  </b-input-group-append>
-                </b-input-group>
               </div>
 
             </div>
 
             <template>
-              <b-alert show variant="light">
-                <h3>Filtros de Búsqueda</h3>
-                <b-row>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Estado" label-for="estado" description="">
-                        <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Código Postal" label-for="cp" description="">
-                        <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      
-                    </b-col>
-                </b-row>
-              </b-alert>
+
+              <b-tabs nav-class="nav-tabs nav-bordered">
+                <!-- Inicia Activas -->
+                <b-tab title="Geocercas Comerciales" active @click="getEstados(1)">
+                  <b-alert show variant="light">
+                    <b-row>
+                        <b-col md="2" sm="12">
+                          <h3>Filtros de Búsqueda:</h3>
+                        </b-col>
+                        <b-col md="5" sm="12">
+                          <b-form-group label="Estado" label-for="estado" description="">
+                            <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="5" sm="12">
+                          <b-form-group label="Código Postal" label-for="cp" description="">
+                            <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                    </b-row>
+                  </b-alert>
+                </b-tab>
+                <b-tab title="Geocercas No Comerciales" @click="getEstados(2)">
+                  <b-alert show variant="light">
+                    <h3>Filtros de Búsqueda</h3>
+                    <b-row>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Estado" label-for="estado" description="">
+                            <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Código Postal" label-for="cp" description="">
+                            <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          
+                        </b-col>
+                    </b-row>
+                  </b-alert>
+                </b-tab>
+                <b-tab title="Geocercas Peligrosas" @click="getEstados(3)">
+                  <b-alert show variant="light">
+                    <h3>Filtros de Búsqueda</h3>
+                    <b-row>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Estado" label-for="estado" description="">
+                            <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Código Postal" label-for="cp" description="">
+                            <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          
+                        </b-col>
+                    </b-row>
+                  </b-alert>
+                </b-tab>
+                <b-tab title="Geocercas Restringidas" @click="getEstados(4)">
+                  <b-alert show variant="light">
+                    <h3>Filtros de Búsqueda</h3>
+                    <b-row>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Estado" label-for="estado" description="">
+                            <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          <b-form-group label="Código Postal" label-for="cp" description="">
+                            <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          </b-form-group>
+                        </b-col>
+                        <b-col md="4" sm="12">
+                          
+                        </b-col>
+                    </b-row>
+                  </b-alert>
+                </b-tab>
+              </b-tabs>
+
             </template>
 
             <template>
@@ -489,12 +538,7 @@ export default {
             </template>
             
             <div class="row">
-              <div v-if="permisos_lectura == 1" class="col-lg-12" style="text-align:right">
-                <!-- v-show judges whether the current page number needs to display the previous or next page -->
-                <b-button size="sm" v-show="lastpage" @click="get_customers(lastpage)" variant="outline-secondary">Previous page</b-button>
-                <b-button size="sm" v-for="index in all" @click="get_customers(index)" v-bind:key="index" variant="outline-secondary">{{ index }}</b-button>
-                <b-button size="sm" v-show="nextpage" @click="get_customers(nextpage)" variant="outline-secondary">Next page</b-button>
-              </div>
+              
             </div>
 
           </div>

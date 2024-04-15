@@ -95,6 +95,14 @@ export default {
       center: null,
       compara_cp: [],
       data_content:[],
+      tipoGeocerca: 0,
+      options_geocerca: [
+          { value: 0, text: 'Selecciona...' },
+          { value: 1, text: 'Comercial' },
+          { value: 2, text: 'No Comercial' },
+          { value: 3, text: 'Peligrosa' },
+          { value: 4, text: 'Restringida' },
+        ]
     };
   },
   created: function (){
@@ -312,6 +320,16 @@ export default {
 
       if(this.all_geo.length > 3){
 
+        if(this.tipoGeocerca == 0){
+          Swal.fire({
+            title: "Tipo de Geocerca.",
+            text: "Debes seleccionar el tipo de geocerca.",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+          return false;
+        }
+
         Swal.fire({
           title: 'Procesando Geocercas...',
           html: '<div class="loader"></div>',
@@ -404,7 +422,7 @@ export default {
 
           try {
             cont++
-            dato = { codigoPostal:cp_gen, lat:this.all_geo[i].lat, 'lng': this.all_geo[i].lng, orden:cont, estatus: 1, poligono: 1, usuarioAlta: 'admin', pais:pais, ciudad:ciudad, estado:estado, lat_centro:this.lat_centro, lng_centro:this.lng_centro }
+            dato = { codigoPostal:cp_gen, lat:this.all_geo[i].lat, 'lng': this.all_geo[i].lng, orden:cont, estatus: 1, poligono: 1, usuarioAlta: 'admin', pais:pais, ciudad:ciudad, estado:estado, lat_centro:this.lat_centro, lng_centro:this.lng_centro, estatus_geocerca: this.tipoGeocerca }
             const auth = { username: "admin", password: "123", }
             const geocerca = await axios.post('geocercas/', dato, { auth: auth });
             const resGeo = geocerca.data;
@@ -477,18 +495,15 @@ export default {
                   </b-col>
                 </b-row>
                 <b-row>
-                    En el mapa, selecciona un punto de partida y da clic sobre de ese punto para poder colocar un marcador, una vez agregados todos los marcadores para tu geocerca, da clic en el boton Guardar Geocerca. 
+                    <b-col md="8" sm="12">
+                      En el mapa, selecciona un punto de partida y da clic sobre de ese punto para poder colocar un marcador, una vez agregados todos los marcadores para tu geocerca, da clic en el boton Guardar Geocerca. 
+                    </b-col>
+                    <b-col md="4" sm="12">
+                      <b-form-group label="Selecciona el tipo de Geocerca" label-for="tipoGeocerca" description="">
+                        <b-form-select v-model="tipoGeocerca" :options="options_geocerca"></b-form-select>
+                      </b-form-group>                      
+                    </b-col>
                     <!--b-col md="4" sm="12">
-                      <b-form-group label="Estado" label-for="estado" description="">
-                        <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Código Postal" label-for="cp" description="">
-                        <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
                       
                     </b-col-->
                 </b-row>

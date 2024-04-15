@@ -87,6 +87,11 @@ export default {
           sortable: true,
         },
         {
+          key: "precio_kilometraje",
+          label: "Precio x Kilometro",
+          sortable: true,
+        },
+        {
           key: "actions",
           tdClass: 'text-center',
           thClass: 'text-center'

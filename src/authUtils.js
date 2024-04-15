@@ -53,7 +53,7 @@ class FirebaseAuthBackend {
      */
     forgetPassword = (email) => {
         return new Promise((resolve, reject) => {
-            firebase.auth().sendPasswordResetEmail(email, { url: window.location.protocol + "//" + window.location.host + "/login" }).then(() => {
+            firebase.auth().sendPasswordResetEmail(email, { url: window.location.protocol + "//" + window.location.host + "/login/" }).then(() => {
                 resolve(true);
             }).catch((error) => {
                 reject(this._handleError(error));
