@@ -96,6 +96,14 @@ export default [
         component: () => import('../views/pages/cotizaciones/generateCotizacion')
     },
     {
+        path: '/administracion/zonas_select',
+        name: 'Seleccion de Zonas',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/zonas_select')
+    },
+    {
         path: '/cotizaciones/',
         name: 'cotizacion',
         meta: {
