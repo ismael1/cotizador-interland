@@ -141,7 +141,6 @@ export default {
         method: "post",
         url: `/api/v1/getDatosEmail/`,
       }).then((response) => {
-        console.log(response.data)
         this.idEmail = response.data[0].idEmail
         this.correo = response.data[0].correo
         this.contra = response.data[0].contra

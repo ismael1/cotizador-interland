@@ -414,7 +414,14 @@ export default {
         }
       }).then(res => {
         for (let i = 0; i < res.data.data.length; i++) {
-          let cp = { value: res.data.data[i].codigoPostal, text: res.data.data[i].ciudad + ' - ' + res.data.data[i].codigoPostal }
+          let cp = {}
+
+          if(res.data.data[i].nombre_corto != ''){
+            cp = { value: res.data.data[i].codigoPostal, text: res.data.data[i].nombre_corto}
+          }else{
+            cp = { value: res.data.data[i].codigoPostal, text: res.data.data[i].ciudad + ' - ' + res.data.data[i].codigoPostal }
+          }
+          
           this.options_cp.push(cp)
         }
       });

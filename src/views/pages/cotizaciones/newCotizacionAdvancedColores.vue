@@ -8274,7 +8274,7 @@ export default {
                       <div class="col-sm-12">
                         <b-form-group>
                           <label for="" style="font-size: 12px; font-weight: bold">UNIDAD</label>
-                          <b-form-radio v-model="tipoUnidad" v-for="unidad in units" :key="unidad.id" v-bind:value="unidad.id" @change="cambioUnidad(unidad.code_name, unidad.id)" style="font-size: 12px">
+                          <b-form-radio v-model="tipoUnidad" v-for="unidad in units" :key="unidad.id" v-bind:value="unidad.id" @change="cambioUnidad(unidad.code_name, unidad.id)" :style="'font-size: 12px'">
                             <label v-bind:id="'unidad-'+unidad.id" >
                               {{ unidad.code_name }}
                             </label>
@@ -8309,7 +8309,7 @@ export default {
                           v-bind:value="serv.id"
                           :disabled="serv.nameproduct == 'FLETE NACIONAL'"
                           @change="addServicios(serv.id, serv.nameproduct)"
-                          style="font-size: 12px"
+                          :style="'font-size: 12px'"
                           :checked="serv.nameproduct == 'RECOLECCION' || serv.nameproduct == 'ENTREGA'"
                           >
                           <b style="font-weight: bold">{{ serv.nameproduct }}</b>
@@ -10049,14 +10049,14 @@ export default {
                                     <div role="group">
                                       <label style="font-size: 11px">ORIGEN:</label>
                                       <br />
-                                      <p class="" style="font-size: 12px">
+                                      <p class="" :style="'font-size: 12px'">
                                         {{ terorigen.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
                                       <label style="font-size: 11px">TIPO DE OPERACIÓN:</label>
                                       <br />
-                                      <p class="" style="font-size: 12px">
+                                      <p class="" :style="'font-size: 12px'">
                                         {{ termodalidad.toUpperCase() }}
                                       </p>
                                     </div>
@@ -10070,14 +10070,14 @@ export default {
                                     <div role="group">
                                       <label style="font-size: 11px">DESTINO:</label>
                                       <br />
-                                      <p class="" style="font-size: 12px">
+                                      <p class="" :style="'font-size: 12px'">
                                         {{ terdestino.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
                                       <label style="font-size: 11px">TIPO DE CARGA:</label>
                                       <br />
-                                      <p class="" style="font-size: 12px">
+                                      <p class="" :style="'font-size: 12px'">
                                         {{ carga.toUpperCase() }}
                                       </p>
                                     </div>
@@ -10190,13 +10190,13 @@ export default {
                                   <b-row class="p-2">
                                     <b-col cols="6">
                                       <label style="font-size: 11px">GRADOS:</label>
-                                      <p style="font-size: 12px">
+                                      <p :style="'font-size: 12px'">
                                         {{ gradosMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
                                     <b-col cols="6">
                                       <label style="font-size: 11px">TIPO DE UNIDAD:</label>
-                                      <p style="font-size: 12px">
+                                      <p :style="'font-size: 12px'">
                                         {{ tUnidadMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
@@ -10206,13 +10206,13 @@ export default {
                                   <b-row class="p-2">
                                     <b-col cols="6">
                                       <label style="font-size: 11px">UN:</label>
-                                      <p style="font-size: 12px">
+                                      <p :style="'font-size: 12px'">
                                         {{ unMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
                                     <b-col cols="6">
                                       <label style="font-size: 11px">CLASS:</label>
-                                      <p style="font-size: 12px">
+                                      <p :style="'font-size: 12px'">
                                         {{ classMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
@@ -10221,25 +10221,25 @@ export default {
                                 <b-row class="p-2">
                                   <b-col cols="3">
                                     <label style="font-size: 11px">ENVIO:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ velocidadEnvio.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">EMBALAJE:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ /*terembalaje.toUpperCase()*/ terDescEmbalaje.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">ESTIBABLE:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ terestibable.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">CLASIFICACIÓN:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ clasificaText ? clasificaText : "" }}
                                     </p>
                                   </b-col>
@@ -10247,25 +10247,25 @@ export default {
                                 <b-row class="p-2">
                                   <b-col cols="3">
                                     <label style="font-size: 11px">CANTIDAD:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ cantMerc }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">VOLUMEN (m3):</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ volMerc }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">PESO TOTAL:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ pesTMerc + unidaPesoMerc.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
                                     <label style="font-size: 11px">DESCRIPCIÓN:</label>
-                                    <p style="font-size: 12px">
+                                    <p :style="'font-size: 12px'">
                                       {{ descripMerc.trim() }}
                                     </p>
                                   </b-col>
@@ -10390,7 +10390,7 @@ export default {
                                                 :key="servicios.idService"
                                                 v-bind:value="servicios.idService"
                                                 @change="mostrarImpuesto(servicios.idService)"
-                                                style="font-size: 12px"
+                                                :style="'font-size: 12px'"
                                                 >
                                               </b-form-checkbox>
                                             </td>
@@ -10471,7 +10471,7 @@ export default {
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td colspan="2" style="text-align: right;">
+                                            <td colspan="2" :style="'text-align: right;'">
                                               <p v-if="divisa == 2">
                                                 <b>SUBTOTAL:</b>
                                                 ${{ formatMoney(parseFloat(totalSubtotalGlobal)) }}<sub>MXN</sub>
@@ -10584,7 +10584,7 @@ export default {
 
                         <div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" :style="'background-color: #2aab5c;'" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
                         </div>
                       </b-modal>
                     </div>

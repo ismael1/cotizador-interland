@@ -1446,9 +1446,16 @@ export default [
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/cotizaciones/listTarifarios')
+        component: () => import('../views/pages/cotizaciones/newTarifa')
     },
-
+    {
+        path: '/cotizaciones/newTarifarioLTL',
+        name: 'new-tarifa-ltl',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/cotizaciones/newTarifaLTL')
+    },
     {
         path: '/new-tarifa',
         name: 'newTarifa',
@@ -1631,7 +1638,30 @@ export default [
         },
         component: () => import('../views/pages/catalogo/newZonasTarifas')
     },
-
+    {
+        path: '/administracion/listRangoMercancias',
+        name: 'list-rango-mercancias',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/listRangoMercancias')
+    },
+    {
+        path: '/administracion/new-rango-mercancia',
+        name: 'Nuevo Rango Mercancia',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/newRangoMercancia')
+    },
+    {
+        path: '/administracion/zonas_select',
+        name: 'Seleccion de Zonas',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/administracion/zonas_select')
+    },
     // {
     //     path: '/apps/chat',
     //     name: 'chat',

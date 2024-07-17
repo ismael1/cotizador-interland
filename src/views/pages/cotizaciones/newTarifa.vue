@@ -1101,7 +1101,7 @@ export default {
                     <b-col md="4" sm="12"></b-col>
                   </b-row>
                 </b-tab-->
-                <b-tab title="LTL Manual" active>
+                <!--b-tab title="LTL Manual" active>
                   <b-row>
                     <b-col md="4" sm="12">
                       <b-form-group label="Origen:" label-for="origen">
@@ -1171,7 +1171,7 @@ export default {
                       </div>
                     </b-col>
                   </b-row>
-                </b-tab>
+                </b-tab-->
                 <b-tab title="FTL Automático">
                   <b-row>
                     <b-col md="3" sm="12">

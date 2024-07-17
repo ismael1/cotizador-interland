@@ -170,8 +170,7 @@ export default {
           username: "admin",
           password: "123",
         },
-      })
-        .then((response) => {
+      }).then((response) => {
           console.log(response)
           Swal.fire({
             title: "Unidad Actualizada",
@@ -184,8 +183,7 @@ export default {
               window.location.href = "/catalogo/listunidad";
             }
           })
-        })
-        .catch((error) => {
+        }).catch((error) => {
           Swal.fire({
             title: "Ocurrio un error al intentar actualizar el servicio. "+error,
             text: "",

@@ -563,8 +563,6 @@ export default {
       destinos_ltl: [],
       mostrarMapaLTL: false,
 
-
-      itemsTarifarioFTL: [],
       datosOrigenesFTLOcupar: [],
       datosDestinosFTLOcupar: [],
       datosUnidaddesFtlOcupar: [],
@@ -3841,7 +3839,6 @@ export default {
 
     async generateCotizacionFTL(val){
 
-      this.itemsTarifarioFTL = []
       this.datosOrigenesFTLOcupar = []
       this.datosDestinosFTLOcupar = []
       this.datosUnidaddesFtlOcupar = []
@@ -3880,35 +3877,35 @@ export default {
         return false;
       }
 
-      for (let i = 0; i < this.origenes_ftl.length; i++) {
-        let org =  await axios({
-          method: "get",
-          url: "/api/v1/get-datos-geocercas/",
-          params: {
-            idGeocerca: this.origenes_ftl[i].idGeocerca,
-          },
-          auth: auth,
-        }).then((response) => {
-          this.datosOrigenesFTLOcupar.push(response.data[0])
-        }).catch((error) => {
-          console.log(error);
-        });
-      }
+      for (let i = 0; i < this.arrayOrigen.length; i++) {
+                let org =  await axios({
+                    method: "get",
+                    url: "/api/v1/get-datos-geocercas-cotizacion/",
+                    params: {
+                        idGeocerca: this.arrayOrigen[i].idGeocerca,
+                    },
+                    auth: auth,
+                }).then((response) => {
+                    this.datosOrigenesFTLOcupar.push(response.data[0])
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
 
-      for (let i = 0; i < this.destinos_ftl.length; i++) {
-        let dest =  await axios({
-          method: "get",
-          url: "/api/v1/get-datos-geocercas/",
-          params: {
-            idGeocerca: this.destinos_ftl[i].idGeocerca,
-          },
-          auth: auth,
-        }).then((response) => {
-          this.datosDestinosFTLOcupar.push(response.data[0])
-        }).catch((error) => {
-          console.log(error);
-        });
-      }
+            for (let i = 0; i < this.arrayDestino.length; i++) {
+                let dest =  await axios({
+                    method: "get",
+                    url: "/api/v1/get-datos-geocercas-cotizacion/",
+                    params: {
+                        idGeocerca: this.arrayDestino[i].idGeocerca,
+                    },
+                    auth: auth,
+                }).then((response) => {
+                    this.datosDestinosFTLOcupar.push(response.data[0])
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
 
       for (let i = 0; i < this.unidadesLTL.length; i++) {
         let unit =  await axios({
@@ -3938,7 +3935,9 @@ export default {
 
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
-          let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
+          console.log(this.datosOrigenesFTLOcupar, this.datosDestinosFTLOcupar);
+          //let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
+          let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "colonia_o": this.datosOrigenesFTLOcupar[o].colonia, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "colonia_d": this.datosDestinosFTLOcupar[d].colonia, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
           this.listOD.push(dato)
         }
       }
@@ -8834,14 +8833,19 @@ export default {
       let porcentajeIncrementoZona = 0
       let porcentajeDecremento = 0
 
+      let km = 0
+      let tipozona = ''
+      let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad;
+      let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad;
+      let destinoRuta = origen.estado+' - '+destino.estado
+
       for (let i = 0; i < this.listTipoZona.length; i++) {
-        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
-        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
-        let destinoRuta = origen.estado+' - '+destino.estado
+
+        console.log(this.listTipoZona[i].origen, ' == ', origenValor, ' && ', this.listTipoZona[i].destino, ' == ', destinoValor);
         if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
           
-          let tipozona = 'Zona '+this.listTipoZona[i].tipoZona
-          let km = parseFloat(this.listTipoZona[i].km)
+          tipozona = 'Zona '+this.listTipoZona[i].tipoZona
+          km = parseFloat(this.listTipoZona[i].km)
           
           for (let i = 0; i < this.listPorcentajes.length; i++) {
             if(this.listPorcentajes[i].mercancia == tipozona && this.listPorcentajes[i].tipo == 'i'){
@@ -9741,7 +9745,7 @@ export default {
                       <div class="container-fluid">
                         <div class="table-responsive">
                           <table class="table">
-                            <thead class="text-white" style="background-color: #2aab5c">
+                            <thead class="text-white" :style="'background-color: #2aab5c'">
                               <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Embalaje</th>
@@ -9945,14 +9949,14 @@ export default {
                             <div class="row" style="border-bottom: 2px solid #f5f4f4; margin-top: -12px;">
                               
                               <div class="col-md-4 text-left mt-2 mb-2">
-                                  <b-button pill v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: USD</b></b-button>
-                                  <b-button pill v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: MXN</b></b-button>
+                                  <b-button pill v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" :style="'background-color: #2aab5c'" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: USD</b></b-button>
+                                  <b-button pill v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" :style="'background-color: #2aab5c'" size="sm"><b><i class="fe-refresh-ccw"></i> Divisa: MXN</b></b-button>
                               </div>
                               <div class="col-md-4 text-center mt-2 mb-2">
                                 <i class="fe-truck" style="color: #2aab5c; font-size: 38px"></i>
                               </div>
                               <div class="col-md-4 text-right mt-2 mb-2">
-                                <b-button pill style="background-color: #2aab5c" :disabled="isActive" v-b-modal.resumen-modal title="Resumen General de Cotizacion" v-b-tooltip.hover="{ variant: 'success' }" data-toggle="modal" data-target="#resumen-modal">
+                                <b-button pill :style="'background-color: #2aab5c'" :disabled="isActive" v-b-modal.resumen-modal title="Resumen General de Cotizacion" v-b-tooltip.hover="{ variant: 'success' }" data-toggle="modal" data-target="#resumen-modal">
                                   <b v-show="divisa == '1'">
                                     <u>
                                       <i class="fas fa-shopping-cart"></i>
@@ -10237,7 +10241,7 @@ export default {
                             <div >
                                 <div class="table-responsive">
                                   <table class="table table-hover" id="tarifario">
-                                    <thead class="text-white" style="background-color: #2aab5c">
+                                    <thead class="text-white" :style="'background-color: #2aab5c'">
                                       <tr>
                                         <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
                                         <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
@@ -10629,7 +10633,7 @@ export default {
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
                     <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
-                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                    <!--b-button class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="Save2()"> <b>Cotizar</b></b-button-->
                   </div>
                 </b-modal>
 
@@ -10727,7 +10731,7 @@ export default {
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionContacto()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
                     <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c;" @click="validaConfirmacionContacto()"><b>Siguente <i class="fe-arrow-right"></i></b></b-button>
-                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                    <!--b-button class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="Save2()"> <b>Cotizar</b></b-button-->
                   </div>
                 </b-modal>
 
@@ -10767,8 +10771,8 @@ export default {
                     </div>
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="cerrarConfirmacionCliente()"><b><i class="fe-arrow-left"></i> Regresar</b></b-button>
-                    <b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaRFCUsuario()"> <b>Cotizar Ahora!</b></b-button>
-                    <!--b-button class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="Save2()"> <b>Cotizar</b></b-button-->
+                    <b-button class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="validaRFCUsuario()"> <b>Cotizar Ahora!</b></b-button>
+                    <!--b-button class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="Save2()"> <b>Cotizar</b></b-button-->
                   </div>
                 </b-modal>
 
@@ -10783,8 +10787,8 @@ export default {
                     <input class="form-control form-control-sm" v-model.trim="valorMercancia" type="number" @change="validaValorMercancia($event)"/>
                     <br />
                     <b-button class="width-md ml-1" variant="secondary" @click="cierraModal(2)"><b><i class="fe-x"></i>Cancelar</b></b-button>
-                    <b-button v-if="termodalidad == 'LTL'" class="width-md ml-1" style="background-color: #2aab5c" @click="addServicios(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
-                    <b-button v-if="termodalidad == 'FTL'" class="width-md ml-1" style="background-color: #2aab5c" @click="addServiciosFTL(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
+                    <b-button v-if="termodalidad == 'LTL'" class="width-md ml-1" :style="'background-color: #2aab5c'" @click="addServicios(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
+                    <b-button v-if="termodalidad == 'FTL'" class="width-md ml-1" :style="'background-color: #2aab5c'" @click="addServiciosFTL(2, 'SEGURO')"><b><i class="fe-check"></i> Guardar</b></b-button>
                   </div>
                 </b-modal>
 
@@ -10796,7 +10800,7 @@ export default {
                     <label for="gradosMerc" class="form-label">Toma en cuenta que el valor declarado de la mercancia puede ser en USD o en MXN.</label>
                     <br />
                     <b-button class="width-md ml-1" variant="secondary" @click="cierraModalSeguro()"><b><i class="fe-x"></i>Cancelar</b></b-button>
-                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="cierraModalSeguro()"><b><i class="fe-check"></i> Aceptar</b></b-button>
+                    <b-button class="width-md ml-1" :style="'background-color: #2aab5c'" @click="cierraModalSeguro()"><b><i class="fe-check"></i> Aceptar</b></b-button>
                   </div>
                 </b-modal>
 
@@ -10808,7 +10812,7 @@ export default {
                     <label for="gradosMerc" class="form-label">Este servicio requiere ser revisado por un agente, enseguida lo enlazamos.</label>
                     <br />
                     <b-button class="width-md ml-1" variant="secondary" @click="cierraModalManiobras()"><b><i class="fe-x"></i>Cancelar</b></b-button>
-                    <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="cierraModalManiobras()"><b><i class="fe-check"></i> Aceptar</b></b-button>
+                    <b-button class="width-md ml-1" :style="'background-color: #2aab5c'" @click="cierraModalManiobras()"><b><i class="fe-check"></i> Aceptar</b></b-button>
                   </div>
                 </b-modal>
 
@@ -10838,8 +10842,8 @@ export default {
                     <br />
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="closeValidaServicios()"><b><i class="fe-x"></i>Omitir</b></b-button>
-                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
-                    <b-button v-else disabled class="width-md ml-1" size="sm" style="background-color: #2aab5c"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-else disabled class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
                   </div>
                 </b-modal>
 
@@ -10880,8 +10884,8 @@ export default {
                     <br />
                     <br />
                     <b-button class="width-md ml-1" size="sm" variant="secondary" @click="closeRecoleccion()"><b><i class="fe-x"></i>Omitir</b></b-button>
-                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" style="background-color: #2aab5c" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
-                    <b-button v-else disabled class="width-md ml-1" size="sm" style="background-color: #2aab5c"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-if="requiereRecoleccion || requiereEntrega" class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'" @click="validaServicios()"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
+                    <b-button v-else disabled class="width-md ml-1" size="sm" :style="'background-color: #2aab5c'"><b><i class="fas fa-plus"></i> Agregar</b></b-button>
                   </div>
                 </b-modal>
 
@@ -11724,7 +11728,7 @@ export default {
                       <div class="container-fluid">
                         <div class="table-responsive">
                           <table class="table">
-                            <thead class="text-white" style="background-color: #2aab5c">
+                            <thead class="text-white" :style="'background-color: #2aab5c'">
                               <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Embalaje</th>
@@ -11844,16 +11848,16 @@ export default {
                         <div class="container">
                           <div class="row">
                             <div class="col-md-12">
-                              <b-container class="bv-example-row" style="background-color: #ffffff">
-                                <b-row style=" border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;">
-                                  <b-col cols="2" style="border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;">
-                                    <div class="" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" style="width: 135%"/>
+                              <b-container class="bv-example-row" :style="'background-color: #ffffff'">
+                                <b-row :style="' border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;'">
+                                  <b-col cols="2" :style="'border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;'">
+                                    <div class="" :style="'display: flex; justify-content: center; align-items: center; height: 100%;'">
+                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" :style="'width: 135%'"/>
                                     </div>
                                   </b-col>
                                   <b-col cols="7">
-                                    <div style=" align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;">
-                                      <div style="color: #000000">
+                                    <div :style="'align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;'">
+                                      <div :style="'color: #000000'">
                                         <b>INTERLAND TRANSPORT SA DE CV</b>
                                       </div>
                                       <div>
@@ -11870,12 +11874,12 @@ export default {
                                     </div>
                                   </b-col>
                                   <b-col cols="3">
-                                    <div style="display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;">
-                                      <b style="font-weight: bold; color: #2aab5c;">COTIZACIÓN</b>
+                                    <div :style="'display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;'">
+                                      <b :style="'font-weight: bold; color: #2aab5c;'">COTIZACIÓN</b>
                                       <br />
-                                      <b style="font-weight: bold; color: #000000;">FOLIO ID:</b>
+                                      <b :style="'font-weight: bold; color: #000000;'">FOLIO ID:</b>
                                       <br />
-                                      <b style=" font-weight: bold; color: #000000;">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
+                                      <b :style="'font-weight: bold; color: #000000;'">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
                                     </div>
                                   </b-col>
                                 </b-row>
@@ -11894,7 +11898,7 @@ export default {
                                     {{ fechaFormato }}</b-col
                                   >
                                 </b-row>
-                                <b-row class="text-left p-2" style="font-size: 12px;">
+                                <b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col md="6">
                                     <label style="font-size: 11px">ORIGEN: </label> {{ terorigen.toUpperCase() }}
                                   </b-col>
@@ -11976,12 +11980,12 @@ export default {
                                   </b-col>
                                   <b-col md="6">
                                     <div class="col-md-12 text-center">
-                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
-                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" :style="'background-color: #2aab5c'" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" :style="'background-color: #2aab5c'" size="sm">Divisa: MXN</b-button>
                                     </div>
                                   </b-col>
                                 </b-row>
-                                <!--b-row class="text-left p-2" style="font-size: 12px;">
+                                <!--b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col>
                                     <div role="group">
                                       <label style="font-size: 11px">FOLIO DE COTIZACIÓN:</label>
@@ -12044,8 +12048,8 @@ export default {
                                   <b-col cols="2 text-center">
 
                                     <div class="col-md-12 text-center">
-                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
-                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" :style="'background-color: #2aab5c'" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" :style="'background-color: #2aab5c'" size="sm">Divisa: MXN</b-button>
                                     </div>
                                   </b-col>
                                   <b-col cols="12">
@@ -12066,7 +12070,7 @@ export default {
                                     <label style="color: #ffffff">MERCANCIAS</label>
                                   </b-col>
                                 </b-row>
-                                <div class="col-md-12" style="font-size: 12px;">
+                                <div class="col-md-12" :style="'font-size: 12px;'">
                                   <b-row class="alert alert-light">
                                     <b-col sm="3"><b>CANTIDAD PIEZAS:</b> {{ totalCantidad }}</b-col>
                                     <b-col sm="3"><b>VOLUMEN:</b> {{ totalVolumen }}<sub>m<sup>3</sup></sub></b-col>
@@ -12233,7 +12237,7 @@ export default {
                                   <b-col></b-col>
                                 </b-row>
                                 <div>
-                                  <div class="row my-3" style="font-size: 12px;">
+                                  <div class="row my-3" :style="'font-size: 12px;'">
                                     <div v-for="price in pricingData" :key="price.title" class="col-xl-4 col-md-6">
                                       <div class="card card-pricing" :class="{ 'ribbon-box': `${price.ribbon}` === 'Más Vendido' }">
                                         <div v-if="price.ribbon === 'Más Vendido'" class="ribbon-two ribbon-two-danger">
@@ -12281,7 +12285,7 @@ export default {
                                   <b-col></b-col>
                                 </b-row>
                                 <!-- Inicio else -->
-                                <div class="col-md-12" style="font-size: 12px;">
+                                <div class="col-md-12" :style="'font-size: 12px;'">
                                   <div class="form-group row mb-0">
                                     <div class="table-responsive">
                                       <table class="table table-sm mb-0" width="100%" v-if="confirmarServices.length > 0">
@@ -12344,7 +12348,7 @@ export default {
                                                 :key="servicios.idService"
                                                 v-bind:value="servicios.idService"
                                                 @change="mostrarImpuesto(servicios.idService)"
-                                                style="font-size: 12px;"
+                                                :style="'font-size: 12px;'"
                                                 >
                                               </b-form-checkbox>
                                             </td>
@@ -12425,7 +12429,7 @@ export default {
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td colspan="2" style="text-align: right;">
+                                            <td colspan="2" :style="'text-align: right;'">
                                               <p v-if="divisa == 2">
                                                 <b>SUBTOTAL:</b>
                                                 ${{ formatMoney(parseFloat(totalSubtotalGlobal)) }}<sub>MXN</sub>
@@ -12480,7 +12484,7 @@ export default {
                               </b-container>
                               <!--b-container>
                                 <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
-                                  <b-col class="text-left" style="font-size: 12px;">
+                                  <b-col class="text-left" :style="'font-size: 12px;'">
                                     <label style="color: #ffffff">INFORMACIÓN DE CONTACTO</label>
                                   </b-col>
                                   <b-col></b-col>
@@ -12533,12 +12537,12 @@ export default {
 
                         <!--div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="Save2()">Confirmar</b-button>
+                          <b-button class="width-md ml-1" :style="'background-color: #2aab5c'" @click="Save2()">Confirmar</b-button>
                         </div-->
 
                         <div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" :style="'background-color: #2aab5c'" @click="validaInfoConfirma()">Quiero el Servicio!</b-button>
                         </div>
                       </b-modal>
                     </div>
@@ -12555,16 +12559,16 @@ export default {
                         <div class="container">
                           <div class="row">
                             <div class="col-md-12">
-                              <b-container class="bv-example-row" style="background-color: #ffffff">
-                                <b-row style=" border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;">
-                                  <b-col cols="2" style="border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;">
-                                    <div class="" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" style="width: 135%"/>
+                              <b-container class="bv-example-row" :style="'background-color: #ffffff'">
+                                <b-row :style="' border-color: #2aab5c; border-width: 1px; border-bottom-style: solid;'">
+                                  <b-col cols="2" :style="'border-color: #2aab5c; border-width: 3px; border-bottom-style: solid;'">
+                                    <div class="" :style="'display: flex; justify-content: center; align-items: center; height: 100%;'">
+                                      <img src="../../../assets/images/logo_interland.png" alt="Logo Interland" :style="'width: 135%'"/>
                                     </div>
                                   </b-col>
                                   <b-col cols="7">
-                                    <div style=" align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;">
-                                      <div style="color: #000000">
+                                    <div :style="'align-items: center; padding-right: 20px; padding-left: 20px; margin-right: auto; margin-left: auto;'">
+                                      <div :style="'color: #000000'">
                                         <b>INTERLAND TRANSPORT SA DE CV</b>
                                       </div>
                                       <div>
@@ -12581,12 +12585,12 @@ export default {
                                     </div>
                                   </b-col>
                                   <b-col cols="3">
-                                    <div style="display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;">
-                                      <b style="font-weight: bold; color: #2aab5c;">COTIZACIÓN</b>
+                                    <div :style="'display: flow-root; height: 90%; border: 2px solid rgb(108, 117, 125);width: 150px;padding: 10px 20px;margin: auto;text-align: center;'">
+                                      <b :style="'font-weight: bold; color: #2aab5c;'">COTIZACIÓN</b>
                                       <br />
-                                      <b style="font-weight: bold; color: #000000;">FOLIO ID:</b>
+                                      <b :style="'font-weight: bold; color: #000000;'">FOLIO ID:</b>
                                       <br />
-                                      <b style=" font-weight: bold; color: #000000;">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
+                                      <b :style="'font-weight: bold; color: #000000;'">{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0") }}</b>
                                     </div>
                                   </b-col>
                                 </b-row>
@@ -12605,7 +12609,7 @@ export default {
                                     {{ fechaFormato }}</b-col
                                   >
                                 </b-row>
-                                <b-row class="text-left p-2" style="font-size: 12px;">
+                                <b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col md="6">
                                     <label style="font-size: 11px">ORIGEN: </label> <p v-for="(origen, origenIndex) in datosOrigenesFTLOcupar"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b></p>
                                                 
@@ -12688,8 +12692,8 @@ export default {
                                   </b-col>
                                   <b-col md="6">
                                     <div class="col-md-12 text-center">
-                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" style="background-color: #2aab5c" size="sm">Divisa: USD</b-button>
-                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" style="background-color: #2aab5c" size="sm">Divisa: MXN</b-button>
+                                      <b-button v-show="divisa == '1'" title="Cambiar a Moneda MXN" @click="selectDivisa(1)" :style="'background-color: #2aab5c'" size="sm">Divisa: USD</b-button>
+                                      <b-button v-show="divisa == '2'" title="Cambiar a Moneda USD" @click="selectDivisa(2)" :style="'background-color: #2aab5c'" size="sm">Divisa: MXN</b-button>
                                     </div>
                                   </b-col>
                                 </b-row>
@@ -12698,7 +12702,7 @@ export default {
                                     <label style="color: #ffffff">MERCANCIAS</label>
                                   </b-col>
                                 </b-row>
-                                <!--div class="col-md-12" style="font-size: 12px;">
+                                <!--div class="col-md-12" :style="'font-size: 12px;'">
                                   <b-row class="alert alert-light">
                                     <b-col sm="3"><b>CANTIDAD PIEZAS:</b> {{ totalCantidad }}</b-col>
                                     <b-col sm="3"><b>VOLUMEN:</b> {{ totalVolumen }}<sub>m<sup>3</sup></sub></b-col>
@@ -12782,12 +12786,12 @@ export default {
                                 <!-- Inicio else -->
                                 <br>
                                 <b-row>
-                                  <div class="col-md-12" style="font-size: 12px;">
+                                  <div class="col-md-12" :style="'font-size: 12px;'">
                                     <div class="form-group row mb-0">
                                       <template>
                                         <div class="table-responsive">
                                           <table class="table table-hover" id="tarifario">
-                                            <thead class="text-white" style="background-color: #2aab5c">
+                                            <thead class="text-white" :style="'background-color: #2aab5c'">
                                               <tr>
                                                 <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
                                                 <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
@@ -12854,12 +12858,12 @@ export default {
 
                         <!--div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button class="width-md ml-1" style="background-color: #2aab5c" @click="Save2()">Confirmar</b-button>
+                          <b-button class="width-md ml-1" :style="'background-color: #2aab5c'" @click="Save2()">Confirmar</b-button>
                         </div-->
 
                         <div class="form-group text-right mt-3">
                           <b-button class="width-md ml-1" variant="secondary" @click="hideResumen2()">Cerrar</b-button>
-                          <b-button v-if="existeCotizacion" class="width-md ml-1" style="background-color: #2aab5c" @click="contactoFTL()">Quiero el Servicio!</b-button>
+                          <b-button v-if="existeCotizacion" class="width-md ml-1" :style="'background-color: #2aab5c'" @click="contactoFTL()">Quiero el Servicio!</b-button>
                         </div>
                       </b-modal>
                     </div>

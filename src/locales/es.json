@@ -334,8 +334,12 @@
         }
       }
     },
-    "customer": {       
+    "customer": {
       "text": "Customers"
+    },
+    "modulos":{
+      "text":"Módulos"
     }
+  
   }
 }

@@ -432,6 +432,7 @@ export default {
 
         }
 
+        cp_gen = cp_gen.slice(0, 5);
         this.estado = estado + ', ' + ciudad
         this.cp = cp_gen
         await this.getCentroLatLng()
@@ -504,6 +505,17 @@ export default {
       }
     },
 
+    activa_map(){
+
+      axios.get('/api/v1/extraer-info-gmaps/', {
+        params: {
+          estado: '',
+        }
+      }).then(res => {
+        console.log(res.data)
+      });
+    },
+
   },
   computed: {
 
@@ -526,7 +538,7 @@ export default {
 
             <!-- mb-md-2 -->
             <div class="row">
-
+              <b-button @click="activa_map">mapa</b-button>
             </div>
 
             <template>

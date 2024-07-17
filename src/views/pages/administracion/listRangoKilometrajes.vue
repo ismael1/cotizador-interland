@@ -12,8 +12,8 @@ import Swal from "sweetalert2";
  */
 export default {
   page: {
-    title: "Módulos",
-    meta: [{ name: "Módulos", content: appConfig.description }],
+    title: "Rango de Kilometrajes",
+    meta: [{ name: "Rango de Kilometrajes", content: appConfig.description }],
   },
 
   components: {
@@ -74,6 +74,11 @@ export default {
         {
           key: "orden",
           label: "Orden",
+          sortable: true,
+        },
+        {
+          key: "porcentaje",
+          label: "Porcentaje",
           sortable: true,
         },
         {
@@ -302,7 +307,7 @@ export default {
     pulsar(e) {
       if (e.keyCode === 13 && !e.shiftKey) {
         e.preventDefault()
-        get_customers(1)
+        get_rangos(1)
       }
     },
 
@@ -379,9 +384,9 @@ export default {
             <div class="row">
               <div v-if="permisos_lectura == 1" class="col-lg-12" style="text-align:right">
                 <!-- v-show judges whether the current page number needs to display the previous or next page -->
-                <b-button size="sm" v-show="lastpage" @click="get_customers(lastpage)" variant="outline-secondary">Previous page</b-button>
-                <b-button size="sm" v-for="index in all" @click="get_customers(index)" v-bind:key="index" variant="outline-secondary">{{ index }}</b-button>
-                <b-button size="sm" v-show="nextpage" @click="get_customers(nextpage)" variant="outline-secondary">Next page</b-button>
+                <b-button size="sm" v-show="lastpage" @click="get_rangos(lastpage)" variant="outline-secondary">Previous page</b-button>
+                <b-button size="sm" v-for="index in all" @click="get_rangos(index)" v-bind:key="index" variant="outline-secondary">{{ index }}</b-button>
+                <b-button size="sm" v-show="nextpage" @click="get_rangos(nextpage)" variant="outline-secondary">Next page</b-button>
               </div>
             </div>
 

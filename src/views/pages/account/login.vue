@@ -696,7 +696,6 @@ export default {
             password: "123",
           },
         }).then((response) => {
-          console.log(response.data)
           var datos = response.data[0]; 
           if(datos.validate){
             this.$refs['my-modal'].hide();
