@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 //agregado 260621
 import ItemTemplateProSer from '@/components/ItemTemplateSearchProSer'
 import ItemTemplateUnidad from '@/components/ItemTemplateSearchUnidad'
+import countTo from 'vue-count-to';
 
 export default {
   page: {
@@ -203,7 +204,8 @@ export default {
       let data_o = {}
       let data_d = {}
       let data_des = {}
-
+      console.log(this.origenes_ftl, 'ori');
+      console.log(this.destinos_ftl, 'des');
       if(this.origenes_ftl.length > 0 && this.destinos_ftl.length > 0){
         for (let or = 0; or < this.origenes_ftl.length; or++) {
           

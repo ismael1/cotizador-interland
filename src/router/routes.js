@@ -93,7 +93,7 @@ export default [
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/cotizaciones/generateCotizacion')
+        component: () => import('../views/pages/cotizaciones/cotizacion')
     },
     {
         path: '/administracion/zonas_select',

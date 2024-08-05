@@ -18,6 +18,7 @@ import moment from 'moment';
 import ItemTemplateProSer from '@/components/ItemTemplateSearchProSer'
 import ItemTemplateUnidad from '@/components/ItemTemplateSearchUnidad'
 import templateAduana from '@/components/ItemTemplateAduana';
+import countTo from 'vue-count-to';
 
 
 export default {
@@ -52,8 +53,14 @@ export default {
 
       options_radio: [
         { text: 'Interestatal', value: 'Servicio Interestatal' },
-        { text: 'Impo', value: 'Servicio Importación' },
-        { text: 'Expo', value: 'Servicio Exportación' },
+        { text: 'Importación', value: 'Servicio Importación' },
+        { text: 'Exportación', value: 'Servicio Exportación' },
+      ],
+
+      otions_radio_mercancia: [
+        {text: 'Carga General', value: 'Carga General'},
+        {text: 'Carga IMO', value: 'Carga IMO'},
+        {text: 'Carga Refrigerada', value: 'Carga Refrigerada'},
       ],
 
       /* INICIA SECCION DE LTL */
@@ -76,6 +83,7 @@ export default {
 
       tarifaMinima: 0,
       tipoTarifaVal: 'Servicio Interestatal',
+      tipo_merc: 'Carga General',
 
       /* TERMINA SECCION DE LTL */
       /* INICIA SECCION DE LTL */
@@ -111,6 +119,8 @@ export default {
 
       fields_table: [],
       items_table: [],
+
+      datos_zona_select: [],
 
       idU: 0,
       emailU: '',
@@ -711,7 +721,7 @@ export default {
       for (let i = 0; i < this.origenes_ftl.length; i++) {
         let org =  await axios({
           method: "get",
-          url: "/api/v1/get-datos-geocercas/",
+          url: "/api/v1/get-datos-geocercas-info/",
           params: {
             idGeocerca: this.origenes_ftl[i].idGeocerca,
           },
@@ -726,7 +736,7 @@ export default {
       for (let i = 0; i < this.destinos_ftl.length; i++) {
         let dest =  await axios({
           method: "get",
-          url: "/api/v1/get-datos-geocercas/",
+          url: "/api/v1/get-datos-geocercas-info/",
           params: {
             idGeocerca: this.destinos_ftl[i].idGeocerca,
           },
@@ -766,6 +776,7 @@ export default {
 
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
+          console.log(this.datosOrigenesFTLOcupar[o]);
           let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "colonia_o":this.datosOrigenesFTLOcupar[o].colonia, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "colonia_d":this.datosDestinosFTLOcupar[d].colonia, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
           this.listOD.push(dato)
         }
@@ -784,43 +795,6 @@ export default {
 
       this.mostrarTarifario = true
       await this.generaTabla();
-
-
-      /* SE INICIA EL RECORRIDO DE UNIDADES Y RANGOS */
-      
-      /*for (let o = 0; o < this.datosUnidaddesFtlOcupar.length; o++) {
-        let rangoTabla = '';
-        let maxR = 0;
-        let datos = {}
-        console.log(this.datosUnidaddesFtlOcupar[o].code_name);
-
-        for (let r = 0; r < this.rangos.length; r++) {
-          this.rangos[r].min
-          this.rangos[r].max
-          rangoTabla =  this.rangos[r].min + '-'+ this.rangos[r].max
-          maxR = parseFloat(this.rangos[r].max);
-          
-          
-          
-        }
-        datos = {nombre: this.datosUnidaddesFtlOcupar[o].code_name, costo_kilometro: this.datosUnidaddesFtlOcupar[o].precio_kilometraje, "1-30": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "31-60": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "61-90": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "91-120": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR),}
-        this.itemsTarifarioFTL.push(datos)
-        
-      }*/
-      //console.log(this.itemsTarifarioFTL)
-      /*this.itemsTarifarioFTL = [
-        { age: 40, first_name: 'Dickerson', last_name: 'Macdonald', idGeocerca: '234'},
-        { age: 21, first_name: 'Larsen', last_name: 'Shaw', idGeocerca: '235'},
-        { age: 89, first_name: 'Geneva', last_name: 'Wilson', idGeocerca: '236'},
-        { age: 38, first_name: 'Jami', last_name: 'Carney', idGeocerca: '237' }
-      ],*/
-      /*console.log(this.datosOrigenesFTLOcupar);
-      console.log(this.datosDestinosFTLOcupar);
-      console.log(this.datosUnidaddesFtlOcupar);*/
-      
-      /*console.log(this.origenes_ftl);
-      console.log(this.destinos_ftl);
-      console.log(this.unidades);*/
       
 
     },
@@ -862,106 +836,6 @@ export default {
       }).catch((error) => {
         console.log(error);
       });
-    },
-
-    generarValorCelda(dato, rango, origen, destino) {
-
-        //$('#btn-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).empty();
-      
-      let max = parseFloat(rango.max);
-      let precio = parseFloat(dato.precio_kilometraje);
-      let resBase = 0;
-      let res = 0;
-      let resDes = 0;
-      let resInc = 0;
-      let tipoCarga = 'Carga General';
-
-      let porcentajeIncremento = 0
-      let porcentajeIncrementoZona = 0
-      let porcentajeDecremento = 0
-
-      for (let i = 0; i < this.listTipoZona.length; i++) {
-        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
-        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
-        let destinoRuta = origen.estado+' - '+destino.estado
-        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
-          let tipozona = 'Zona '+this.listTipoZona[i].tipoZona
-          let km = parseFloat(this.listTipoZona[i].km)
-          
-          for (let i = 0; i < this.listPorcentajes.length; i++) {
-            if(this.listPorcentajes[i].mercancia == tipozona && this.listPorcentajes[i].tipo == 'i'){
-              porcentajeIncrementoZona = porcentajeIncrementoZona + parseFloat(this.listPorcentajes[i].porcentaje)
-            }
-            
-            if(this.listPorcentajes[i].mercancia == tipoCarga && this.listPorcentajes[i].tipo == 'i'){
-              porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-            }
-
-            if(this.listPorcentajes[i].mercancia == destinoRuta  && this.listPorcentajes[i].tipo == 'd'){
-              porcentajeDecremento = porcentajeDecremento + parseFloat(this.listPorcentajes[i].porcentaje)
-              
-            }
-          }
-
-          if( km >= rango.min && km <= rango.max) {
-            res = precio * km
-            console.log(res, 'Precio Maxima')
-          }else{
-            res = precio * max
-            console.log(res, 'Precio Normal')
-          }
-
-          if(porcentajeIncrementoZona > 0){
-            //res = precio * max;
-            resInc = (res * porcentajeIncrementoZona) / 100;
-
-            res = res + resInc;
-            console.log(res, 'Precio Incremento', resInc, 'Incremento Zona', porcentajeIncrementoZona, 'Porcentaje Acumulado')
-          }else{
-            console.log(res, 'Precio Normal')
-          }
-          resBase = res
-          if(max > 30){
-            resDes = (resBase * porcentajeIncremento) / 100;
-            console.log(resDes, 'Incremento')
-            res = resBase + resDes;
-            console.log(res, 'Precio con Incremento')
-
-            resDes = (resBase * porcentajeDecremento) / 100;
-            console.log(resDes, 'Descuento')
-            res = res - resDes;
-            console.log(res, 'Precio con Descuento')
-          }
-
-          console.log('-----------------------------------------------------------')
-          return(res)
-        }
-        
-      }
-
-      /*let tipozona = '';
-      const datoTipoZona = this.obtenerTipoZona(origen, destino);
-      console.log(datoTipoZona, 'datoTipoZona')
-
-      for (let i = 0; i < this.listPorcentajes.length; i++) {
-        if(this.listPorcentajes[i].mercancia == tipozona){
-          porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-        }
-      }
-
-      if(porcentajeIncremento > 0){
-        res = precio * max;
-        resInc = (res * porcentajeIncremento) / 100;
-        res = res + resInc;
-      }else{
-        res = precio * max;
-      }*/
-      
-      
-
-      //$('#btn-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).empty().append('$'+this.formatMoney(res));
-      
-      // Lógica para generar el valor de la celda para cada rango y dato
     },
 
     formatMoney(value) {
@@ -1077,13 +951,20 @@ export default {
 
     get_km(origen, destino){
       let km = 0;
-
+      let tipozona = ''
+      let tipozonatext = ''
+      let tipozonaclass = ''
       for (let i = 0; i < this.listTipoZona.length; i++) {
         let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad;
         let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad;
         if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
-          let tipozona = this.listTipoZona[i].tipoZona
-          return km = parseFloat(this.listTipoZona[i].km)
+          tipozona = this.listTipoZona[i].tipoZona
+          km = parseFloat(this.listTipoZona[i].km)
+          tipozonaclass = this.listTipoZona[i].tipoZonaClass
+          tipozonatext = this.listTipoZona[i].tipoZonaText
+
+          let datos = {"tipoZona":tipozona, "tipoZonaText":tipozonatext, "tipoZonaClass":tipozonaclass, "km":km}
+          return (datos)
         }
       }
     },
@@ -1110,6 +991,9 @@ export default {
       let text_val = ''
       let factor = 350
       let km = 0
+      let tipoZona = ''
+      let tipoZonaText = ''
+      let tipoZonaClass = ''
 
       //data = {key: 'check-dinamic', label: 'Selecciona'}
       //this.fields_table.push(data)
@@ -1137,12 +1021,15 @@ export default {
 
       for (let org = 0; org < this.datosOrigenesFTLOcupar.length; org++) {
         for (let des = 0; des < this.datosDestinosFTLOcupar.length; des++) {
-
-          km = this.get_km(this.datosOrigenesFTLOcupar[org], this.datosDestinosFTLOcupar[des]);
+          let datos = this.get_km(this.datosOrigenesFTLOcupar[org], this.datosDestinosFTLOcupar[des]);
+          km = datos.km
+          tipoZona = datos.tipoZona
+          tipoZonaText = datos.tipoZonaText
+          tipoZonaClass = datos.tipoZonaClass
 
           for (let rang = 0; rang < this.listaRangoCargas.length; rang++) {
             //console.log(this.listaRangoCargas[rang]);
-            text_val += ', "'+'key-' + this.listaRangoCargas[rang].max+'": "'+this.generarValorCelda(this.listaRangoCargas[rang].porcentaje,this.tarifaMinima)+'"'
+            text_val += ', "'+'key-' + this.listaRangoCargas[rang].max+'": "'+this.generarValorCelda(this.listaRangoCargas[rang].porcentaje,this.tarifaMinima,tipoZonaText)+'"'
             
           }
 
@@ -1162,14 +1049,16 @@ export default {
             destino = this.datosDestinosFTLOcupar[des].estado+' - '+this.datosDestinosFTLOcupar[des].ciudad
           }          
           
-          text = '{"origen": "' + origen + '", "km":"'+km+' km", "destino": "' + destino + '", "factor": "'+factor+'"'+ text_val +'}';
+          text = '{"origen": "' + origen + '", "km":"'+km+' km <br/> <span class=\\"badge badge-'+tipoZonaClass+'\\">'+tipoZonaText+'</span>", "destino": "' + destino + '", "factor": "'+factor+'"'+ text_val +'}';
           this.items_table.push(JSON.parse(text))
         }
       }
 
     },
 
-    generarValorCelda(porc, tar){
+    generarValorCelda(porc, tar, zona){
+
+      console.log(porc, tar, zona);
       let total = 0
       let des = 0
       let por = parseFloat(porc)
@@ -1177,6 +1066,12 @@ export default {
       let tipoTarifa = 0
       let tarifaNu = 0
       let tarifaN = 0
+      let tipoMercancia = 0
+      let tarifaNuMer = 0
+      let tarifaNM = 0
+      let tipoZona = 0
+      let tarifaZona = 0
+      let tarifaZ = 0
 
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
         if(this.listPorcentajes[porc].mercancia == this.tipoTarifaVal){
@@ -1184,12 +1079,35 @@ export default {
         }
       }
 
+      for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
+        if(this.listPorcentajes[porc].mercancia == this.tipo_merc && this.listPorcentajes[porc].tipo == 'i'){
+          tipoMercancia = parseFloat(this.listPorcentajes[porc].porcentaje)
+        }
+      }
+      
+      for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
+        if(this.listPorcentajes[porc].mercancia == zona && this.listPorcentajes[porc].tipo == 'i'){
+          console.log(this.listPorcentajes[porc].mercancia);
+          tipoZona = parseFloat(this.listPorcentajes[porc].porcentaje)
+        }
+      }
+
+      if (tipoZona > 0) {
+        tarifaZona = ta * (tipoZona / 100)
+        tarifaZ = ta + tarifaZona
+      }
+
+      if (tipoMercancia > 0) {
+        tarifaNuMer = ta * (tipoMercancia / 100)
+        tarifaNM = ta + tarifaNuMer
+      }
+
       tarifaNu = ta * (tipoTarifa / 100) 
       tarifaN = ta + tarifaNu
 
       des = tarifaN * (por / 100)
 
-      total = this.formatMoney((tarifaN - des));
+      total = this.formatMoney(((tarifaN - des) + tarifaNM) + tarifaZ);
       return(total)
     },
 
@@ -1202,7 +1120,22 @@ export default {
       }else{
         this.generarTarifaLTL();
       }
-    }
+    },
+
+    getInfoDataBase(){
+      const auth = { username: "admin", password: "123", }
+        
+      axios({
+        method: "get",
+        url: "/api/v1/obtener-datos-tabla-zonas-select/",
+          data: {},
+          auth: auth,
+      }).then((response) => {
+        this.datos_zona_select = response.data.info
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
 
     /* FIN METODOS FTL */
 
@@ -1224,10 +1157,7 @@ export default {
                 <h5 class="header-title">Información de la Tarifa</h5>
               </b-col>
               <b-col md="4" sm="12"></b-col>
-              <b-col md="4" sm="12">
-                <!--div class="text-center">
-                  <b-button id="boton" class="sm secondary" href="../../cotizaciones/listTarifarios"><i class="fas fa-arrow-left"></i> Regresar</b-button>
-                </div-->
+              <b-col md="4" sm="12"> 
               </b-col>
             </b-row>
             <br>
@@ -1236,20 +1166,22 @@ export default {
                 <b-tab title="LTL Automático">
                   <b-container fluid>
                     <b-row>
-                      <b-col md="3">
+                      <b-col md="6">
                         <label>Selecciona Origen/es</label>
                         <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenes"></multiselect>
                       </b-col>
-                      <b-col md="3">
+                      <b-col md="6">
                         <label>Selecciona Destino/s</label>
                         <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinos"></multiselect>
                       </b-col>
-                      <b-col md="2">
+                  </b-row>
+                  <b-row>
+                      <b-col md="4">
                         <label>Tarifa Minima</label>
                         <b-form-input type="text" v-model="tarifaMinima" @change="validaTarifa"></b-form-input>
                       </b-col>
-                      <b-col md="2">
-                        <label>Tipo de Tarifa</label>
+                      <b-col md="4">
+                        <label><b>Tipo de Tarifa</b></label>
                         <b-form-group>
                           <b-form-radio-group
                             id="btn-radios-tipo_tarifa"
@@ -1263,11 +1195,20 @@ export default {
                           ></b-form-radio-group>
                         </b-form-group>
                       </b-col>
-                      <b-col md="2">
-                        <div class="text-center">
-                          <br>
-                          <b-button size="sm" style="background-color: #2aab5c;" @click="generarTarifaLTL()" title="Generar Tarifa"><b><i class="fe-file-plus"></i> </b></b-button>
-                        </div>
+                      <b-col md="4">
+                        <label><b>Tipo de Mercancia</b></label>
+                        <b-form-group>
+                          <b-form-radio-group
+                            id="btn-radios-mercancias"
+                            v-model="tipo_merc"
+                            :options="otions_radio_mercancia"
+                            button-variant="outline-primary"
+                            size="md"
+                            name="radio-btn-outline"
+                            buttons
+                            @change="validaTarifa"
+                          ></b-form-radio-group>
+                        </b-form-group>
                       </b-col>
                   </b-row>
                   </b-container>
@@ -1277,39 +1218,28 @@ export default {
                       <template>
                         <div >
                           <b-table striped hover :items="items_table" :fields="fields_table" select-mode="multi" responsive ref="selectableTable"  thead-class="bg-primary text-white">
-                                            <!--template #thead-top="data">
-                                                <b-tr>
-                                                    <b-th></b-th>
-                                                    <b-th colspan="2" :style="'text-align:center;'" >Ruta</b-th>
-                                                    <b-th :colspan="colspan" :style="'text-align:center;'">Detalles del Servicio</b-th>
-                                                </b-tr>
-                                            </template>
-                                            <template #cell(check-dinamic)="{ rowSelected }">
-                                                <template v-if="rowSelected">
-                                                    <i class="fas fa-check-square text-primary"></i>
-                                                </template>
-
-                                            </template>
-                                            <template v-for="un in fields_table" v-slot:[`cell(${un.code_name})`]="data" >                                               
-                                                <span v-if="un.key === 'nissan'">{{ parseFloat(data.item.nissan) }}</span>
-                                                <span v-else-if="un.key === 'camioneta_3_5'">{{ parseFloat(data.item.camioneta_3_5) }}</span>
-                                                <span v-else-if="un.key === 'rabon'">{{ parseFloat(data.item.rabon) }}</span>
-                                                <span v-else-if="un.key === 'torton'">{{ parseFloat(data.item.torton) }}</span>
-                                                <span v-else-if="un.key === 'caja_48'">{{ parseFloat(data.item.caja_48) }}</span>
-                                                <span v-else-if="un.key === 'caja_53'">{{ parseFloat(data.item.caja_53) }}</span>
-                                            </template-->
+                            <template #cell(km)="data">
+                              <span v-html="data.item.km"></span>
+                            </template>
                                              
                           </b-table>
                           <b-col md="9" sm="12">&nbsp;</b-col>
                           <b-col md="3" sm="12">
-                            <!--div class="text-center">
-                              <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="generarPDF()"><b><i class="fas fa-file"></i> Generar PDF</b></b-button>
-                            </div-->
                           </b-col>
                         </div>
                       </template>
                     </b-col>
                   </b-row>
+                </b-tab>
+                <b-tab v-if="this.username == 'admin'" title="Info Admin" @click="getInfoDataBase()">
+                  <b-container fluid>
+                    <b-row>
+                      <b-col md="12">
+                        <pre> {{ this.datos_zona_select }} </pre>
+                      </b-col>
+                    </b-row>
+                  </b-container>
+                    
                 </b-tab>
               </b-tabs>
             </div>

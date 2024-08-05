@@ -3877,12 +3877,12 @@ export default {
         return false;
       }
 
-      for (let i = 0; i < this.arrayOrigen.length; i++) {
+      for (let i = 0; i < this.origenes_ftl.length; i++) {
                 let org =  await axios({
                     method: "get",
                     url: "/api/v1/get-datos-geocercas-cotizacion/",
                     params: {
-                        idGeocerca: this.arrayOrigen[i].idGeocerca,
+                        idGeocerca: this.origenes_ftl[i].idGeocerca,
                     },
                     auth: auth,
                 }).then((response) => {
@@ -3892,12 +3892,12 @@ export default {
                 });
             }
 
-            for (let i = 0; i < this.arrayDestino.length; i++) {
+            for (let i = 0; i < this.destinos_ftl.length; i++) {
                 let dest =  await axios({
                     method: "get",
                     url: "/api/v1/get-datos-geocercas-cotizacion/",
                     params: {
-                        idGeocerca: this.arrayDestino[i].idGeocerca,
+                        idGeocerca: this.destinos_ftl[i].idGeocerca,
                     },
                     auth: auth,
                 }).then((response) => {
@@ -3933,6 +3933,7 @@ export default {
 
       this.listOD = []
 
+      console.log(this.datosOrigenesFTLOcupar, this.datosDestinosFTLOcupar);
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
           console.log(this.datosOrigenesFTLOcupar, this.datosDestinosFTLOcupar);
@@ -9764,7 +9765,7 @@ export default {
                                 <th scope="col">Acción</th>
                               </tr>
                             </thead>
-                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                            <tbody :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                               <tr v-for="(paq, i) in agregarMercancias">
                                 <th scope="row">{{ i + 1 }}</th>
                                 <td>{{ paq.embalaje }}</td>
@@ -9786,61 +9787,61 @@ export default {
                                 </td>
                               </tr>
                               <tr>
-                                <th style="border: 1px solid #edeff1; border-collapse: collapse;">-</th>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <th :style="'border: 1px solid #edeff1; border-collapse: collapse;'">-</th>
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="embalaje" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terembalaje" @change="selectEmbalaje($event)">
                                     <option v-for="emb in embalajes" :key="emb.idEmbalaje" v-bind:value="emb.idEmbalaje">
                                       {{ emb.nombre.toUpperCase() }}
                                     </option>
                                   </b-form-select>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model.trim="cantMerc" type="number" @change="validaCantidad()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="estibable" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terestibable" @change="selectEstibable">
                                     <option value="si">Si</option>
                                     <option value="no">No</option>
                                   </b-form-select>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="largoMerc" type="number" @change="validaLargo()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="anchoMerc" type="number" @change="validaAncho()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input v-if="terestibable == 'si'" class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()"/>
                                   <input v-else class="form-control form-control-sm" v-model="altoMerc" type="number" @input="change()" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm col" v-model.trim="pesTMerc" type="number" @change="validaPeso()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm col" v-model.trim="pesoTotal" type="number" disabled/>
                                 </td>
-                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <!--td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                  {{ unidaPesoMerc }} 
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="unidaPesoMerc" class="form-control custom-select-sm col" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaPesoMerc" @change="selectUniPesMerc">
                                     <option value="kg">Kg</option>
                                     <option value="lb">Lb</option>
                                   </b-form-select>
                                 </td-->
-                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <!--td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="volMerc" type="number" disabled/>
                                 </td-->
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="pesoVol" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="volMercTot" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="pesoVolTot" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-button v-if="termodalidad != 'LTL'" class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetes()"><i class="fas fa-plus"></i></b-button>
                                   <b-button v-else class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetesLTL()"><i class="fas fa-plus"></i></b-button>
                                 </td>
@@ -10154,7 +10155,7 @@ export default {
                       <div class="col-12" hidden>
                         <b-card class="rounded">
                           <div class="row">
-                            <div class="col-sm-12" style="text-align: center;">
+                            <div class="col-sm-12" :style="'text-align: center;'">
                             </div>
                           </div>
                         </b-card>
@@ -10243,22 +10244,22 @@ export default {
                                   <table class="table table-hover" id="tarifario">
                                     <thead class="text-white" :style="'background-color: #2aab5c'">
                                       <tr>
-                                        <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
-                                        <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
+                                        <td colspan="2" :style="'text-align: center;'"><b>Ruta</b></td>
+                                        <td :colspan="colspan" :style="'text-align: center;'"><b>Detalles del Servicio</b></td>
                                       </tr>
                                       <tr>
-                                        <td style="text-align: center;"><b>Origen</b></td>
-                                        <td style="text-align: center;"><b>Destino</b></td>
+                                        <td :style="'text-align: center;'"><b>Origen</b></td>
+                                        <td :style="'text-align: center;'"><b>Destino</b></td>
                                         <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index"><b>{{ generarTituloColumna(unidad) }}</b></td>
                                       </tr>
                                     </thead>
-                                    <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                    <tbody :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                       <template v-for="(origen, origenIndex) in datosOrigenesFTLOcupar">
                                         <template v-for="(destino, destinoIndex) in datosDestinosFTLOcupar">
                                           <tr>
-                                            <td style="text-align: center;"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
-                                            <td style="text-align: center;"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
-                                            <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" style="text-align:center;">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
+                                            <td :style="'text-align: center;'"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
+                                            <td :style="'text-align: center;'"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
+                                            <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" :style="'text-align:center;'">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
                                           </tr>
                                         </template>
                                       </template>
@@ -11747,7 +11748,7 @@ export default {
                                 <th scope="col">Acción</th>
                               </tr>
                             </thead>
-                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                            <tbody :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                               <tr v-for="(paq, i) in agregarMercancias">
                                 <th scope="row">{{ i + 1 }}</th>
                                 <td>{{ paq.embalaje }}</td>
@@ -11769,61 +11770,61 @@ export default {
                                 </td>
                               </tr>
                               <tr>
-                                <th style="border: 1px solid #edeff1; border-collapse: collapse;">-</th>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <th :style="'border: 1px solid #edeff1; border-collapse: collapse;'">-</th>
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="embalaje" class="rounded custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terembalaje" @change="selectEmbalaje($event)">
                                     <option v-for="emb in embalajes" :key="emb.idEmbalaje" v-bind:value="emb.idEmbalaje">
                                       {{ emb.nombre.toUpperCase() }}
                                     </option>
                                   </b-form-select>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model.trim="cantMerc" type="number" @change="validaCantidad()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="estibable" class="form-control custom-select-sm" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="terestibable" @change="selectEstibable">
                                     <option value="si">Si</option>
                                     <option value="no">No</option>
                                   </b-form-select>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="largoMerc" type="number" @change="validaLargo()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="anchoMerc" type="number" @change="validaAncho()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input v-if="terestibable == 'si'" class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()"/>
                                   <input v-else class="form-control form-control-sm" v-model="altoMerc" type="number" @change="validaAlto()" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm col" v-model.trim="pesTMerc" type="number" @change="validaPeso()"/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm col" v-model.trim="pesoTotal" type="number" disabled/>
                                 </td>
-                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <!--td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                  {{ unidaPesoMerc }} 
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-form-select id="unidaPesoMerc" class="form-control custom-select-sm col" v-b-tooltip.hover="{ variant: 'success' }" v-model.trim="unidaPesoMerc" @change="selectUniPesMerc">
                                     <option value="kg">Kg</option>
                                     <option value="lb">Lb</option>
                                   </b-form-select>
                                 </td-->
-                                <!--td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <!--td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="volMerc" type="number" disabled/>
                                 </td-->
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="pesoVol" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="volMercTot" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <input class="form-control form-control-sm" v-model="pesoVolTot" type="number" disabled/>
                                 </td>
-                                <td style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                <td :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                   <b-button v-if="termodalidad != 'LTL'" class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetes()"><i class="fas fa-plus"></i></b-button>
                                   <b-button v-else class="btn btn-sm" title="Agregar Paquete" @click="agregaPaquetesLTL()"><i class="fas fa-plus"></i></b-button>
                                 </td>
@@ -11889,9 +11890,9 @@ export default {
                                       </b-col>
                                     </b-row-->
                                 <br />
-                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style=" 'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">INFORMACIÓN GENERAL</label>
+                                    <label :style="'color: #ffffff'">INFORMACIÓN GENERAL</label>
                                   </b-col>
                                   <b-col class="text-right"
                                     >Ciudad de México a
@@ -11900,83 +11901,83 @@ export default {
                                 </b-row>
                                 <b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col md="6">
-                                    <label style="font-size: 11px">ORIGEN: </label> {{ terorigen.toUpperCase() }}
+                                    <label :style="'font-size: 11px'">ORIGEN: </label> {{ terorigen.toUpperCase() }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">DESTINO:</label> {{ terdestino.toUpperCase() }}
+                                    <label :style="'font-size: 11px'">DESTINO:</label> {{ terdestino.toUpperCase() }}
                                   </b-col>
                                   <b-col md="6" v-if="ocurreO">
-                                    <label style="font-size: 11px">OFICINA ORIGEN: </label> {{ almacenO }}
+                                    <label :style="'font-size: 11px'">OFICINA ORIGEN: </label> {{ almacenO }}
                                   </b-col>
                                   <b-col md="6" v-if="ocurreD">
-                                    <label style="font-size: 11px">OFICINA DESTINO:</label> {{ almacenD }}
+                                    <label :style="'font-size: 11px'">OFICINA DESTINO:</label> {{ almacenD }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> RECOLECCIÓN
+                                    <label :style="'font-size: 11px'">TIPO DE SERVICIO: </label> RECOLECCIÓN
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> ENTREGRA
+                                    <label :style="'font-size: 11px'">TIPO DE SERVICIO: </label> ENTREGRA
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
+                                    <label :style="'font-size: 11px'">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">SERVICIO: </label> {{ tipoOpcion }}
+                                    <label :style="'font-size: 11px'">SERVICIO: </label> {{ tipoOpcion }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE ENVIO: </label> {{ tipoEnvio }}
+                                    <label :style="'font-size: 11px'">TIPO DE ENVIO: </label> {{ tipoEnvio }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">USUARIO QUE GENERA: </label> {{ username }}
+                                    <label :style="'font-size: 11px'">USUARIO QUE GENERA: </label> {{ username }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FRECUENCIAS: </label>
-                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                    <label :style="'font-size: 11px'">FRECUENCIAS: </label>
+                                    <table :style="'width: 50%; border: 1px solid #EBEBEB;'">
                                       <tbody>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>LUN</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MAR</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>JUE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>VIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>SAB</b></td>
                                         </tr>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
                                         </tr>
                                       </tbody>
                                     </table>
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FRECUENCIAS: </label>
-                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                    <label :style="'font-size: 11px'">FRECUENCIAS: </label>
+                                    <table :style="'width: 50%; border: 1px solid #EBEBEB;'">
                                       <tbody>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>LUN</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MAR</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>JUE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>VIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>SAB</b></td>
                                         </tr>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
                                         </tr>
                                       </tbody>
                                     </table>
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
+                                    <label :style="'font-size: 11px'">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
                                   </b-col>
                                   <b-col md="6">
                                     <div class="col-md-12 text-center">
@@ -11988,59 +11989,59 @@ export default {
                                 <!--b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col>
                                     <div role="group">
-                                      <label style="font-size: 11px">FOLIO DE COTIZACIÓN:</label>
+                                      <label :style="'font-size: 11px'">FOLIO DE COTIZACIÓN:</label>
                                       <br />
                                       <p><b>{{ controlConse + fechaConsecutivo + String(numConsecutivo + 1).padStart(6,"0")}}</b></p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">FECHA DE COTIZACIÓN:</label>
+                                      <label :style="'font-size: 11px'">FECHA DE COTIZACIÓN:</label>
                                       <br />
                                       <p> {{ terfecha }} </p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">TIPO DE SERVICIO:</label>
+                                      <label :style="'font-size: 11px'">TIPO DE SERVICIO:</label>
                                       <br />
                                       <p> {{ tipoOpcion }} </p>
                                     </div>
                                   </b-col>
                                   <b-col>
                                     <div role="group">
-                                      <label style="font-size: 11px">ORIGEN:</label>
+                                      <label :style="'font-size: 11px'">ORIGEN:</label>
                                       <br />
                                       <p class="" style="font-size: 12px">
                                         {{ terorigen.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">TIPO DE OPERACIÓN:</label>
+                                      <label :style="'font-size: 11px'">TIPO DE OPERACIÓN:</label>
                                       <br />
                                       <p class="" style="font-size: 12px">
                                         {{ termodalidad.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">TIPO DE ENVIO:</label>
+                                      <label :style="'font-size: 11px'">TIPO DE ENVIO:</label>
                                       <br />
                                       <p>{{ tipoEnvio }}</p>
                                     </div>
                                   </b-col>
                                   <b-col>
                                     <div role="group">
-                                      <label style="font-size: 11px">DESTINO:</label>
+                                      <label :style="'font-size: 11px'">DESTINO:</label>
                                       <br />
                                       <p class="" style="font-size: 12px">
                                         {{ terdestino.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">TIPO DE CARGA:</label>
+                                      <label :style="'font-size: 11px'">TIPO DE CARGA:</label>
                                       <br />
                                       <p class="" style="font-size: 12px">
                                         {{ carga.toUpperCase() }}
                                       </p>
                                     </div>
                                     <div role="group">
-                                      <label style="font-size: 11px">USUARIO QUE GENERA:</label>
+                                      <label :style="'font-size: 11px'">USUARIO QUE GENERA:</label>
                                       <br />
                                       <p>{{ username }}</p>
                                     </div>
@@ -12065,9 +12066,9 @@ export default {
                                     </div>
                                   </b-col>
                                 </b-row-->
-                                <b-row class="p-1" style="background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style="'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">MERCANCIAS</label>
+                                    <label :style="'color: #ffffff'">MERCANCIAS</label>
                                   </b-col>
                                 </b-row>
                                 <div class="col-md-12" :style="'font-size: 12px;'">
@@ -12084,13 +12085,13 @@ export default {
                                       <table class="table table-sm mb-0" width="100%" v-if="agregarMercancias.length > 0">
                                         <thead>
                                           <tr>
-                                            <th style="text-align: center;">CANTIDAD</th>
-                                            <th style="text-align: center;">EMBALAJE</th>
+                                            <th :style="'text-align: center;'">CANTIDAD</th>
+                                            <th :style="'text-align: center;'">EMBALAJE</th>
                                             <!--th>ESTIBABLE</th-->
-                                            <th style="text-align: center;">LARGO</th>
-                                            <th style="text-align: center;">ANCHO</th>
-                                            <th style="text-align: center;">ALTO</th>
-                                            <th style="text-align: center;">PESO </th>
+                                            <th :style="'text-align: center;'">LARGO</th>
+                                            <th :style="'text-align: center;'">ANCHO</th>
+                                            <th :style="'text-align: center;'">ALTO</th>
+                                            <th :style="'text-align: center;'">PESO </th>
                                             <!--th>PESO REAL</th-->
                                             <!--th>VOLUMEN</th-->
                                             <!--th>PESO VOLUMETRICO</th>
@@ -12100,40 +12101,40 @@ export default {
                                         </thead>
                                         <tbody>
                                           <tr v-for="merc in agregarMercancias" v-bind:key="merc.idPaq" >
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.cantidad }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.embalaje }}
                                             </td>
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.estibable.toUpperCase() }}
                                             </td-->
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.largo }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.ancho }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.alto }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.peso }}<sub>{{ merc.upeso }}</sub>
                                             </td>
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.pesoTotal }}<sub>{{ merc.upeso }}</sub>
                                             </td-->
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.volumen }}<sub>m<sup>3</sup></sub>
                                             </td-->
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.pesoVolumetrico }}<sub>{{ merc.upeso }}</sub>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.volumenTotal }}<sub>m<sup>3</sup></sub>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.pesoVolumetricoTotal }}<sub>{{ merc.upeso }}</sub>
                                             </td-->
                                           </tr>
@@ -12147,13 +12148,13 @@ export default {
                                 <!--div v-if="this.tertipocarga == 'r'">
                                   <b-row class="p-2">
                                     <b-col cols="6">
-                                      <label style="font-size: 11px">GRADOS:</label>
+                                      <label :style="'font-size: 11px'">GRADOS:</label>
                                       <p style="font-size: 12px">
                                         {{ gradosMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
                                     <b-col cols="6">
-                                      <label style="font-size: 11px">TIPO DE UNIDAD:</label>
+                                      <label :style="'font-size: 11px'">TIPO DE UNIDAD:</label>
                                       <p style="font-size: 12px">
                                         {{ tUnidadMerc.toUpperCase() }}
                                       </p>
@@ -12163,13 +12164,13 @@ export default {
                                 <div v-if="this.tertipocarga == 'h'">
                                   <b-row class="p-2">
                                     <b-col cols="6">
-                                      <label style="font-size: 11px">UN:</label>
+                                      <label :style="'font-size: 11px'">UN:</label>
                                       <p style="font-size: 12px">
                                         {{ unMerc.toUpperCase() }}
                                       </p>
                                     </b-col>
                                     <b-col cols="6">
-                                      <label style="font-size: 11px">CLASS:</label>
+                                      <label :style="'font-size: 11px'">CLASS:</label>
                                       <p style="font-size: 12px">
                                         {{ classMerc.toUpperCase() }}
                                       </p>
@@ -12178,25 +12179,25 @@ export default {
                                 </div>
                                 <b-row class="p-2">
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">ENVIO:</label>
+                                    <label :style="'font-size: 11px'">ENVIO:</label>
                                     <p style="font-size: 12px">
                                       {{ velocidadEnvio.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">EMBALAJE:</label>
+                                    <label :style="'font-size: 11px'">EMBALAJE:</label>
                                     <p style="font-size: 12px">
                                       {{ /*terembalaje.toUpperCase()*/ terDescEmbalaje.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">ESTIBABLE:</label>
+                                    <label :style="'font-size: 11px'">ESTIBABLE:</label>
                                     <p style="font-size: 12px">
                                       {{ terestibable.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">CLASIFICACIÓN:</label>
+                                    <label :style="'font-size: 11px'">CLASIFICACIÓN:</label>
                                     <p style="font-size: 12px">
                                       {{ clasificaText ? clasificaText : "" }}
                                     </p>
@@ -12204,25 +12205,25 @@ export default {
                                 </b-row>
                                 <b-row class="p-2">
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">CANTIDAD:</label>
+                                    <label :style="'font-size: 11px'">CANTIDAD:</label>
                                     <p style="font-size: 12px">
                                       {{ cantMerc }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">VOLUMEN (m3):</label>
+                                    <label :style="'font-size: 11px'">VOLUMEN (m3):</label>
                                     <p style="font-size: 12px">
                                       {{ volMerc }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">PESO TOTAL:</label>
+                                    <label :style="'font-size: 11px'">PESO TOTAL:</label>
                                     <p style="font-size: 12px">
                                       {{ pesTMerc + unidaPesoMerc.toUpperCase() }}
                                     </p>
                                   </b-col>
                                   <b-col cols="3">
-                                    <label style="font-size: 11px">DESCRIPCIÓN:</label>
+                                    <label :style="'font-size: 11px'">DESCRIPCIÓN:</label>
                                     <p style="font-size: 12px">
                                       {{ descripMerc.trim() }}
                                     </p>
@@ -12231,7 +12232,7 @@ export default {
                                 
                                 <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">PAQUETES</label>
+                                    <label :style="'color: #ffffff'">PAQUETES</label>
                                   </b-col>
                                   <b-col></b-col>
                                   <b-col></b-col>
@@ -12277,9 +12278,9 @@ export default {
                                   </div>
                                 </div>
                               
-                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style=" 'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">SERVICIOS</label>
+                                    <label :style="'color: #ffffff'">SERVICIOS</label>
                                   </b-col>
                                   <b-col cols="5"></b-col>
                                   <b-col></b-col>
@@ -12485,7 +12486,7 @@ export default {
                               <!--b-container>
                                 <b-row class="p-1" style="background-color: #056736;color: #ffffff;">
                                   <b-col class="text-left" :style="'font-size: 12px;'">
-                                    <label style="color: #ffffff">INFORMACIÓN DE CONTACTO</label>
+                                    <label :style="'color: #ffffff'">INFORMACIÓN DE CONTACTO</label>
                                   </b-col>
                                   <b-col></b-col>
                                   <b-col></b-col>
@@ -12600,9 +12601,9 @@ export default {
                                       </b-col>
                                     </b-row-->
                                 <br />
-                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style="'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">INFORMACIÓN GENERAL</label>
+                                    <label :style="'color: #ffffff'">INFORMACIÓN GENERAL</label>
                                   </b-col>
                                   <b-col class="text-right"
                                     >Ciudad de México a
@@ -12611,84 +12612,84 @@ export default {
                                 </b-row>
                                 <b-row class="text-left p-2" :style="'font-size: 12px;'">
                                   <b-col md="6">
-                                    <label style="font-size: 11px">ORIGEN: </label> <p v-for="(origen, origenIndex) in datosOrigenesFTLOcupar"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b></p>
+                                    <label :style="'font-size: 11px'">ORIGEN: </label> <p v-for="(origen, origenIndex) in datosOrigenesFTLOcupar"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b></p>
                                                 
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">DESTINO:</label> <p v-for="(destino, destinoIndex) in datosDestinosFTLOcupar"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }} </b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b></p>
+                                    <label :style="'font-size: 11px'">DESTINO:</label> <p v-for="(destino, destinoIndex) in datosDestinosFTLOcupar"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }} </b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b></p>
                                   </b-col>
                                   <b-col md="6" v-if="ocurreO">
-                                    <label style="font-size: 11px">OFICINA ORIGEN: </label> {{ almacenO }}
+                                    <label :style="'font-size: 11px'">OFICINA ORIGEN: </label> {{ almacenO }}
                                   </b-col>
                                   <b-col md="6" v-if="ocurreD">
-                                    <label style="font-size: 11px">OFICINA DESTINO:</label> {{ almacenD }}
+                                    <label :style="'font-size: 11px'">OFICINA DESTINO:</label> {{ almacenD }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> RECOLECCIÓN
+                                    <label :style="'font-size: 11px'">TIPO DE SERVICIO: </label> RECOLECCIÓN
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE SERVICIO: </label> ENTREGRA
+                                    <label :style="'font-size: 11px'">TIPO DE SERVICIO: </label> ENTREGRA
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
+                                    <label :style="'font-size: 11px'">TIPO DE OPERACION: </label> {{ termodalidad.toUpperCase() }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">SERVICIO: </label> {{ tipoOpcion }}
+                                    <label :style="'font-size: 11px'">SERVICIO: </label> {{ tipoOpcion }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">TIPO DE ENVIO: </label> {{ tipoEnvio }}
+                                    <label :style="'font-size: 11px'">TIPO DE ENVIO: </label> {{ tipoEnvio }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">USUARIO QUE GENERA: </label> {{ username }}
+                                    <label :style="'font-size: 11px'">USUARIO QUE GENERA: </label> {{ username }}
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FRECUENCIAS: </label>
-                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                    <label :style="'font-size: 11px'">FRECUENCIAS: </label>
+                                    <table :style="'width: 50%; border: 1px solid #EBEBEB;'">
                                       <tbody>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>LUN</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MAR</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>JUE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>VIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>SAB</b></td>
                                         </tr>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
                                         </tr>
                                       </tbody>
                                     </table>
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FRECUENCIAS: </label>
-                                    <table style="width: 50%; border: 1px solid #EBEBEB;">
+                                    <label :style="'font-size: 11px'">FRECUENCIAS: </label>
+                                    <table :style="'width: 50%; border: 1px solid #EBEBEB;'">
                                       <tbody>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>LUN</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MAR</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>MIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>JUE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>VIE</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>SAB</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>LUN</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MAR</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>MIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>JUE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>VIE</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>SAB</b></td>
                                         </tr>
-                                        <tr style="border-style: double;">
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
-                                          <td style="text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;"><b>X</b></td>
+                                        <tr :style="'border-style: double;'">
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
+                                          <td :style="'text-align: center; vertical-align: top; border: 1px solid #e7e7e7; border-spacing: 0;'"><b>X</b></td>
                                         </tr>
                                       </tbody>
                                     </table>
                                   </b-col>
                                   <b-col md="6">
-                                    <label style="font-size: 11px">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
+                                    <label :style="'font-size: 11px'">FECHA DE COTIZACIÓN: </label> {{ terfecha }}
                                   </b-col>
                                   <b-col md="6">
                                     <div class="col-md-12 text-center">
@@ -12697,9 +12698,9 @@ export default {
                                     </div>
                                   </b-col>
                                 </b-row>
-                                <b-row class="p-1" style="background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style="'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">MERCANCIAS</label>
+                                    <label :style="'color: #ffffff'">MERCANCIAS</label>
                                   </b-col>
                                 </b-row>
                                 <!--div class="col-md-12" :style="'font-size: 12px;'">
@@ -12716,13 +12717,13 @@ export default {
                                       <table class="table table-sm mb-0" width="100%" v-if="agregarMercancias.length > 0">
                                         <thead>
                                           <tr>
-                                            <th style="text-align: center;">CANTIDAD</th>
-                                            <th style="text-align: center;">EMBALAJE</th>
+                                            <th :style="'text-align: center;'">CANTIDAD</th>
+                                            <th :style="'text-align: center;'">EMBALAJE</th>
                                             <!--th>ESTIBABLE</th-->
-                                            <th style="text-align: center;">LARGO</th>
-                                            <th style="text-align: center;">ANCHO</th>
-                                            <th style="text-align: center;">ALTO</th>
-                                            <th style="text-align: center;">PESO </th>
+                                            <th :style="'text-align: center;'">LARGO</th>
+                                            <th :style="'text-align: center;'">ANCHO</th>
+                                            <th :style="'text-align: center;'">ALTO</th>
+                                            <th :style="'text-align: center;'">PESO </th>
                                             <!--th>PESO REAL</th-->
                                             <!--th>VOLUMEN</th-->
                                             <!--th>PESO VOLUMETRICO</th>
@@ -12732,40 +12733,40 @@ export default {
                                         </thead>
                                         <tbody>
                                           <tr v-for="merc in agregarMercancias" v-bind:key="merc.idPaq" >
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.cantidad }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.embalaje }}
                                             </td>
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.estibable.toUpperCase() }}
                                             </td-->
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.largo }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.ancho }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.alto }}
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.peso }}<sub>{{ merc.upeso }}</sub>
                                             </td>
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.pesoTotal }}<sub>{{ merc.upeso }}</sub>
                                             </td-->
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.volumen }}<sub>m<sup>3</sup></sub>
                                             </td-->
-                                            <!--td style="text-align: center;">
+                                            <!--td :style="'text-align: center;'">
                                               {{ merc.pesoVolumetrico }}<sub>{{ merc.upeso }}</sub>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.volumenTotal }}<sub>m<sup>3</sup></sub>
                                             </td>
-                                            <td style="text-align: center;">
+                                            <td :style="'text-align: center;'">
                                               {{ merc.pesoVolumetricoTotal }}<sub>{{ merc.upeso }}</sub>
                                             </td-->
                                           </tr>
@@ -12776,9 +12777,9 @@ export default {
                                   </div>
                                 </div>
                               
-                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style=" 'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">SERVICIOS</label>
+                                    <label :style="'color: #ffffff'">SERVICIOS</label>
                                   </b-col>
                                   <b-col cols="5"></b-col>
                                   <b-col></b-col>
@@ -12793,22 +12794,22 @@ export default {
                                           <table class="table table-hover" id="tarifario">
                                             <thead class="text-white" :style="'background-color: #2aab5c'">
                                               <tr>
-                                                <td colspan="2" style="text-align: center;"><b>Ruta</b></td>
-                                                <td :colspan="colspan" style="text-align: center;"><b>Detalles del Servicio</b></td>
+                                                <td colspan="2" :style="'text-align: center;'"><b>Ruta</b></td>
+                                                <td :colspan="colspan" :style="'text-align: center;'"><b>Detalles del Servicio</b></td>
                                               </tr>
                                               <tr>
-                                                <td style="text-align: center;"><b>Origen</b></td>
-                                                <td style="text-align: center;"><b>Destino</b></td>
+                                                <td :style="'text-align: center;'"><b>Origen</b></td>
+                                                <td :style="'text-align: center;'"><b>Destino</b></td>
                                                 <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index"><b>{{ generarTituloColumna(unidad) }}</b></td>
                                               </tr>
                                             </thead>
-                                            <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
+                                            <tbody :style="'border: 1px solid #edeff1; border-collapse: collapse;'">
                                               <template v-for="(origen, origenIndex) in datosOrigenesFTLOcupar">
                                                 <template v-for="(destino, destinoIndex) in datosDestinosFTLOcupar">
                                                   <tr>
-                                                    <td style="text-align: center;"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
-                                                    <td style="text-align: center;"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
-                                                    <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" style="text-align:center;">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
+                                                    <td :style="'text-align: center;'"><b v-if="origen.nombre_corto != ''">{{ origen.nombre_corto }} </b><b v-else>{{ origen.estado }} - {{ origen.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span--></td>
+                                                    <td :style="'text-align: center;'"><b v-if="destino.nombre_corto != ''">{{ destino.nombre_corto }}</b><b v-else>{{ destino.estado }} - {{ destino.ciudad }} </b><!--br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span--></td>
+                                                    <td v-for="(unidad, index) in unidadesLTL" :key="'rango_titulo' + index" :style="'text-align:center;'">${{ formatMoney(generarValorCelda(unidad,origen, destino)) }}</td>
                                                   </tr>
                                                 </template>
                                               </template>  
@@ -12820,9 +12821,9 @@ export default {
                                   </div>
                                 </b-row>
 
-                                <b-row class="p-1" style=" background-color: #056736; color: #ffffff;">
+                                <b-row class="p-1" :style=" 'background-color: #056736; color: #ffffff;'">
                                   <b-col class="text-left">
-                                    <label style="color: #ffffff">SERVICIOS ADICIONALES</label>
+                                    <label :style="'color: #ffffff'">SERVICIOS ADICIONALES</label>
                                   </b-col>
                                   <b-col cols="5"></b-col>
                                   <b-col></b-col>
@@ -12832,16 +12833,16 @@ export default {
                                     <table class="table table-sm mb-0" width="100%" v-if="adicionalesFTL.length > 0">
                                       <thead>
                                         <tr>
-                                          <th style="text-align: center;">Servicio</th>
-                                          <th style="text-align: center;">Detalle</th>
+                                          <th :style="'text-align: center;'">Servicio</th>
+                                          <th :style="'text-align: center;'">Detalle</th>
                                         </tr>
                                       </thead>
                                       <tbody>
                                         <tr v-for="serv in adicionalesFTL" v-bind:key="serv.idServicio" >
-                                          <td style="text-align: center;">
+                                          <td :style="'text-align: center;'">
                                             {{ serv.nombreServicio }}
                                           </td>
-                                          <td style="text-align: center;">
+                                          <td :style="'text-align: center;'">
                                             El precio del servicio adicional ya va incluido en precio mostrado en la seccion de Servicios.
                                           </td>
                                         </tr>
