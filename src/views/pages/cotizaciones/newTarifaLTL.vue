@@ -563,18 +563,11 @@ export default {
         data: {},
       }).then((response) => {
 
-        for (let i = 0; i < response.data.data.length; i++) {
-          
-          const data = {name: response.data.data[i].estado + ', ' + response.data.data[i].ciudad + ', C.P.:' + response.data.data[i].codigoPostal, idGeocerca:response.data.data[i].idGeocerca};
-          
-          this.options_origen_ftl.push(data);
-          this.options_destinos_ftl.push(data);
-        }
 
-        const data = {name: "Zona Metropolitana", code:"Zona Metropolitana"};
-          
-        this.options_origen_ftl.push(data);
-        this.options_destinos_ftl.push(data);
+        let dt = response.data.datos
+        
+        this.options_origen_ftl = dt;
+        this.options_destinos_ftl = dt;
         
       }).catch((error) => {
         console.log(error);
@@ -1078,7 +1071,7 @@ export default {
           tipoTarifa = parseFloat(this.listPorcentajes[porc].porcentaje)
         }
       }
-
+      
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
         if(this.listPorcentajes[porc].mercancia == this.tipo_merc && this.listPorcentajes[porc].tipo == 'i'){
           tipoMercancia = parseFloat(this.listPorcentajes[porc].porcentaje)
@@ -1087,27 +1080,31 @@ export default {
       
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
         if(this.listPorcentajes[porc].mercancia == zona && this.listPorcentajes[porc].tipo == 'i'){
-          console.log(this.listPorcentajes[porc].mercancia);
+          //console.log(this.listPorcentajes[porc].mercancia);
           tipoZona = parseFloat(this.listPorcentajes[porc].porcentaje)
         }
       }
 
-      if (tipoZona > 0) {
-        tarifaZona = ta * (tipoZona / 100)
-        tarifaZ = ta + tarifaZona
+      if(por > 0){
+        des = ta * (por / 100)
+        ta = ta - des
       }
 
       if (tipoMercancia > 0) {
         tarifaNuMer = ta * (tipoMercancia / 100)
-        tarifaNM = ta + tarifaNuMer
       }
 
-      tarifaNu = ta * (tipoTarifa / 100) 
-      tarifaN = ta + tarifaNu
+      if (tipoZona > 0) {
+        tarifaZona = ta * (tipoZona / 100)
+      }
 
-      des = tarifaN * (por / 100)
+      if(tipoTarifa > 0){
+        tarifaNu = ta * (tipoTarifa / 100) 
 
-      total = this.formatMoney(((tarifaN - des) + tarifaNM) + tarifaZ);
+      }
+      console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
+      
+      total = this.formatMoney(ta + tarifaNuMer + tarifaZona + tarifaNu)
       return(total)
     },
 
@@ -1134,6 +1131,44 @@ export default {
         this.datos_zona_select = response.data.info
       }).catch((error) => {
         console.log(error);
+      });
+    },
+
+    importaInfo(val){
+      axios({
+        method: "post",
+        url: `/api/v1/procesa-datos-zona-geocercas/`,
+        data: {
+          tz: val
+        },
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+        console.log(response.data)
+
+        /*if(response.data[0].insert){
+          Swal.fire({
+            title: response.data[0].msg,
+            text: "",
+            icon: "success",
+            allowOutsideClick: false,
+            confirmButtonText: "Cerrar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              
+            }
+          })
+        }else{
+          Swal.fire({
+            title: response.data[0].msg,
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+        }*/
+        
       });
     },
 
@@ -1236,6 +1271,20 @@ export default {
                     <b-row>
                       <b-col md="12">
                         <pre> {{ this.datos_zona_select }} </pre>
+                      </b-col>
+                    </b-row>
+                  </b-container>
+                    
+                </b-tab>
+                <b-tab v-if="this.username == 'admin'" title="Importa Datos Select Zona - Geocercas">
+                  <b-container fluid>
+                    <b-row>
+                      <b-col md="12">
+                        <b-button-group>
+                          <b-button variant="primary" @click="importaInfo(1)">Comercial</b-button>
+                          <b-button variant="primary" @click="importaInfo(2)">No Comercial</b-button>
+                          <b-button variant="primary" @click="importaInfo(3)">Peligrosa</b-button>
+                        </b-button-group>
                       </b-col>
                     </b-row>
                   </b-container>

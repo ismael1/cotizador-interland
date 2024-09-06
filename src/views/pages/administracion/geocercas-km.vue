@@ -4,6 +4,7 @@ import PageHeader from "@/components/Page-header";
 import appConfig from "../../../../app.config";
 
 import axios from "axios";
+import Multiselect from "vue-multiselect";
 import Swal from "sweetalert2";
 
 // import { tableData } from "./data";
@@ -17,6 +18,7 @@ export default {
   },
 
   components: {
+    Multiselect,
     Layout,
     PageHeader,
   },
@@ -48,7 +50,7 @@ export default {
         },
       ],
 
-      estado: 'Ciudad de México',
+      estado: '',
       cp: '',
       options_estado: [],
       options_cp: [],
@@ -396,7 +398,7 @@ export default {
         }
       }).then(res => {
         for (let i = 0; i < res.data.data.length; i++) {
-          let est = { value: res.data.data[i], text: res.data.data[i] }
+          let est = { name: res.data.data[i], text: res.data.data[i] }
           this.options_estado.push(est)
         }
       });
@@ -405,7 +407,7 @@ export default {
 
     getCp() {
       this.options_cp = []
-      let estado = this.estado
+      let estado = this.estado.name
       let estatus = this.tipoGeocerca
       axios.get('/api/v1/geocercas-cp/', {
         params: {
@@ -417,9 +419,13 @@ export default {
           let cp = {}
 
           if(res.data.data[i].nombre_corto != ''){
-            cp = { value: res.data.data[i].codigoPostal, text: res.data.data[i].nombre_corto}
+            if(res.data.data[i].colonia == ''){
+              cp = { cp: res.data.data[i].codigoPostal, name: res.data.data[i].nombre_corto}
+            }else{
+              cp = { cp: res.data.data[i].codigoPostal, name: res.data.data[i].nombre_corto + ' - ' + res.data.data[i].colonia}
+            }
           }else{
-            cp = { value: res.data.data[i].codigoPostal, text: res.data.data[i].ciudad + ' - ' + res.data.data[i].codigoPostal }
+            cp = { cp: res.data.data[i].codigoPostal, name: res.data.data[i].ciudad + ', ' + res.data.data[i].colonia + ', ' +res.data.data[i].codigoPostal }
           }
           
           this.options_cp.push(cp)
@@ -428,8 +434,8 @@ export default {
     },
 
     getCentro() {
-      let estado = this.estado
-      let cp = this.cp
+      let estado = this.estado.name
+      let cp = this.cp.cp
       axios.get('/api/v1/geocercas-centro/', {
         params: {
           estado: estado,
@@ -607,12 +613,14 @@ export default {
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Estado" label-for="estado" description="">
-                          <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          <!--b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select-->
+                          <multiselect v-model="estado" :options="options_estado" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Estado" label="name" track-by="name" @input="getCp"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Código Postal" label-for="cp" description="">
-                          <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          <!--b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select-->
+                          <multiselect v-model="cp" :options="options_cp" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Codigo Postal" label="name" track-by="name"  @input="getCentro"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="2" sm="12">
@@ -634,12 +642,14 @@ export default {
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Estado" label-for="estado" description="">
-                          <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          <!--b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select-->
+                          <multiselect v-model="estado" :options="options_estado" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Estado" label="name" track-by="name" @input="getCp"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Código Postal" label-for="cp" description="">
-                          <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          <!--b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select-->
+                          <multiselect v-model="cp" :options="options_cp" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Codigo Postal" label="name" track-by="name"  @input="getCentro"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="2" sm="12">
@@ -661,12 +671,14 @@ export default {
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Estado" label-for="estado" description="">
-                          <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          <!--b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select-->
+                          <multiselect v-model="estado" :options="options_estado" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Estado" label="name" track-by="name" @input="getCp"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Código Postal" label-for="cp" description="">
-                          <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          <!--b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select-->
+                          <multiselect v-model="cp" :options="options_cp" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Codigo Postal" label="name" track-by="name"  @input="getCentro"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="2" sm="12">
@@ -688,12 +700,14 @@ export default {
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Estado" label-for="estado" description="">
-                          <b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select>
+                          <!--b-form-select v-model="estado" :options="options_estado" @change="getCp"></b-form-select-->
+                          <multiselect v-model="estado" :options="options_estado" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Estado" label="name" track-by="name" @input="getCp"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="4" sm="12">
                         <b-form-group label="Código Postal" label-for="cp" description="">
-                          <b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select>
+                          <!--b-form-select v-model="cp" :options="options_cp" @change="getCentro"></b-form-select-->
+                          <multiselect v-model="cp" :options="options_cp" :taggable="true" :searchable="true" :close-on-select="false" :show-labels="false" placeholder="Selecciona un Codigo Postal" label="name" track-by="name"  @input="getCentro"></multiselect>
                         </b-form-group>
                       </b-col>
                       <b-col md="2" sm="12">

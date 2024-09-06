@@ -79,22 +79,23 @@ export default [
         },
         component: () => import('../views/pages/dashboard/sales/index')
     },*/
-    /*{
-        path: '/',
-        name: 'home',
-        meta: {
-            authRequired: true,
-        },
-        component: () => import('../views/pages/inicio/index')
-    },*/
     {
         path: '/',
         name: 'home',
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/cotizaciones/cotizacion')
+        component: () => import('../views/pages/inicio/index')
     },
+    /*{
+        path: '/',
+        name: 'home',
+        meta: {
+            authRequired: true,
+            
+        },
+        component: () => import('../views/pages/cotizaciones/cotizacion')
+    },*/
     {
         path: '/administracion/zonas_select',
         name: 'Seleccion de Zonas',
@@ -1663,12 +1664,57 @@ export default [
         component: () => import('../views/pages/administracion/newRangoMercancia')
     },
     {
-        path: '/administracion/zonas_select',
-        name: 'Seleccion de Zonas',
+        path: '/chatboot/reporte',
+        name: 'Chatboot Información',
         meta: {
             authRequired: true,
         },
-        component: () => import('../views/pages/administracion/zonas_select')
+        component: () => import('../views/pages/chatbot/listChatbot')
+    },
+
+    {
+        path: '/chatboot/numeros-agentes',
+        name: 'Chatboot Información',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/chatbot/listNumerosChatbot')
+    },
+
+    {
+        path: '/chatboot/new-lead',
+        name: 'Nuevo Lead',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/chatbot/newLead')
+    },
+
+    {
+        path: '/chatboot/new-ejecutivo',
+        name: 'Nuevo Ejecutivo',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/chatbot/newEjecutivo')
+    },
+
+    {
+        path: '/chatboot/edit-lead',
+        name: 'Edita Lead',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/chatbot/editLead')
+    },
+
+    {
+        path: '/chatboot/edit-ejecutivo',
+        name: 'Editar Ejecutivo',
+        meta: {
+            authRequired: true,
+        },
+        component: () => import('../views/pages/chatbot/editNumeroEjecutivo')
     },
     // {
     //     path: '/apps/chat',

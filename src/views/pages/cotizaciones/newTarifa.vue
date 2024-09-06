@@ -50,6 +50,21 @@ export default {
         },
       ],
 
+      options_radio: [
+        { text: 'Interestatal', value: 'Servicio Interestatal' },
+        { text: 'Importación', value: 'Servicio Importación' },
+        { text: 'Exportación', value: 'Servicio Exportación' },
+      ],
+
+      otions_radio_mercancia: [
+        {text: 'Carga General', value: 'Carga General'},
+        {text: 'Carga IMO', value: 'Carga IMO'},
+        {text: 'Carga Refrigerada', value: 'Carga Refrigerada'},
+      ],
+
+      tipoTarifaVal: 'Servicio Interestatal',
+      tipo_merc: 'Carga General',
+
       /* INICIA SECCION DE LTL */
       origen: '',
       destino: '',
@@ -105,6 +120,9 @@ export default {
       username: '',
       tokenU: '',
       puestoU: '',
+
+      fields_table: [],
+      items_table: [],
 
     };
   },
@@ -531,18 +549,10 @@ export default {
         data: {},
       }).then((response) => {
 
-        for (let i = 0; i < response.data.data.length; i++) {
-          
-          const data = {name: response.data.data[i].estado + ', ' + response.data.data[i].ciudad + ', C.P.:' + response.data.data[i].codigoPostal, idGeocerca:response.data.data[i].idGeocerca};
-          
-          this.options_origen_ftl.push(data);
-          this.options_destinos_ftl.push(data);
-        }
-
-        const data = {name: "Zona Metropolitana", code:"Zona Metropolitana"};
-          
-        this.options_origen_ftl.push(data);
-        this.options_destinos_ftl.push(data);
+        let dt = response.data.datos
+        
+        this.options_origen_ftl = dt;
+        this.options_destinos_ftl = dt;
         
       }).catch((error) => {
         console.log(error);
@@ -645,6 +655,7 @@ export default {
       const auth = { username: "admin", password: "123", }
       let ids = ''
 
+      
       if (this.origenes_ftl.length == 0) {
         Swal.fire({
           title: "Debes seleccionar al menos un origen.",
@@ -678,12 +689,13 @@ export default {
       for (let i = 0; i < this.origenes_ftl.length; i++) {
         let org =  await axios({
           method: "get",
-          url: "/api/v1/get-datos-geocercas/",
+          url: "/api/v1/get-datos-geocercas-info/",
           params: {
             idGeocerca: this.origenes_ftl[i].idGeocerca,
           },
           auth: auth,
         }).then((response) => {
+          console.log(response.data, 'response')
           this.datosOrigenesFTLOcupar.push(response.data[0])
         }).catch((error) => {
           console.log(error);
@@ -693,7 +705,7 @@ export default {
       for (let i = 0; i < this.destinos_ftl.length; i++) {
         let dest =  await axios({
           method: "get",
-          url: "/api/v1/get-datos-geocercas/",
+          url: "/api/v1/get-datos-geocercas-info/",
           params: {
             idGeocerca: this.destinos_ftl[i].idGeocerca,
           },
@@ -733,6 +745,8 @@ export default {
 
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
+          console.log(this.datosOrigenesFTLOcupar);
+                    
           let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
           this.listOD.push(dato)
         }
@@ -1064,7 +1078,134 @@ export default {
           return km = parseFloat(this.listTipoZona[i].km)
         }
       }
-    }
+    },
+
+    async generaTabla(){
+      this.fields_table = []
+      this.items_table = []
+      let data = {}
+
+      //data = {key: 'check-dinamic', label: 'Selecciona'}
+      //this.fields_table.push(data)
+      data = {key: 'origen', label: 'Origen'}
+      this.fields_table.push(data)
+      data = {key: 'km', label: 'Kilometros'}
+      //this.fields_table.push(data)
+      //data = {key: 'dias', label: 'dias_transito'}
+      this.fields_table.push(data)
+      data = {key: 'destino', label: 'Destino'}
+      this.fields_table.push(data)
+      /*data = {key: 'factor', label: 'Factor: 1m3 = 350kg y/o 350kg = 1m3'}
+      this.fields_table.push(data)*/
+
+      //data = {key: 'tarifa_min', label: 'Tarifa minima 1m3'}
+      //this.fields_table.push(data)
+
+      for (let un = 0; un < this.unidades.length; un++) {
+        
+        let datokey = 'key-' + this.unidades[un].name
+        let datoLabel = this.unidades[un].name
+        data = {key: datokey, label: datoLabel}
+        this.fields_table.push(data)
+      }
+
+      /* GENERA VALORES DE CELDAS */
+
+      for (let org = 0; org < this.origenes_ftl.length; org++) {
+        for (let des = 0; des < this.destinos_ftl.length; des++) {
+          let datos = this.get_km(this.origenes_ftl[org], this.destinos_ftl[des]);
+          km = datos.km
+          tipoZona = datos.tipoZona
+          tipoZonaText = datos.tipoZonaText
+          tipoZonaClass = datos.tipoZonaClass
+
+          for (let rang = 0; rang < this.unidades.length; rang++) {
+            console.log(this.unidades[rang]);
+            text_val += ', "'+'key-' + this.unidades[rang].name+'": "'+this.generarValorCelda(this.unidades[rang].precio_kilometraje,tipoZonaText)+'"'
+            
+          }
+
+          let text = ''
+          let origen = ''
+          let destino = ''
+
+          if (this.datosOrigenesFTLOcupar[org].nombre_corto != ''){
+            origen = this.datosOrigenesFTLOcupar[org].nombre_corto
+          }else{
+            origen = this.datosOrigenesFTLOcupar[org].estado+' - '+this.datosOrigenesFTLOcupar[org].ciudad
+          }
+
+          if(this.datosDestinosFTLOcupar[des].nombre_corto != ''){
+            destino = this.datosDestinosFTLOcupar[des].nombre_corto
+          }else{
+            destino = this.datosDestinosFTLOcupar[des].estado+' - '+this.datosDestinosFTLOcupar[des].ciudad
+          }          
+          
+          text = '{"origen": "' + origen + '", "km":"'+km+' km <br/> <span class=\\"badge badge-'+tipoZonaClass+'\\">'+tipoZonaText+'</span>", "destino": "' + destino + '", "factor": "'+factor+'"'+ text_val +'}';
+          this.items_table.push(JSON.parse(text))
+        }
+      }
+
+    },
+
+    generarValorCelda(tar, zona){
+
+      console.log(porc, tar, zona);
+      let total = 0
+      let des = 0
+      let por = parseFloat(porc)
+      let ta = parseFloat(tar)
+      let tipoTarifa = 0
+      let tarifaNu = 0
+      let tarifaN = 0
+      let tipoMercancia = 0
+      let tarifaNuMer = 0
+      let tarifaNM = 0
+      let tipoZona = 0
+      let tarifaZona = 0
+      let tarifaZ = 0
+
+      for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
+        if(this.listPorcentajes[porc].mercancia == this.tipoTarifaVal){
+          tipoTarifa = parseFloat(this.listPorcentajes[porc].porcentaje)
+        }
+      }
+
+      for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
+        if(this.listPorcentajes[porc].mercancia == this.tipo_merc && this.listPorcentajes[porc].tipo == 'i'){
+          tipoMercancia = parseFloat(this.listPorcentajes[porc].porcentaje)
+        }
+      }
+
+      for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
+        if(this.listPorcentajes[porc].mercancia == zona && this.listPorcentajes[porc].tipo == 'i'){
+          tipoZona = parseFloat(this.listPorcentajes[porc].porcentaje)
+        }
+      }
+
+      if(por > 0){
+        des = ta * (por / 100)
+        ta = ta - des
+      }
+
+      if (tipoMercancia > 0) {
+        tarifaNuMer = ta * (tipoMercancia / 100)
+      }
+
+      if (tipoZona > 0) {
+        tarifaZona = ta * (tipoZona / 100)
+      }
+
+      if(tipoTarifa > 0){
+        tarifaNu = ta * (tipoTarifa / 100) 
+
+      }
+      console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
+
+      total = this.formatMoney(ta + tarifaNuMer + tarifaZona + tarifaNu)
+      return(total)
+    },
+    
     /* FIN METODOS FTL */
 
   }, // Fin Methods
@@ -1094,108 +1235,78 @@ export default {
             <br>
             <div>
               <b-tabs content-class="mt-2" nav-class="nav-tabs nav-bordered">
-                <!--b-tab title="LTL Automático" active>
-                  <b-row>
-                    <b-col md="4" sm="12"></b-col>
-                    <b-col md="4" sm="12"></b-col>
-                    <b-col md="4" sm="12"></b-col>
-                  </b-row>
-                </b-tab-->
-                <!--b-tab title="LTL Manual" active>
-                  <b-row>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Origen:" label-for="origen">
-                        <b-form-input v-model="origen" id="origen"></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Destino:" label-for="destino">
-                        <b-form-input v-model="destino" id="destino"></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Factor de Conversión:" label-for="factor" description="">
-                        <b-form-input id="factor" v-model="factor_conversion" type="number" placeholder="Ingresa el Factor de Conversión" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Recolección Camioneta 3 1/2" label-for="servicio de recoleccion">
-                        <b-form-input v-model="recoleccion_tres_y_media" id="recoleccion_tres_y_media" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Recolección Rabon" label-for="recoleccion_rabon">
-                        <b-form-input v-model="recoleccion_rabon" id="recoleccion_rabon" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Recolección Torton" label-for="factor" description="">
-                        <b-form-input id="recoleccion_torton" v-model="recoleccion_torton" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Flete Nacional" label-for="flete_nacional">
-                        <b-form-input v-model="flete_nacional" id="flete_nacional" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Entrega en Puerto Nissan" label-for="entrega_puerto_nissan">
-                        <b-form-input v-model="entrega_puerto_nissan" id="entrega_puerto_nissan" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Entrega en Puerto Camioneta 3 1/2" label-for="factor" description="">
-                        <b-form-input id="entrega_puerto_tres_y_media" v-model="entrega_puerto_tres_y_media" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                  </b-row>
-                  
-                  <b-row>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Entrega en Puerto Rabon" label-for="entrega_rabon">
-                        <b-form-input v-model="entrega_rabon" id="entrega_rabon" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <b-form-group label="Costo Servicio: Entrega en Puerto Torton" label-for="entrega_torton">
-                        <b-form-input v-model="entrega_torton" id="entrega_torton" type="number" required></b-form-input>
-                      </b-form-group>
-                    </b-col>
-                    <b-col md="4" sm="12">
-                      <div class="text-center">
-                        <b-button class="width-md ml-1" style="background-color: #00786c" @click="Save()"><b><i class="fe-check"></i> Guardar</b></b-button>
-                      </div>
-                    </b-col>
-                  </b-row>
-                </b-tab-->
                 <b-tab title="FTL Automático">
                   <b-row>
-                    <b-col md="3" sm="12">
+                    <b-col md="6" sm="12">
                       <label>Selecciona Origen/es</label>
                       <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenes"></multiselect>
                     </b-col>
-                    <b-col md="3" sm="12">
+                    <b-col md="6" sm="12">
                       <label>Selecciona Destino/s</label>
                       <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinos"></multiselect>
                     </b-col>
-                    <b-col md="3" sm="12">
+                  </b-row>
+                  <b-row>
+                    <b-col md="4" sm="12">
                       <label>Selecciona Unidad/es</label>
-                      <multiselect v-model="unidades" tag-placeholder="Selecciona una o mas unidades" placeholder="Selecciona una o mas unidades" label="name" track-by="id" :options="options_unit" :multiple="true" :taggable="true" :close-on-select="false" @tag="addUnidad">
+                      <multiselect v-model="unidades" tag-placeholder="Selecciona una o mas unidades" placeholder="Selecciona una o mas unidades" label="name" track-by="id" :options="options_unit" :multiple="true" :taggable="true" :close-on-select="false" @tag="addUnidad" @input="generaTabla">
                         
                       </multiselect>
                       
                     </b-col>
-                    <b-col md="3" sm="12">
+                    <b-col md="4">
+                        <label><b>Tipo de Tarifa</b></label>
+                        <b-form-group>
+                          <b-form-radio-group
+                            id="btn-radios-tipo_tarifa"
+                            v-model="tipoTarifaVal"
+                            :options="options_radio"
+                            button-variant="outline-primary"
+                            size="md"
+                            name="radio-btn-outline"
+                            buttons
+                            @change="generaTabla"
+                          ></b-form-radio-group>
+                        </b-form-group>
+                      </b-col>
+                      <b-col md="4">
+                        <label><b>Tipo de Mercancia</b></label>
+                        <b-form-group>
+                          <b-form-radio-group
+                            id="btn-radios-mercancias"
+                            v-model="tipo_merc"
+                            :options="otions_radio_mercancia"
+                            button-variant="outline-primary"
+                            size="md"
+                            name="radio-btn-outline"
+                            buttons
+                            @change="generaTabla"
+                          ></b-form-radio-group>
+                        </b-form-group>
+                      </b-col>
+                    <!--b-col md="3" sm="12">
                       <div class="text-center">
                         <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="generarTarifaFTL()"><b><i class="fas fa-file-alt"></i> Generar Tarifario</b></b-button>
                       </div>
-                    </b-col>
+                    </b-col-->
                   </b-row>
                   <b-row>
+                    <b-col md="12">
+                      <br>
+                      <template>
+                        <div >
+                          <b-table striped hover :items="items_table" :fields="fields_table" select-mode="multi" responsive ref="selectableTable"  thead-class="bg-primary text-white">
+                            <template #cell(km)="data">
+                              <span v-html="data.item.km"></span>
+                            </template>
+                                             
+                          </b-table>
+                          <b-col md="9" sm="12">&nbsp;</b-col>
+                          <b-col md="3" sm="12">
+                          </b-col>
+                        </div>
+                      </template>
+                    </b-col>
                     <b-col md="12">
                       <br>
                       <template>

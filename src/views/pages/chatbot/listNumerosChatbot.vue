@@ -12,8 +12,8 @@ import Swal from "sweetalert2";
  */
 export default {
   page: {
-    title: "Rango de Mercancias",
-    meta: [{ name: "Rango de Mercancias", content: appConfig.description }],
+    title: "Números de Ejecutivos",
+    meta: [{ name: "Números de Ejecutivos", content: appConfig.description }],
   },
 
   components: {
@@ -35,14 +35,14 @@ export default {
       nextpage: 0,//Next page
       size: 8,//How much to display per page
 
-      title: "Rangos de Mercancias",
+      title: "Números de Ejecutivos",
       items: [
         {
           text: "Inicio",
           href: "/",
         },
         {
-          text: "Listado de Rangos",
+          text: "Listado de Números",
           href: "/",
           active: true,
         },
@@ -62,34 +62,45 @@ export default {
 
       fields: [
         {
-          key: "min",
-          label: "Rango Minimo",
+          key: "id",
+          label: "ID",
           sortable: true,
+          thClass: 'text-center bg-primary text-white',
         },
         {
-          key: "max",
-          label: "Rango Maximo",
+          key: "nombre",
+          label: "Nombre",
           sortable: true,
+          thClass: 'text-center bg-primary text-white',
         },
         {
-          key: "orden",
-          label: "Orden",
+          key: "apellido",
+          label: "Apellido",
           sortable: true,
+          thClass: 'text-center bg-primary text-white',
         },
         {
-          key: "porcentaje",
-          label: "Porcentaje",
+          key: "numero_agente",
+          label: "Número",
           sortable: true,
+          thClass: 'text-center bg-primary text-white',
         },
         {
-          key: "estatus",
-          label: "Estatus",
+          key: "servicio",
+          label: "Servicio",
           sortable: true,
+          thClass: 'text-center bg-primary text-white',
+        },
+        {
+          key: "es_gerente",
+          label: "¿Es Gerente?",
+          sortable: true,
+          thClass: 'text-center bg-primary text-white',
         },
         {
           key: "actions",
           tdClass: 'text-center',
-          thClass: 'text-center'
+          thClass: 'text-center bg-primary text-white',
         },
       ],
       /*VARIABLES*/
@@ -116,12 +127,14 @@ export default {
       permisos_excel: 0,
       permisos_usuarioAsigna: "",
       /*AGREGAR VARIABLE QUE GUARDARA EL ID DEL MODULO*/
-      idModulo: 41,
+      idModulo: 42,
+
     };
   },
   created: function () {
+    this.get_numeros(1);
+
     this.dataSess();
-    this.get_rangos(1);
   },
   methods: {
 
@@ -171,8 +184,8 @@ export default {
         console.log(error);
       });
     },
-
-    get_rangos(mypage) {
+    
+    get_numeros(mypage) {
 
       let caracter = ''
       if (this.buscador == "") {
@@ -182,14 +195,14 @@ export default {
       }
 
       axios
-        .get('/api/v1/list-rango-mercancias/', {
+        .get('/api/v1/chatboot-numeros-agentes/', {
           params: {
             page: mypage,
             size: this.size,
-            palabra: caracter,
-            usuario: this.username,
+            palabra: caracter
           }
-        }).then(res => {
+        })
+        .then(res => {
 
           this.all_data = res.data.data;
           this.total = res.data.total
@@ -210,13 +223,10 @@ export default {
 
     },
 
-    viewCotizacion(item) {
-      // this.$router.push(`/validate-cotizacion/${item.id}/`);
-    },
 
     editServicio(item) {
       // const idR = this.$route.params.pkRuta;
-      this.$router.push(`/edit-modulo/${item.id}/`);
+      this.$router.push(`/edit-unidad/${item.id}/`);
     },
 
     deleteProducto(item) {
@@ -280,36 +290,11 @@ export default {
       })
     },
 
-    generatePDF(item) { // GeneraPDF David
-      // let routeUrl = "http://127.0.0.1:8000/api/v1/cotiza-pdf/";
-      // let routeUrl = `http://127.0.0.1:8000/api/v1/cotiza-pdf/${item.id}/`;
-      // window.open(routeUrl, '_blank')
-
-      // Swal.fire({
-      //   title: 'Descargando PDF',
-      //   text: '',
-      //   icon: 'success',
-      //   confirmButtonText: 'Cerrar',
-      // })
-
-    },
-
-    showRejected(item) {
-      this.rechazado = item.rechazo
-      this.$bvModal.show('modalStatus')
-    },
-
     onFiltered(filteredItems) {
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
     },
 
-    pulsar(e) {
-      if (e.keyCode === 13 && !e.shiftKey) {
-        e.preventDefault()
-        get_rangos(1)
-      }
-    },
 
   },
   computed: {
@@ -341,16 +326,16 @@ export default {
             <div class="row">
 
               <div class="col-lg-8">
-                <router-link v-if="permisos_agregar == 1" to="/administracion/new-rango-mercancia" class="button btn-primary btn-sm" style="float: left"><i class="fa fa-plus"></i> Nuevo Rango</router-link>
+                <router-link v-if="permisos_agregar == 1" to="/chatboot/new-ejecutivo" class="button btn-primary btn-sm" style="float: left"><i class="fas fa-plus"></i> Nuevo Ejecutivo</router-link>
               </div>
 
               <!-- Search -->
               <div class="col-lg-4">
                 <!-- <form> -->
                 <b-input-group v-if="permisos_lectura == 1" v-for="size in ['sm']" :key="size" :size="size" class="mb-2">
-                  <b-form-input placeholder="buscar..." v-model="buscador" @keyup.enter="get_rangos(1)"></b-form-input>
+                  <b-form-input placeholder="buscar..." v-model="buscador" @keyup.enter="get_numeros(1)"></b-form-input>
                   <b-input-group-append>
-                    <b-button size="sm" text="Button" variant="secondary" @click="get_rangos(1)"><i class="fa fa-search"></i> Search</b-button>
+                    <b-button size="sm" text="Button" variant="secondary" @click="get_numeros(1)"><i class="fa fa-search"></i> Search</b-button>
                   </b-input-group-append>
                 </b-input-group>
               </div>
@@ -362,10 +347,20 @@ export default {
                 <div class="table-responsive">
 
                   <b-table v-if="permisos_lectura == 1" class="table table-sm mb-0" :items="all_data" :fields="fields" small bordered responsive="sm" :per-page="perPage" :current-page="currentPage" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :filter="filter" :filter-included-fields="filterOn" @filtered="onFiltered" :selectable="true">
-                    <template v-slot:cell(estatus)="data">
+                    <template v-slot:cell(es_gerente)="data">
                       <div class="text-center">
-                        <span class="badge badge-soft-warning" v-if="data.item.estatus === 0">Inactivo</span>
-                        <span class="badge badge-soft-success" v-else>Activo</span>
+                        <span class="badge badge-soft-warning" v-if="data.item.es_gerente === false">No</span>
+                        <span class="badge badge-soft-success" v-else>Si</span>
+                      </div>
+                    </template>
+
+                    <template v-slot:cell(servicio)="data">
+                      <div class="text-center">
+                        <span class="badge badge-soft-success" v-if="data.item.servicio === 1">Terrestre Nacional</span>
+                        <span class="badge badge-soft-success" v-else-if="data.item.servicio === 2">Terrestre CENAM</span>
+                        <span class="badge badge-soft-success" v-else-if="data.item.servicio === 3">Terrestre NOAM</span>
+                        <span class="badge badge-soft-success" v-else-if="data.item.servicio === 4">Marítimo y Áereo</span>
+                        <span class="badge badge-soft-success" v-else-if="data.item.servicio === 5">Almancén y Seguros</span>
                       </div>
                     </template>
                     <template #cell(actions)="row">
@@ -384,9 +379,9 @@ export default {
             <div class="row">
               <div v-if="permisos_lectura == 1" class="col-lg-12" style="text-align:right">
                 <!-- v-show judges whether the current page number needs to display the previous or next page -->
-                <b-button size="sm" v-show="lastpage" @click="get_rangos(lastpage)" variant="outline-secondary">Previous page</b-button>
-                <b-button size="sm" v-for="index in all" @click="get_rangos(index)" v-bind:key="index" variant="outline-secondary">{{ index }}</b-button>
-                <b-button size="sm" v-show="nextpage" @click="get_rangos(nextpage)" variant="outline-secondary">Next page</b-button>
+                <b-button size="sm" v-show="lastpage" @click="get_numeros(lastpage)" variant="outline-secondary">Previous page</b-button>
+                <b-button size="sm" v-for="index in all" @click="get_numeros(index)" v-bind:key="index" variant="outline-secondary">{{ index }}</b-button>
+                <b-button size="sm" v-show="nextpage" @click="get_numeros(nextpage)" variant="outline-secondary">Next page</b-button>
               </div>
             </div>
 

@@ -163,8 +163,6 @@ export default {
             calleDestino: '',
             numExtDestino: '',
             numIntDestino: '',
-            isLoadingO: false,
-            isLoadingD: false,
 
             /* V Mapa Origen Destino */
             mostrarMapa: false,
@@ -840,7 +838,6 @@ export default {
             let input = text;
 
             if (input.length >= 5) {
-                this.isLoadingO = true
                 axios({
                 method: "post",
                 url: "/api/v1/search-address/",
@@ -848,8 +845,7 @@ export default {
                     data: input,
                 },
                 }).then((response) => {
-                    this.dates_search_address = response.data.data;
-                    this.isLoadingO = false
+                    this.dates_search_address = response.data;
                 }).catch((error) => {
                     console.log(error);
                 });
@@ -869,8 +865,6 @@ export default {
 
         async getLabelAddressO(item) {
             if (item != null && item != "") {
-                console.log(item);
-                
                 let idpais = parseInt(item.pais_id);
                 let pais = item.pais_name;
                 let idestado = parseInt(item.estado_id);
@@ -6339,14 +6333,6 @@ export default {
             let valSelect = document.getElementById("selectStops").checked;
         },
 
-        limitText (count) {
-            return `and ${count} other countries`
-        },
-
-        clearAll () {
-            this.dates_search_address = []
-        }
-
     },
 };
 
@@ -6621,22 +6607,7 @@ export default {
                                                                     </div>
                                                                     <div class="segundo-input-input-style segundo-input-input-input-style">
                                                                         <template>
-                                                                            <multiselect
-                                                                                v-model="origen"
-                                                                                :options="dates_search_address"
-                                                                                :loading="isLoadingO"
-                                                                                :searchable="true"
-                                                                                :clear-on-select="false"
-                                                                                :close-on-select="false"
-                                                                                label="direccion"
-                                                                                track-by="idGeocerca"
-                                                                                placeholder="Pais, Estado, Ciudad, CP"
-                                                                                @search-change="buscaDireccion"
-                                                                                @input="getLabelAddressO"
-                                                                                input-class="segundo-input-istyle-input"
-                                                                                >
-                                                                            </multiselect>
-                                                                            <!--v-autocomplete
+                                                                            <v-autocomplete
                                                                                 :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'origenAdicional',}"
                                                                                 input-class="segundo-input-istyle-input"
                                                                                 :items="dates_search_address"
@@ -6648,7 +6619,7 @@ export default {
                                                                                 :auto-select-one-item="false"
                                                                                 return-object
                                                                             >
-                                                                            </v-autocomplete-->
+                                                                            </v-autocomplete>
                                                                         </template>
                                                                     </div>
                                                                 </div>
@@ -6708,22 +6679,7 @@ export default {
                                                                     </div>
                                                                     <div class="segundo-input-input-style segundo-input-input-input-style">
                                                                         <template>
-                                                                            <multiselect
-                                                                                v-model="destino"
-                                                                                :options="dates_search_address"
-                                                                                :loading="isLoadingD"
-                                                                                :searchable="true"
-                                                                                :clear-on-select="false"
-                                                                                :close-on-select="false"
-                                                                                label="direccion"
-                                                                                track-by="idGeocerca"
-                                                                                placeholder="Pais, Estado, Ciudad, CP"
-                                                                                @search-change="buscaDireccion"
-                                                                                @input="getLabelAddressD"
-                                                                                input-class="segundo-input-istyle-input"
-                                                                                >
-                                                                            </multiselect>
-                                                                            <!--v-autocomplete
+                                                                            <v-autocomplete
                                                                                 :input-attrs="{autocomplete: 'off', placeholder: 'Pais, Estado, Ciudad, CP', id: 'destinoAdicional',}"
                                                                                 input-class="segundo-input-istyle-input"
                                                                                 :items="dates_search_address"
@@ -6735,7 +6691,7 @@ export default {
                                                                                 :auto-select-one-item="false"
                                                                                 return-object
                                                                             >
-                                                                            </v-autocomplete-->
+                                                                            </v-autocomplete>
                                                                         </template>
                                                                     </div>
                                                                 </div>

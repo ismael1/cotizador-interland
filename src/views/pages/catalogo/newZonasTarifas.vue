@@ -169,23 +169,10 @@ export default {
         data: {},
       }).then((response) => {
 
-        for (let i = 0; i < response.data.data.length; i++) {
-          let data = {}
-
-          if(response.data.data[i].nombre_corto != '')
-            data = {name: response.data.data[i].nombre_corto, idGeocerca:response.data.data[i].idGeocerca};
-          else{
-            data = {name: response.data.data[i].estado + ', ' + response.data.data[i].ciudad + ', C.P.:' + response.data.data[i].codigoPostal, idGeocerca:response.data.data[i].idGeocerca};
-          }
-          
-          this.options_origen_ftl.push(data);
-          this.options_destinos_ftl.push(data);
-        }
-
-        const data = {name: "Zona Metropolitana", code:"Zona Metropolitana"};
-          
-        this.options_origen_ftl.push(data);
-        this.options_destinos_ftl.push(data);
+        let dt = response.data.datos
+        
+        this.options_origen_ftl = dt;
+        this.options_destinos_ftl = dt;
         
       }).catch((error) => {
         console.log(error);
@@ -422,7 +409,7 @@ export default {
                     </b-col>
                     <b-col md="4" sm="12">
                       <div class="text-center">
-                        <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="Save()"><b><i class="fas fa-file-alt"></i> Generar Tarifario</b></b-button>
+                        <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="Save()"><b><i class="fas fa-file-alt"></i> Generar Ruta</b></b-button>
                       </div>
                     </b-col>
                   </b-row>
