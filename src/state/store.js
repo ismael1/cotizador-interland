@@ -12,8 +12,8 @@ const store = new Vuex.Store({
   // https://vuex.vuejs.org/guide/strict.html
   strict: process.env.NODE_ENV !== 'production',
   state: {
-    myFiles: 'http://127.0.0.1:8000/'
-    //myFiles: 'http://sicolog.ifreight.business/'
+    //myFiles: 'http://127.0.0.1:8000/'
+    myFiles: 'http://sicolog.ifreight.business/'
   },
 })
 

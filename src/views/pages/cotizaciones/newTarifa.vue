@@ -6,18 +6,6 @@ import Multiselect from "vue-multiselect";
 import axios from "axios";
 import Swal from "sweetalert2";
 import $ from 'jquery'
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import moment from 'moment';
-// register globally
-
-/**
- * Basic Tables component
- */
-//agregado 260621
-import ItemTemplateProSer from '@/components/ItemTemplateSearchProSer'
-import ItemTemplateUnidad from '@/components/ItemTemplateSearchUnidad'
-import templateAduana from '@/components/ItemTemplateAduana';
 
 
 export default {
@@ -57,15 +45,12 @@ export default {
       ],
 
       otions_radio_mercancia: [
-        {text: 'Carga General', value: 'Carga General'},
-        {text: 'Carga IMO', value: 'Carga IMO'},
-        {text: 'Carga Refrigerada', value: 'Carga Refrigerada'},
+        { text: 'General', value: 'Carga General' },
+        { text: 'IMO', value: 'Carga IMO' },
+        { text: 'Refrigerada', value: 'Carga Refrigerada' },
       ],
 
-      tipoTarifaVal: 'Servicio Interestatal',
-      tipo_merc: 'Carga General',
-
-      /* INICIA SECCION DE LTL */
+      /* INICIA SECCION DE FTL */
       origen: '',
       destino: '',
       factor_conversion: 350,
@@ -81,8 +66,13 @@ export default {
       listPorcentajes: [],
       listOD: [],
       listTipoZona: [],
+      listaRangoCargas: [],
 
-      /* TERMINA SECCION DE LTL */
+      tarifaMinima: 0,
+      tipoTarifaVal: 'Servicio Interestatal',
+      tipo_merc: 'Carga General',
+
+      /* TERMINA SECCION DE FTL */
       /* INICIA SECCION DE FTL */
 
       unidades: [],
@@ -91,14 +81,14 @@ export default {
       origenes_ftl: [],
       options_origen_ftl: [],
       datosOrigenesFTLOcupar: [],
-      
+
       destinos_ftl: [],
       options_destinos_ftl: [],
       datosDestinosFTLOcupar: [],
       /* TERMINA SECCION DE FTL */
 
       /* INICIA SECCION UNIDADES */
-        datosUnidaddesFtlOcupar: [],
+      datosUnidaddesFtlOcupar: [],
 
       /* TERMINA SECCION UNIDADES */
 
@@ -107,12 +97,14 @@ export default {
       rangos: [],
 
       dates_search_proser: [],
-      templateproser: ItemTemplateProSer,
-
       dates_search_unidad: [],
-      templateunidad: ItemTemplateUnidad,
 
       mostrarTarifario: false,
+
+      fields_table: [],
+      items_table: [],
+
+      datos_zona_select: [],
 
       idU: 0,
       emailU: '',
@@ -121,25 +113,24 @@ export default {
       tokenU: '',
       puestoU: '',
 
-      fields_table: [],
-      items_table: [],
-
+      idModulo: 38,
     };
   },
 
   created() {
-    /*this.getId();
-    this.getContry();*/
     this.dataSess();
     this.cargaUnidades();
     this.cargaEstados();
     this.obtenerPorcentajes();
+    this.getRangoCarga();
   },
 
   methods: {
-    dataSess(){
-      let data = JSON.parse(localStorage.getItem('users'))
+
+    dataSess() {
       
+      let data = JSON.parse(localStorage.getItem('users'))
+
       for (let i = 0; i < data.length; i++) {
         this.idU = data[i].id;
         this.emailU = data[i].email;
@@ -149,7 +140,22 @@ export default {
         this.puestoU = data[i].puesto;
       }
     },
-    
+
+    getRangoCarga() {
+      axios({
+        method: "get",
+        url: "/api/v1/get-rangos-cargas/",
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+        this.listaRangoCargas = response.data
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
     Save() {
 
       if (this.origen == '' || this.origen == null) {
@@ -181,7 +187,7 @@ export default {
         });
         return false;
       }
-      
+
       if (this.recoleccion_tres_y_media == 0 || this.recoleccion_tres_y_media <= 0 || this.recoleccion_tres_y_media == "") {
         Swal.fire({
           title: "El Costo de Recolección para la unidad 3 1/2 debe ser mayor a 0",
@@ -292,9 +298,8 @@ export default {
           password: "123",
         },
       }).then((response) => {
-        console.log(response.data)
 
-        if(response.data[0].insert){
+        if (response.data[0].insert) {
           Swal.fire({
             title: response.data[0].msg,
             text: "",
@@ -306,7 +311,7 @@ export default {
               window.location.href = "/new-tarifa";
             }
           })
-        }else{
+        } else {
           Swal.fire({
             title: response.data[0].msg,
             text: "",
@@ -314,64 +319,8 @@ export default {
             confirmButtonText: "Cerrar",
           });
         }
-        
+
       })
-
-    },
-
-    getId() {
-      axios({
-        method: "post",
-        url: `/api/v1/zonas-obtenerid/`,
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-        data: {
-          id: 1,
-        }
-      })
-        .then((response) => {
-          if (response.data.length > 0) {
-            this.id = response.data[0].idZona;
-          } else {
-            this.id = 0
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-    },
-
-    cargaLTLManual(){
-      this.getId();
-      this.getContry();
-      this.dataSess();
-    },
-    
-    getIdH() {
-      axios({
-        method: "post",
-        url: `/api/v1/zonas-obteneridhijos/`,
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-        data: {
-          id: 1,
-        }
-      })
-        .then((response) => {
-          if (response.data.length > 0) {
-            this.idH = response.data[0].idZonasHijo;
-          } else {
-            this.idH = 0
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
 
     },
 
@@ -496,12 +445,12 @@ export default {
     getCodigoPostal(idMun) {
 
       let comprobar = document.getElementById(idMun + "-mun").checked;
-      
+
       if (comprobar) {
         this.municipio.push(idMun)
-      }else{
+      } else {
         var idMu = this.municipio.indexOf(idMun);
-        if (idMu != -1){
+        if (idMu != -1) {
           this.municipio.splice(idMu, 1);
         }
       }
@@ -516,13 +465,13 @@ export default {
           },
         })
           .then((response) => {
-            
+
             this.cps = response.data;
           })
           .catch((error) => {
             console.log(error);
           });
-      }else{
+      } else {
         this.cps = []
       }
     },
@@ -530,39 +479,40 @@ export default {
     codigosSelecciona(cp) {
 
       let comprobar = document.getElementById(cp + "-cp").checked;
-      
+
       if (comprobar) {
         this.cp.push(cp)
-      }else{
+      } else {
         var idMu = this.cp.indexOf(cp);
-        if (idMu != -1){
+        if (idMu != -1) {
           this.cp.splice(idMu, 1);
         }
       }
     },
 
     /* METODOS FTL */
-    cargaEstados(){
+    cargaEstados() {
       axios({
         method: "get",
         url: "/api/v1/get-estados-geocercas/",
         data: {},
       }).then((response) => {
 
+
         let dt = response.data.datos
-        
+
         this.options_origen_ftl = dt;
         this.options_destinos_ftl = dt;
-        
+
       }).catch((error) => {
         console.log(error);
       });
     },
 
-    addUnidad (newTag) {
-      
+    addUnidad(newTag) {
+
       Swal.fire({
-        title: "La unidad: "+newTag+" no está dada de alta, verificalo porfavor.",
+        title: "La unidad: " + newTag + " no está dada de alta, verificalo porfavor.",
         text: "",
         icon: "error",
         confirmButtonText: "Cerrar",
@@ -575,10 +525,10 @@ export default {
       this.unidades.push(tag)*/
     },
 
-    addOrigenes (newTag) {
-      
+    addOrigenes(newTag) {
+
       Swal.fire({
-        title: "El origen: "+newTag+" no está dado de alta en las geocercas, verificalo porfavor.",
+        title: "El origen: " + newTag + " no está dado de alta en las geocercas, verificalo porfavor.",
         text: "",
         icon: "error",
         confirmButtonText: "Cerrar",
@@ -592,10 +542,10 @@ export default {
       this.origenes_ftl.push(tag)*/
     },
 
-    addDestinos (newTag) {
-      
+    addDestinos(newTag) {
+
       Swal.fire({
-        title: "El destino: "+newTag+" no está dado de alta en las geocercas, verificalo porfavor.",
+        title: "El destino: " + newTag + " no está dado de alta en las geocercas, verificalo porfavor.",
         text: "",
         icon: "error",
         confirmButtonText: "Cerrar",
@@ -608,20 +558,20 @@ export default {
       this.destinos_ftl.push(tag)*/
     },
 
-    cargaUnidades(){
+    cargaUnidades() {
 
       this.options_unit = [];
-      let tipo = 'g';
+      let tipo = 'LTL';
       axios({
         method: "post",
         url: "/api/v1/list-box/",
         data: {
-          data: tipo,
+          modalidad: tipo,
         },
       }).then((response) => {
         for (let i = 0; i < response.data.length; i++) {
-          const data = {name:response.data[i].name,"id":response.data[i].id}
-          
+          const data = { name: response.data[i].name, "id": response.data[i].id }
+
           this.options_unit.push(data);
         }
       }).catch((error) => {
@@ -630,32 +580,31 @@ export default {
 
     },
 
-    getDistacias(){
+    getDistacias() {
 
       let params = {
-                    "destinations": destino,
-                    "origins": origen,
-                    "units": "metric",
-                    "key": "AIzaSyADhOxfxQ9u-0_4FuHs8sVMHnyw0TnI11Y"
-                } 
-        
-        response = axios.get("https://maps.googleapis.com/maps/api/distancematrix/json", {params:params})
-        
-        let data = json.loads(response.text)
-        console.log(data);
+        "destinations": destino,
+        "origins": origen,
+        "units": "metric",
+        "key": "AIzaSyADhOxfxQ9u-0_4FuHs8sVMHnyw0TnI11Y"
+      }
+
+      response = axios.get("https://maps.googleapis.com/maps/api/distancematrix/json", { params: params })
+
+      let data = json.loads(response.text)
     },
 
-    async generarTarifaFTL(){
+    async generarTarifaFTL() {
       this.itemsTarifarioFTL = []
       this.datosOrigenesFTLOcupar = []
       this.datosDestinosFTLOcupar = []
       this.datosUnidaddesFtlOcupar = []
       this.rangos = []
       
+
       const auth = { username: "admin", password: "123", }
       let ids = ''
 
-      
       if (this.origenes_ftl.length == 0) {
         Swal.fire({
           title: "Debes seleccionar al menos un origen.",
@@ -665,8 +614,8 @@ export default {
         });
         return false;
       }
-      
-      if(this.destinos_ftl.length == 0){
+
+      if (this.destinos_ftl.length == 0) {
         Swal.fire({
           title: "Debes seleccionar al menos un destino.",
           text: "",
@@ -675,7 +624,7 @@ export default {
         });
         return false;
       }
-      
+
       if(this.unidades.length == 0){
         Swal.fire({
           title: "Debes seleccionar al menos una Unidad.",
@@ -687,7 +636,7 @@ export default {
       }
 
       for (let i = 0; i < this.origenes_ftl.length; i++) {
-        let org =  await axios({
+        let org = await axios({
           method: "get",
           url: "/api/v1/get-datos-geocercas-info/",
           params: {
@@ -695,7 +644,6 @@ export default {
           },
           auth: auth,
         }).then((response) => {
-          console.log(response.data, 'response')
           this.datosOrigenesFTLOcupar.push(response.data[0])
         }).catch((error) => {
           console.log(error);
@@ -703,7 +651,7 @@ export default {
       }
 
       for (let i = 0; i < this.destinos_ftl.length; i++) {
-        let dest =  await axios({
+        let dest = await axios({
           method: "get",
           url: "/api/v1/get-datos-geocercas-info/",
           params: {
@@ -718,9 +666,9 @@ export default {
       }
 
       for (let i = 0; i < this.unidades.length; i++) {
-        let unit =  await axios({
+        let unit = await axios({
           method: "get",
-          url: "/api/v1/catalogo-getUnidad/"+this.unidades[i].id+"/",
+          url: "/api/v1/catalogo-getUnidad/" + this.unidades[i].id + "/",
           params: {},
           auth: auth,
         }).then((response) => {
@@ -730,12 +678,12 @@ export default {
         });
       }
 
-      let rangos =  await axios({
+      let rangos = await axios({
         method: "get",
         url: "/api/v1/getRangos/",
         params: {},
         auth: auth,
-      }).then((response) => {          
+      }).then((response) => {
         this.rangos = response.data.data
       }).catch((error) => {
         console.log(error);
@@ -745,17 +693,15 @@ export default {
 
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
-          console.log(this.datosOrigenesFTLOcupar);
-                    
-          let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
+          let dato = { "pais_o": this.datosOrigenesFTLOcupar[o].pais, "estado_o": this.datosOrigenesFTLOcupar[o].estado, "ciudad_o": this.datosOrigenesFTLOcupar[o].ciudad, "colonia_o": this.datosOrigenesFTLOcupar[o].colonia, "cp_o": this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d": this.datosDestinosFTLOcupar[d].pais, "estado_d": this.datosDestinosFTLOcupar[d].estado, "ciudad_d": this.datosDestinosFTLOcupar[d].ciudad, "colonia_d": this.datosDestinosFTLOcupar[d].colonia, "cp_d": this.datosDestinosFTLOcupar[d].codigoPostal }
           this.listOD.push(dato)
         }
       }
-      
-      axios({
+
+      await axios({
         method: "post",
         url: "/api/v1/valida-tipo-zona/",
-        data: {data:this.listOD},
+        data: { data: this.listOD },
         auth: auth,
       }).then((response) => {
         this.listTipoZona = response.data
@@ -764,44 +710,8 @@ export default {
       });
 
       this.mostrarTarifario = true
+      await this.generaTabla();
 
-
-      /* SE INICIA EL RECORRIDO DE UNIDADES Y RANGOS */
-      
-      /*for (let o = 0; o < this.datosUnidaddesFtlOcupar.length; o++) {
-        let rangoTabla = '';
-        let maxR = 0;
-        let datos = {}
-        console.log(this.datosUnidaddesFtlOcupar[o].code_name);
-
-        for (let r = 0; r < this.rangos.length; r++) {
-          this.rangos[r].min
-          this.rangos[r].max
-          rangoTabla =  this.rangos[r].min + '-'+ this.rangos[r].max
-          maxR = parseFloat(this.rangos[r].max);
-          
-          
-          
-        }
-        datos = {nombre: this.datosUnidaddesFtlOcupar[o].code_name, costo_kilometro: this.datosUnidaddesFtlOcupar[o].precio_kilometraje, "1-30": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "31-60": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "61-90": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR), "91-120": (parseFloat(this.datosUnidaddesFtlOcupar[o].precio_kilometraje) * maxR),}
-        this.itemsTarifarioFTL.push(datos)
-        
-      }*/
-      //console.log(this.itemsTarifarioFTL)
-      /*this.itemsTarifarioFTL = [
-        { age: 40, first_name: 'Dickerson', last_name: 'Macdonald', idGeocerca: '234'},
-        { age: 21, first_name: 'Larsen', last_name: 'Shaw', idGeocerca: '235'},
-        { age: 89, first_name: 'Geneva', last_name: 'Wilson', idGeocerca: '236'},
-        { age: 38, first_name: 'Jami', last_name: 'Carney', idGeocerca: '237' }
-      ],*/
-      /*console.log(this.datosOrigenesFTLOcupar);
-      console.log(this.datosDestinosFTLOcupar);
-      console.log(this.datosUnidaddesFtlOcupar);*/
-      
-      /*console.log(this.origenes_ftl);
-      console.log(this.destinos_ftl);
-      console.log(this.unidades);*/
-      
 
     },
 
@@ -810,17 +720,17 @@ export default {
       let km = '';
 
       for (let i = 0; i < this.listTipoZona.length; i++) {
-        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
-        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
-        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
+        let origenValor = origen.pais + ', ' + origen.estado + ', ' + origen.ciudad + ', ' + origen.codigoPostal;
+        let destinoValor = destino.pais + ', ' + destino.estado + ', ' + destino.ciudad + ', ' + destino.codigoPostal;
+        if (this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor) {
           km = parseFloat(this.listTipoZona[i].km)
-          if(km > rango.min  && km < rango.max){
-            rango_text = 'de '+`${rango.min} km a ${km}`+' km (Carga General)';
+          if (km > rango.min && km < rango.max) {
+            rango_text = 'de ' + `${rango.min} km a ${km}` + ' km (Carga General)';
             return rango_text
-                
-          }else{
-            if(rango.max <= km ){
-              rango_text = 'de '+`${(rango.min)} km a ${rango.max}`+' km (Carga General)';
+
+          } else {
+            if (rango.max <= km) {
+              rango_text = 'de ' + `${(rango.min)} km a ${rango.max}` + ' km (Carga General)';
               return rango_text
             }
           }
@@ -829,9 +739,9 @@ export default {
       //return 'de '+`${rango.min} km a ${rango.max}`+' km (Carga General)';
     },
 
-    obtenerPorcentajes(){
+    obtenerPorcentajes() {
       const auth = { username: "admin", password: "123", }
-      
+
       axios({
         method: "get",
         url: "/api/v1/obtener-porcentajes/",
@@ -844,158 +754,53 @@ export default {
       });
     },
 
-    generarValorCelda(dato, rango, origen, destino) {
-
-        //$('#btn-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).empty();
-      
-      let max = parseFloat(rango.max);
-      let precio = parseFloat(dato.precio_kilometraje);
-      let resBase = 0;
-      let res = 0;
-      let resDes = 0;
-      let resInc = 0;
-      let tipoCarga = 'Carga General';
-
-      let porcentajeIncremento = 0
-      let porcentajeIncrementoZona = 0
-      let porcentajeDecremento = 0
-
-      for (let i = 0; i < this.listTipoZona.length; i++) {
-        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
-        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
-        let destinoRuta = origen.estado+' - '+destino.estado
-        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
-          let tipozona = 'Zona '+this.listTipoZona[i].tipoZona
-          let km = parseFloat(this.listTipoZona[i].km)
-          
-          for (let i = 0; i < this.listPorcentajes.length; i++) {
-            if(this.listPorcentajes[i].mercancia == tipozona && this.listPorcentajes[i].tipo == 'i'){
-              porcentajeIncrementoZona = porcentajeIncrementoZona + parseFloat(this.listPorcentajes[i].porcentaje)
-            }
-            
-            if(this.listPorcentajes[i].mercancia == tipoCarga && this.listPorcentajes[i].tipo == 'i'){
-              porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-            }
-
-            if(this.listPorcentajes[i].mercancia == destinoRuta  && this.listPorcentajes[i].tipo == 'd'){
-              porcentajeDecremento = porcentajeDecremento + parseFloat(this.listPorcentajes[i].porcentaje)
-              
-            }
-          }
-
-          if( km >= rango.min && km <= rango.max) {
-            res = precio * km
-            console.log(res, 'Precio Maxima')
-          }else{
-            res = precio * max
-            console.log(res, 'Precio Normal')
-          }
-
-          if(porcentajeIncrementoZona > 0){
-            //res = precio * max;
-            resInc = (res * porcentajeIncrementoZona) / 100;
-
-            res = res + resInc;
-            console.log(res, 'Precio Incremento', resInc, 'Incremento Zona', porcentajeIncrementoZona, 'Porcentaje Acumulado')
-          }else{
-            console.log(res, 'Precio Normal')
-          }
-          resBase = res
-          if(max > 30){
-            resDes = (resBase * porcentajeIncremento) / 100;
-            console.log(resDes, 'Incremento')
-            res = resBase + resDes;
-            console.log(res, 'Precio con Incremento')
-
-            resDes = (resBase * porcentajeDecremento) / 100;
-            console.log(resDes, 'Descuento')
-            res = res - resDes;
-            console.log(res, 'Precio con Descuento')
-          }
-
-          console.log('-----------------------------------------------------------')
-          return(res)
-        }
-        
-      }
-
-      /*let tipozona = '';
-      const datoTipoZona = this.obtenerTipoZona(origen, destino);
-      console.log(datoTipoZona, 'datoTipoZona')
-
-      for (let i = 0; i < this.listPorcentajes.length; i++) {
-        if(this.listPorcentajes[i].mercancia == tipozona){
-          porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-        }
-      }
-
-      if(porcentajeIncremento > 0){
-        res = precio * max;
-        resInc = (res * porcentajeIncremento) / 100;
-        res = res + resInc;
-      }else{
-        res = precio * max;
-      }*/
-      
-      
-
-      //$('#btn-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).empty().append('$'+this.formatMoney(res));
-      
-      // Lógica para generar el valor de la celda para cada rango y dato
-    },
-
     formatMoney(value) {
       let val = (value / 1).toFixed(2).replace(",", ".");
       return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
 
-    async getInfoCollapse(dato, rango, origen, destino, base){
+    async getInfoCollapse(dato, rango, origen, destino, base) {
 
-      let result = ($('#collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).css('display') == 'block')? true : false; //SE VALIDA QUE EL DIV TENGA EL ESTILO
+      let result = ($('#collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).css('display') == 'block') ? true : false; //SE VALIDA QUE EL DIV TENGA EL ESTILO
 
       if (!result) {
         //SI EL DIV NO TIENE EL ESTILO
 
-        /*console.log(dato);
-        console.log(rango);
-        console.log(origen);
-        console.log(destino);*/
         let porcentajeIncremento = 0
         let porcentajeDecremento = 0
-        //let tamplate = '<span class="badge badge-secondary">New</span>'
         let template = ''
 
         for (let i = 0; i < this.listPorcentajes.length; i++) {
-          if(this.listPorcentajes[i].mercancia == 'IMO'){
+          if (this.listPorcentajes[i].mercancia == 'IMO') {
             porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-            if(porcentajeIncremento > 0){
+            if (porcentajeIncremento > 0) {
               let resDes = (base * porcentajeIncremento) / 100;
               let res = base + resDes;
-              template = template +'<h4><span class="badge badge-secondary">Precio por carga IMO: $'+this.formatMoney(res)+'</span></h4>';
-            }else{
-              template = template +'<h4><span class="badge badge-secondary">Precio por carga IMO: $'+this.formatMoney(base)+'</span></h4>';
+              template = template + '<h4><span class="badge badge-secondary">Precio por carga IMO: $' + this.formatMoney(res) + '</span></h4>';
+            } else {
+              template = template + '<h4><span class="badge badge-secondary">Precio por carga IMO: $' + this.formatMoney(base) + '</span></h4>';
             }
             porcentajeIncremento = 0
           }
-          if(this.listPorcentajes[i].mercancia == 'Refrigerada'){
+          if (this.listPorcentajes[i].mercancia == 'Refrigerada') {
             porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-            if(porcentajeIncremento > 0){
+            if (porcentajeIncremento > 0) {
               let resDes = (base * porcentajeIncremento) / 100;
               let res = base + resDes;
-              template = template +'<h4><span class="badge badge-secondary">Precio por carga Refrigerada: $'+this.formatMoney(res)+'</span></h4>';
-            }else{
-              template = template +'<h4><span class="badge badge-secondary">Precio por carga Refrigerada: $'+this.formatMoney(base)+'</span></h4>';
+              template = template + '<h4><span class="badge badge-secondary">Precio por carga Refrigerada: $' + this.formatMoney(res) + '</span></h4>';
+            } else {
+              template = template + '<h4><span class="badge badge-secondary">Precio por carga Refrigerada: $' + this.formatMoney(base) + '</span></h4>';
             }
             porcentajeIncremento = 0
           }
-          if(this.listPorcentajes[i].mercancia == '2 Operadores'){
+          if (this.listPorcentajes[i].mercancia == '2 Operadores') {
             porcentajeIncremento = porcentajeIncremento + parseFloat(this.listPorcentajes[i].porcentaje)
-            if(porcentajeIncremento > 0){
+            if (porcentajeIncremento > 0) {
               let resDes = (base * porcentajeIncremento) / 100;
               let res = base + resDes;
-              template = template +'<h4><span class="badge badge-secondary">Precio por 2 Operadores: $'+this.formatMoney(res)+'</span></h4>';
-            }else{
-              template = template +'<h4><span class="badge badge-secondary">Precio por 2 Operadores: $'+this.formatMoney(base)+'</span></h4>';
+              template = template + '<h4><span class="badge badge-secondary">Precio por 2 Operadores: $' + this.formatMoney(res) + '</span></h4>';
+            } else {
+              template = template + '<h4><span class="badge badge-secondary">Precio por 2 Operadores: $' + this.formatMoney(base) + '</span></h4>';
             }
             porcentajeIncremento = 0
           }
@@ -1004,156 +809,113 @@ export default {
         $('#content-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).empty().html(template);
         $('#collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).show(500);
       } else {
-          //SI EL DIV TIENE EL ESTILO
-          
-          $('#collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).hide(500);
+
+        $('#collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max).hide(500);
       }
-      
-      
-
-      
-      
 
     },
 
-    generarPDF() {
-
-      axios({
-        method: "post",
-        url: "/api/v1/pdfTarifarioLtl/",
-        data: {
-          origen: this.datosOrigenesFTLOcupar,
-          destino: this.datosDestinosFTLOcupar,
-          listaOD: this.listOD,
-          unidades: this.datosUnidaddesFtlOcupar,
-          rangos: this.rangos,
-          tipoZona: this.listTipoZona,
-          porcentajes: this.listPorcentajes,
-        },
-        responseType: 'arraybuffer',
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-      }).then((response) => {
-        // Crear una URL del blob del PDF
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const pdfUrl = URL.createObjectURL(blob);
-        
-        // Abrir el PDF en una nueva pestaña del navegador
-        window.open(pdfUrl, '_blank');
-      }).catch((error) => {
-                   
-      }); 
-
-      /*const tabla = document.getElementById('tarifario');
-
-      
-      html2canvas(tabla).then(canvas => {
-        
-        const pdf = new jsPDF('landscape', 'mm', 'a4');
-
-        
-        const imgWidth = 297;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-
-        
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
-
-        
-        pdf.save('tarifario.pdf');
-        
-      });*/
-    },
-
-    get_km(origen, destino){
-
+    get_km(origen, destino) {
       let km = 0;
-
+      let tipozona = ''
+      let tipozonatext = ''
+      let tipozonaclass = ''
       for (let i = 0; i < this.listTipoZona.length; i++) {
-        let origenValor = origen.pais+', '+origen.estado+', '+origen.ciudad+', '+origen.codigoPostal;
-        let destinoValor = destino.pais+', '+destino.estado+', '+destino.ciudad+', '+destino.codigoPostal;
-        if(this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor){
-          let tipozona = this.listTipoZona[i].tipoZona
-          return km = parseFloat(this.listTipoZona[i].km)
+        let origenValor = origen.pais + ', ' + origen.estado + ', ' + origen.ciudad;
+        let destinoValor = destino.pais + ', ' + destino.estado + ', ' + destino.ciudad;
+        if (this.listTipoZona[i].origen == origenValor && this.listTipoZona[i].destino == destinoValor) {
+          tipozona = this.listTipoZona[i].tipoZona
+          km = parseFloat(this.listTipoZona[i].km)
+          tipozonaclass = this.listTipoZona[i].tipoZonaClass
+          tipozonatext = this.listTipoZona[i].tipoZonaText
+
+          let datos = { "tipoZona": tipozona, "tipoZonaText": tipozonatext, "tipoZonaClass": tipozonaclass, "km": km }
+          return (datos)
         }
       }
     },
 
-    async generaTabla(){
+    obtenerPorcentajes() {
+      const auth = { username: "admin", password: "123", }
+
+      axios({
+        method: "get",
+        url: "/api/v1/obtener-porcentajes/",
+        data: {},
+        auth: auth,
+      }).then((response) => {
+        this.listPorcentajes = response.data.data
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    async generaTabla() {
       this.fields_table = []
       this.items_table = []
       let data = {}
+      let text_val = ''
+      let factor = 350
+      let km = 0
+      let tipoZona = ''
+      let tipoZonaText = ''
+      let tipoZonaClass = ''
 
-      //data = {key: 'check-dinamic', label: 'Selecciona'}
-      //this.fields_table.push(data)
-      data = {key: 'origen', label: 'Origen'}
+      data = { key: 'origen', label: 'Origen' }
       this.fields_table.push(data)
-      data = {key: 'km', label: 'Kilometros'}
-      //this.fields_table.push(data)
-      //data = {key: 'dias', label: 'dias_transito'}
+      data = { key: 'km', label: 'Kilometros' }
       this.fields_table.push(data)
-      data = {key: 'destino', label: 'Destino'}
+      data = { key: 'destino', label: 'Destino' }
       this.fields_table.push(data)
-      /*data = {key: 'factor', label: 'Factor: 1m3 = 350kg y/o 350kg = 1m3'}
-      this.fields_table.push(data)*/
 
-      //data = {key: 'tarifa_min', label: 'Tarifa minima 1m3'}
-      //this.fields_table.push(data)
-
-      for (let un = 0; un < this.unidades.length; un++) {
-        
-        let datokey = 'key-' + this.unidades[un].name
-        let datoLabel = this.unidades[un].name
-        data = {key: datokey, label: datoLabel}
+      for (let un = 0; un < this.datosUnidaddesFtlOcupar.length; un++) {
+        let datokey = 'key-' + this.datosUnidaddesFtlOcupar[un].id
+        let datoLabel = this.datosUnidaddesFtlOcupar[un].description
+        data = { key: datokey, label: datoLabel }
         this.fields_table.push(data)
       }
 
-      /* GENERA VALORES DE CELDAS */
-
-      for (let org = 0; org < this.origenes_ftl.length; org++) {
-        for (let des = 0; des < this.destinos_ftl.length; des++) {
-          let datos = this.get_km(this.origenes_ftl[org], this.destinos_ftl[des]);
+      for (let org = 0; org < this.datosOrigenesFTLOcupar.length; org++) {
+        for (let des = 0; des < this.datosDestinosFTLOcupar.length; des++) {
+          let datos = this.get_km(this.datosOrigenesFTLOcupar[org], this.datosDestinosFTLOcupar[des]);
           km = datos.km
           tipoZona = datos.tipoZona
           tipoZonaText = datos.tipoZonaText
           tipoZonaClass = datos.tipoZonaClass
 
-          for (let rang = 0; rang < this.unidades.length; rang++) {
-            console.log(this.unidades[rang]);
-            text_val += ', "'+'key-' + this.unidades[rang].name+'": "'+this.generarValorCelda(this.unidades[rang].precio_kilometraje,tipoZonaText)+'"'
-            
+          for (let rang = 0; rang < this.datosUnidaddesFtlOcupar.length; rang++) {
+            text_val += ', "' + 'key-' + this.datosUnidaddesFtlOcupar[rang].id + '": "' + this.generarValorCelda(km,this.datosUnidaddesFtlOcupar[rang].precio_kilometraje, tipoZonaText) + '"'
+
           }
 
           let text = ''
           let origen = ''
           let destino = ''
 
-          if (this.datosOrigenesFTLOcupar[org].nombre_corto != ''){
+          if (this.datosOrigenesFTLOcupar[org].nombre_corto != '') {
             origen = this.datosOrigenesFTLOcupar[org].nombre_corto
-          }else{
-            origen = this.datosOrigenesFTLOcupar[org].estado+' - '+this.datosOrigenesFTLOcupar[org].ciudad
+          } else {
+            origen = this.datosOrigenesFTLOcupar[org].estado + ' - ' + this.datosOrigenesFTLOcupar[org].ciudad
           }
 
-          if(this.datosDestinosFTLOcupar[des].nombre_corto != ''){
+          if (this.datosDestinosFTLOcupar[des].nombre_corto != '') {
             destino = this.datosDestinosFTLOcupar[des].nombre_corto
-          }else{
-            destino = this.datosDestinosFTLOcupar[des].estado+' - '+this.datosDestinosFTLOcupar[des].ciudad
-          }          
-          
-          text = '{"origen": "' + origen + '", "km":"'+km+' km <br/> <span class=\\"badge badge-'+tipoZonaClass+'\\">'+tipoZonaText+'</span>", "destino": "' + destino + '", "factor": "'+factor+'"'+ text_val +'}';
+          } else {
+            destino = this.datosDestinosFTLOcupar[des].estado + ' - ' + this.datosDestinosFTLOcupar[des].ciudad
+          }
+
+          text = '{"origen": "' + origen + '", "km":"' + km + ' km <br/> <span class=\\"badge badge-' + tipoZonaClass + '\\">' + tipoZonaText + '</span>", "destino": "' + destino + '", "factor": "' + factor + '"' + text_val + '}';
           this.items_table.push(JSON.parse(text))
         }
       }
 
     },
 
-    generarValorCelda(tar, zona){
+    generarValorCelda(km_r, tar, zona) {
 
-      console.log(porc, tar, zona);
       let total = 0
       let des = 0
-      let por = parseFloat(porc)
+      let km = parseFloat(km_r)
       let ta = parseFloat(tar)
       let tipoTarifa = 0
       let tarifaNu = 0
@@ -1166,26 +928,25 @@ export default {
       let tarifaZ = 0
 
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
-        if(this.listPorcentajes[porc].mercancia == this.tipoTarifaVal){
+        if (this.listPorcentajes[porc].mercancia == this.tipoTarifaVal) {
           tipoTarifa = parseFloat(this.listPorcentajes[porc].porcentaje)
         }
       }
 
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
-        if(this.listPorcentajes[porc].mercancia == this.tipo_merc && this.listPorcentajes[porc].tipo == 'i'){
+        if (this.listPorcentajes[porc].mercancia == this.tipo_merc && this.listPorcentajes[porc].tipo == 'i') {
           tipoMercancia = parseFloat(this.listPorcentajes[porc].porcentaje)
         }
       }
 
       for (let porc = 0; porc < this.listPorcentajes.length; porc++) {
-        if(this.listPorcentajes[porc].mercancia == zona && this.listPorcentajes[porc].tipo == 'i'){
+        if (this.listPorcentajes[porc].mercancia == zona && this.listPorcentajes[porc].tipo == 'i') {
           tipoZona = parseFloat(this.listPorcentajes[porc].porcentaje)
         }
       }
 
-      if(por > 0){
-        des = ta * (por / 100)
-        ta = ta - des
+      if (km > 0) {
+        ta = ta * km
       }
 
       if (tipoMercancia > 0) {
@@ -1196,16 +957,82 @@ export default {
         tarifaZona = ta * (tipoZona / 100)
       }
 
-      if(tipoTarifa > 0){
-        tarifaNu = ta * (tipoTarifa / 100) 
+      if (tipoTarifa > 0) {
+        tarifaNu = ta * (tipoTarifa / 100)
 
       }
-      console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
+      //console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
 
       total = this.formatMoney(ta + tarifaNuMer + tarifaZona + tarifaNu)
-      return(total)
+      return (total)
     },
-    
+
+    validaTarifa() {
+      if (this.unidades.length == 0) {
+        Swal.fire({
+          title: 'Selecciona almenos una unidad de la lista.',
+          text: '',
+          icon: 'error',
+          confirmButtonText: 'Cerrar',
+        })
+        return false;
+      } else {
+        this.generarTarifaFTL();
+      }
+    },
+
+    getInfoDataBase() {
+      const auth = { username: "admin", password: "123", }
+
+      axios({
+        method: "get",
+        url: "/api/v1/obtener-datos-tabla-zonas-select/",
+        data: {},
+        auth: auth,
+      }).then((response) => {
+        this.datos_zona_select = response.data.info
+      }).catch((error) => {
+        console.log(error);
+      });
+    },
+
+    importaInfo(val) {
+      axios({
+        method: "post",
+        url: `/api/v1/procesa-datos-zona-geocercas/`,
+        data: {
+          tz: val
+        },
+        auth: {
+          username: "admin",
+          password: "123",
+        },
+      }).then((response) => {
+
+        /*if(response.data[0].insert){
+          Swal.fire({
+            title: response.data[0].msg,
+            text: "",
+            icon: "success",
+            allowOutsideClick: false,
+            confirmButtonText: "Cerrar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              
+            }
+          })
+        }else{
+          Swal.fire({
+            title: response.data[0].msg,
+            text: "",
+            icon: "error",
+            confirmButtonText: "Cerrar",
+          });
+        }*/
+
+      });
+    },
+
     /* FIN METODOS FTL */
 
   }, // Fin Methods
@@ -1227,79 +1054,66 @@ export default {
               </b-col>
               <b-col md="4" sm="12"></b-col>
               <b-col md="4" sm="12">
-                <div class="text-center">
-                  <b-button id="boton" class="sm secondary" href="../../cotizaciones/listTarifarios"><i class="fas fa-arrow-left"></i> Regresar</b-button>
-                </div>
               </b-col>
             </b-row>
             <br>
             <div>
               <b-tabs content-class="mt-2" nav-class="nav-tabs nav-bordered">
                 <b-tab title="FTL Automático">
-                  <b-row>
-                    <b-col md="6" sm="12">
-                      <label>Selecciona Origen/es</label>
-                      <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen" placeholder="Selecciona un origen" label="name" track-by="idGeocerca" :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addOrigenes"></multiselect>
-                    </b-col>
-                    <b-col md="6" sm="12">
-                      <label>Selecciona Destino/s</label>
-                      <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino" placeholder="Selecciona un destino" label="name" track-by="idGeocerca" :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false" @tag="addDestinos"></multiselect>
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col md="4" sm="12">
-                      <label>Selecciona Unidad/es</label>
-                      <multiselect v-model="unidades" tag-placeholder="Selecciona una o mas unidades" placeholder="Selecciona una o mas unidades" label="name" track-by="id" :options="options_unit" :multiple="true" :taggable="true" :close-on-select="false" @tag="addUnidad" @input="generaTabla">
-                        
-                      </multiselect>
-                      
-                    </b-col>
-                    <b-col md="4">
+                  <b-container fluid>
+                    <b-row>
+                      <b-col md="6">
+                        <label>Selecciona Origen/es</label>
+                        <multiselect v-model="origenes_ftl" tag-placeholder="Selecciona un origen"
+                          placeholder="Selecciona un origen" label="name" track-by="idGeocerca"
+                          :options="options_origen_ftl" :multiple="true" :taggable="true" :close-on-select="false"
+                          @tag="addOrigenes"></multiselect>
+                      </b-col>
+                      <b-col md="6">
+                        <label>Selecciona Destino/s</label>
+                        <multiselect v-model="destinos_ftl" tag-placeholder="Selecciona un destino"
+                          placeholder="Selecciona un destino" label="name" track-by="idGeocerca"
+                          :options="options_destinos_ftl" :multiple="true" :taggable="true" :close-on-select="false"
+                          @tag="addDestinos"></multiselect>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col md="4">
+                        <!--b-form-input type="text" v-model="tarifaMinima" @change="validaTarifa"></b-form-input-->
+                        <label>Selecciona Unidad/es</label>
+                        <multiselect v-model="unidades" tag-placeholder="Selecciona una o mas unidades" placeholder="Selecciona una o mas unidades" label="name" track-by="id" :options="options_unit" :multiple="true" :taggable="true" :close-on-select="false" @tag="addUnidad" @input="validaTarifa">
+                        </multiselect>
+                      </b-col>
+                      <b-col md="4">
                         <label><b>Tipo de Tarifa</b></label>
                         <b-form-group>
-                          <b-form-radio-group
-                            id="btn-radios-tipo_tarifa"
-                            v-model="tipoTarifaVal"
-                            :options="options_radio"
-                            button-variant="outline-primary"
-                            size="md"
-                            name="radio-btn-outline"
-                            buttons
-                            @change="generaTabla"
-                          ></b-form-radio-group>
+                          <b-form-radio-group id="btn-radios-tipo_tarifa" v-model="tipoTarifaVal"
+                            :options="options_radio" button-variant="outline-primary" size="md" name="radio-btn-outline"
+                            buttons @input="validaTarifa"></b-form-radio-group>
                         </b-form-group>
                       </b-col>
                       <b-col md="4">
                         <label><b>Tipo de Mercancia</b></label>
                         <b-form-group>
-                          <b-form-radio-group
-                            id="btn-radios-mercancias"
-                            v-model="tipo_merc"
-                            :options="otions_radio_mercancia"
-                            button-variant="outline-primary"
-                            size="md"
-                            name="radio-btn-outline"
-                            buttons
-                            @change="generaTabla"
-                          ></b-form-radio-group>
+                          <b-form-radio-group id="btn-radios-mercancias" v-model="tipo_merc"
+                            :options="otions_radio_mercancia" button-variant="outline-primary" size="md"
+                            name="radio-btn-outline" buttons @input="validaTarifa"></b-form-radio-group>
                         </b-form-group>
                       </b-col>
-                    <!--b-col md="3" sm="12">
-                      <div class="text-center">
-                        <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="generarTarifaFTL()"><b><i class="fas fa-file-alt"></i> Generar Tarifario</b></b-button>
-                      </div>
-                    </b-col-->
-                  </b-row>
+                    </b-row>
+                  </b-container>
+                  <hr>
                   <b-row>
                     <b-col md="12">
                       <br>
                       <template>
-                        <div >
-                          <b-table striped hover :items="items_table" :fields="fields_table" select-mode="multi" responsive ref="selectableTable"  thead-class="bg-primary text-white">
+                        <div>
+                          <b-table striped hover :items="items_table" :fields="fields_table" select-mode="multi"
+                            responsive ref="selectableTable" thead-class="bg-primary text-white">
                             <template #cell(km)="data">
                               <span v-html="data.item.km"></span>
                             </template>
-                                             
+
                           </b-table>
                           <b-col md="9" sm="12">&nbsp;</b-col>
                           <b-col md="3" sm="12">
@@ -1307,59 +1121,31 @@ export default {
                         </div>
                       </template>
                     </b-col>
-                    <b-col md="12">
-                      <br>
-                      <template>
-                        <div v-if="mostrarTarifario">
-                          <template v-for="(origen, origenIndex) in datosOrigenesFTLOcupar" >
-                            <template v-for="(destino, destinoIndex) in datosDestinosFTLOcupar" >
-                            <div class="table-responsive">
-                              <table class="table table-hover" id="tarifario">
-                                <thead class="text-white" style="background-color: #2aab5c">
-                                  <tr>
-                                    <td style="text-align: center;"><b>Origen</b></td>
-                                    <td style="text-align: center;"><b>Destino</b></td>
-                                    <td style="text-align: center;"><b>Unidad</b></td>
-                                    <td style="text-align: center;"><b>Costo Kilometraje</b></td>
-                                    <td v-for="(rango, index) in rangos" v-if="get_km(origen,destino) > rango.min" :key="'rango_titulo' + index"><b>{{ generarTituloColumna(rango, origen, destino) }}</b></td>
-                                  </tr>
-                                </thead>
-                                <tbody style="border: 1px solid #edeff1; border-collapse: collapse;">
-                                  
-                                    <span :key="'origen'+origenIndex"></span>
-                                      <span :key="'destino'+destinoIndex"></span>
-                                      <tr v-for="(dato, dataIndex) in datosUnidaddesFtlOcupar" :key="'tr_' + origenIndex + '_' + destinoIndex + '_' + dataIndex">
-                                        <td style="text-align: center;"><b>{{ origen.estado }} - {{ origen.ciudad }} </b><br> <span class="badge badge-soft-success" v-if="origen.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="origen.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="origen.estatus_geocerca === 3">Peligrosa</span></td>
-                                        <td style="text-align: center;"><b>{{ destino.estado }} - {{ destino.ciudad }} </b><br> <span class="badge badge-soft-success" v-if="destino.estatus_geocerca === 1">Comercial</span> <span class="badge badge-soft-warning" v-if="destino.estatus_geocerca === 2">No Comercial</span> <span class="badge badge-soft-danger" v-if="destino.estatus_geocerca === 3">Peligrosa</span></td>
-                                        <td style="text-align: center;"><b>{{ dato.name }} </b></td>
-                                        <td style="text-align: center;"><b>${{ formatMoney(dato.precio_kilometraje) }}</b></td>
-                                        <td v-for="(rango, rangoIndex) in rangos" v-if="get_km(origen,destino) > rango.min" :key="'rango_' + rangoIndex" style="text-align:center;">
-                                          <button class="btn btn-primary" type="button" @click="getInfoCollapse(dato, rango, origen, destino, generarValorCelda(dato, rango, origen, destino))">${{ formatMoney(generarValorCelda(dato, rango, origen, destino)) }}</button>
-                                          <div >
-                                            <div class="collapse collapse-horizontal" v-bind:id="'collapse-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max">
-                                              <div class="card card-body" style="width: 300px;" v-bind:id="'content-' + origen.idGeocerca + destino.idGeocerca + dato.id + rango.max">
-                                                
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </td>
-                                      </tr>
-                                    
-                                </tbody>
-                              </table>
-                            </div>
-                            </template>
-                          </template>
-                          <b-col md="9" sm="12">&nbsp;</b-col>
-                          <b-col md="3" sm="12">
-                            <div class="text-center">
-                              <b-button class="width-md ml-1" style="background-color: #2aab5c;" @click="generarPDF()"><b><i class="fas fa-file"></i> Generar PDF</b></b-button>
-                            </div>
-                          </b-col>
-                        </div>
-                      </template>
-                    </b-col>
                   </b-row>
+                </b-tab>
+                <b-tab v-if="this.username == 'admin'" title="Info Admin" @click="getInfoDataBase()">
+                  <b-container fluid>
+                    <b-row>
+                      <b-col md="12">
+                        <pre> {{ this.datos_zona_select }} </pre>
+                      </b-col>
+                    </b-row>
+                  </b-container>
+
+                </b-tab>
+                <b-tab v-if="this.username == 'admin'" title="Importa Datos Select Zona - Geocercas">
+                  <b-container fluid>
+                    <b-row>
+                      <b-col md="12">
+                        <b-button-group>
+                          <b-button variant="primary" @click="importaInfo(1)">Comercial</b-button>
+                          <b-button variant="primary" @click="importaInfo(2)">No Comercial</b-button>
+                          <b-button variant="primary" @click="importaInfo(3)">Peligrosa</b-button>
+                        </b-button-group>
+                      </b-col>
+                    </b-row>
+                  </b-container>
+
                 </b-tab>
               </b-tabs>
             </div>

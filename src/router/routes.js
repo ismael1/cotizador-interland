@@ -1466,7 +1466,7 @@ export default [
         component: () => import('../views/pages/cotizaciones/newTarifaLTL')
     },
     {
-        path: '/new-tarifa',
+        path: '/cotizaciones/new-tarifa',
         name: 'newTarifa',
         meta: {
             authRequired: true,

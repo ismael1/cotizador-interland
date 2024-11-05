@@ -624,7 +624,7 @@ export default {
           <div class="card-body">
             <div class="row">
                 <div class="col-lg-12">
-                  <router-link v-if="permisos_agregar == 1" to="/new-cotizacion" class="button btn-dark btn-sm" style="float: left">Nueva Cotización</router-link>
+                  <router-link v-if="permisos_agregar == 1" to="/cotizacion" class="button btn-primary btn-sm" style="float: left">Nueva Cotización</router-link>
                 </div>
               </div>
             <b-tabs nav-class="nav-tabs nav-bordered">

@@ -6,19 +6,6 @@ import Multiselect from "vue-multiselect";
 import axios from "axios";
 import Swal from "sweetalert2";
 import $ from 'jquery'
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import moment from 'moment';
-// register globally
-
-/**
- * Basic Tables component
- */
-//agregado 260621
-import ItemTemplateProSer from '@/components/ItemTemplateSearchProSer'
-import ItemTemplateUnidad from '@/components/ItemTemplateSearchUnidad'
-import templateAduana from '@/components/ItemTemplateAduana';
-import countTo from 'vue-count-to';
 
 
 export default {
@@ -58,9 +45,9 @@ export default {
       ],
 
       otions_radio_mercancia: [
-        {text: 'Carga General', value: 'Carga General'},
-        {text: 'Carga IMO', value: 'Carga IMO'},
-        {text: 'Carga Refrigerada', value: 'Carga Refrigerada'},
+        {text: 'General', value: 'Carga General'},
+        {text: 'IMO', value: 'Carga IMO'},
+        {text: 'Refrigerada', value: 'Carga Refrigerada'},
       ],
 
       /* INICIA SECCION DE LTL */
@@ -110,10 +97,7 @@ export default {
       rangos: [],
 
       dates_search_proser: [],
-      templateproser: ItemTemplateProSer,
-
       dates_search_unidad: [],
-      templateunidad: ItemTemplateUnidad,
 
       mostrarTarifario: false,
 
@@ -312,7 +296,6 @@ export default {
           password: "123",
         },
       }).then((response) => {
-        console.log(response.data)
 
         if(response.data[0].insert){
           Swal.fire({
@@ -336,56 +319,6 @@ export default {
         }
         
       })
-
-    },
-
-    getId() {
-      axios({
-        method: "post",
-        url: `/api/v1/zonas-obtenerid/`,
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-        data: {
-          id: 1,
-        }
-      })
-        .then((response) => {
-          if (response.data.length > 0) {
-            this.id = response.data[0].idZona;
-          } else {
-            this.id = 0
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-    },
-    
-    getIdH() {
-      axios({
-        method: "post",
-        url: `/api/v1/zonas-obteneridhijos/`,
-        auth: {
-          username: "admin",
-          password: "123",
-        },
-        data: {
-          id: 1,
-        }
-      })
-        .then((response) => {
-          if (response.data.length > 0) {
-            this.idH = response.data[0].idZonasHijo;
-          } else {
-            this.idH = 0
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
 
     },
 
@@ -657,7 +590,6 @@ export default {
         response = axios.get("https://maps.googleapis.com/maps/api/distancematrix/json", {params:params})
         
         let data = json.loads(response.text)
-        console.log(data);
     },
 
     async generarTarifaLTL(){
@@ -769,7 +701,6 @@ export default {
 
       for (let o = 0; o < this.datosOrigenesFTLOcupar.length; o++) {
         for (let d = 0; d < this.datosDestinosFTLOcupar.length; d++) {
-          console.log(this.datosOrigenesFTLOcupar[o]);
           let dato = {"pais_o":this.datosOrigenesFTLOcupar[o].pais,"estado_o":this.datosOrigenesFTLOcupar[o].estado,"ciudad_o":this.datosOrigenesFTLOcupar[o].ciudad, "colonia_o":this.datosOrigenesFTLOcupar[o].colonia, "cp_o":this.datosOrigenesFTLOcupar[o].codigoPostal, "pais_d":this.datosDestinosFTLOcupar[d].pais,"estado_d":this.datosDestinosFTLOcupar[d].estado,"ciudad_d":this.datosDestinosFTLOcupar[d].ciudad, "colonia_d":this.datosDestinosFTLOcupar[d].colonia, "cp_d":this.datosDestinosFTLOcupar[d].codigoPostal}
           this.listOD.push(dato)
         }
@@ -962,21 +893,6 @@ export default {
       }
     },
 
-    obtenerPorcentajes(){
-      const auth = { username: "admin", password: "123", }
-            
-      axios({
-        method: "get",
-        url: "/api/v1/obtener-porcentajes/",
-        data: {},
-        auth: auth,
-      }).then((response) => {
-        this.listPorcentajes = response.data.data
-      }).catch((error) => {
-        console.log(error);
-      });
-    },
-
     async generaTabla(){
       this.fields_table = []
       this.items_table = []
@@ -1051,7 +967,6 @@ export default {
 
     generarValorCelda(porc, tar, zona){
 
-      console.log(porc, tar, zona);
       let total = 0
       let des = 0
       let por = parseFloat(porc)
@@ -1102,7 +1017,7 @@ export default {
         tarifaNu = ta * (tipoTarifa / 100) 
 
       }
-      console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
+      //console.log(ta, 'tar', des, 'des', tarifaNuMer, 'tarifaNuMer', tarifaZona, 'tarifaZona', tarifaNu, 'tarifaNu');
       
       total = this.formatMoney(ta + tarifaNuMer + tarifaZona + tarifaNu)
       return(total)
@@ -1146,7 +1061,6 @@ export default {
           password: "123",
         },
       }).then((response) => {
-        console.log(response.data)
 
         /*if(response.data[0].insert){
           Swal.fire({
